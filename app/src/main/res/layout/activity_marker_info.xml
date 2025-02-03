@@ -18,6 +18,16 @@
         android:text="Description"
         android:layout_marginTop="8dp" />
 
+    <ListView
+        android:id="@+id/list_attendees"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp"/>
+
+
+
     <Button
         android:id="@+id/btn_assign"
         android:layout_width="match_parent"
