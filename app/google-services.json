@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "619168565709",
+    "project_id": "sociomap-606f7",
+    "storage_bucket": "sociomap-606f7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:619168565709:android:74ef95361188219be89c84",
+        "android_client_info": {
+          "package_name": "com.example.sociomap2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDHSmduAhZ6jvzDI57z3c3r8UUKvmJXqV0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

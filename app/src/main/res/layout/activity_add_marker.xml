@@ -1,0 +1,49 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Title input -->
+    <EditText
+        android:id="@+id/edt_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Title"
+        android:inputType="text" />
+
+    <!-- Description input -->
+    <EditText
+        android:id="@+id/edt_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Description"
+        android:layout_marginTop="8dp"
+        android:inputType="textMultiLine"
+        android:minLines="3" />
+
+    <!-- Theme dropdown (spinner) -->
+    <Spinner
+        android:id="@+id/spn_theme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:spinnerMode="dropdown" />
+
+    <!-- Custom theme input -->
+    <EditText
+        android:id="@+id/edt_custom_theme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Custom Theme (if selected)"
+        android:layout_marginTop="8dp"
+        android:inputType="text" />
+
+    <!-- Save marker button -->
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Marker"
+        android:layout_marginTop="16dp" />
+</LinearLayout>
