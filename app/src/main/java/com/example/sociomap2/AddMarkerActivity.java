@@ -10,9 +10,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FieldValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class AddMarkerActivity extends AppCompatActivity {
 
@@ -38,10 +40,12 @@ public class AddMarkerActivity extends AppCompatActivity {
         Button btnSave = findViewById(R.id.btn_save);
         btnSave.setOnClickListener(v -> {
             String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : "anonymous";
-            String title = edtTitle.getText().toString();
-            String description = edtDescription.getText().toString();
-            String selectedTheme = spnTheme.getSelectedItem().toString();
-            String customTheme = edtCustomTheme.getText().toString();
+            String title = edtTitle.getText().toString().trim();
+            String description = edtDescription.getText().toString().trim();
+
+            // 🛑 Fix Null Pointer Issue for Spinner
+            String selectedTheme = (spnTheme.getSelectedItem() != null) ? spnTheme.getSelectedItem().toString() : "";
+            String customTheme = edtCustomTheme.getText().toString().trim();
 
             if (title.isEmpty() || description.isEmpty()) {
                 Toast.makeText(this, "Please fill in all required fields.", Toast.LENGTH_SHORT).show();
@@ -51,8 +55,8 @@ public class AddMarkerActivity extends AppCompatActivity {
             // Determine the theme (either selected or custom)
             String theme = selectedTheme.equals("Custom") && !customTheme.isEmpty() ? customTheme : selectedTheme;
 
-            // Save marker to Firestore
-            HashMap<String, Object> marker = new HashMap<>();
+            // Create marker data
+            Map<String, Object> marker = new HashMap<>();
             marker.put("latitude", latitude);
             marker.put("longitude", longitude);
             marker.put("title", title);
@@ -63,6 +67,23 @@ public class AddMarkerActivity extends AppCompatActivity {
 
             firestore.collection("markers").add(marker)
                     .addOnSuccessListener(documentReference -> {
+                        String markerId = documentReference.getId(); // Get document ID
+
+                        // Ensure event_guest_list is created
+                        Map<String, Object> guestList = new HashMap<>();
+                        guestList.put("users", new ArrayList<String>());
+                        firestore.collection("event_guest_list").document(markerId).set(guestList);
+
+                        // Ensure user_events is created
+                        firestore.collection("user_events").document(userId)
+                                .update("joinedEvents", FieldValue.arrayUnion(markerId))
+                                .addOnFailureListener(e -> {
+                                    // If document doesn't exist, create it
+                                    Map<String, Object> newUserEvents = new HashMap<>();
+                                    newUserEvents.put("joinedEvents", new ArrayList<String>());
+                                    firestore.collection("user_events").document(userId).set(newUserEvents);
+                                });
+
                         Toast.makeText(this, "Marker saved successfully!", Toast.LENGTH_SHORT).show();
                         finish();
                     })
@@ -70,5 +91,6 @@ public class AddMarkerActivity extends AppCompatActivity {
                         Toast.makeText(this, "Error saving marker: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
         });
+
     }
 }
