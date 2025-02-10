@@ -116,22 +116,32 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }).addOnFailureListener(e -> Log.e(TAG, "Error fetching markers", e));
 
         googleMap.setOnMarkerClickListener(marker -> {
+            // Get the tag associated with the marker (this should be the Firestore document ID or event ID)
             Object tag = marker.getTag();
-            if (tag == null) {
-                Toast.makeText(getActivity(), "Error: Marker ID is missing.", Toast.LENGTH_SHORT).show();
+
+
+            if (tag == null || tag.toString().isEmpty()) {
+                Toast.makeText(getActivity(), "Error: Marker ID  or invalid.", Toast.LENGTH_SHORT).show();
                 return false;
             }
 
-            Intent intent = new Intent(getActivity(), MarkerInfoActivity.class);
-            intent.putExtra("MARKER_ID", tag.toString()); // Pass Firestore document ID
-            intent.putExtra("TITLE", marker.getTitle());
-            intent.putExtra("DESCRIPTION", marker.getSnippet());
-            intent.putExtra("LATITUDE", marker.getPosition().latitude);
-            intent.putExtra("LONGITUDE", marker.getPosition().longitude);
 
+            // Create an intent to open MarkerInfoActivity
+            Intent intent = new Intent(getActivity(), MarkerInfoActivity.class);
+
+            // Pass data to MarkerInfoActivity
+            intent.putExtra("MARKER_ID", tag.toString());  // Pass Firestore document ID or marker ID
+            intent.putExtra("TITLE", marker.getTitle());   // Pass the title of the marker
+            intent.putExtra("DESCRIPTION", marker.getSnippet());  // Pass the description of the marker
+            intent.putExtra("LATITUDE", marker.getPosition().latitude);  // Pass the latitude of the marker
+            intent.putExtra("LONGITUDE", marker.getPosition().longitude);  // Pass the longitude of the marker
+
+            // Start MarkerInfoActivity
             startActivity(intent);
+
             return true;
         });
+
     }
 
     private void loadAddMarkerMap() {

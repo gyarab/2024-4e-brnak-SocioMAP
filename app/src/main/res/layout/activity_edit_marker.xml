@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Title EditText -->
+    <EditText
+        android:id="@+id/edt_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter title"
+        android:textSize="18sp"
+        android:padding="10dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Description EditText -->
+    <EditText
+        android:id="@+id/edt_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter description"
+        android:textSize="16sp"
+        android:padding="10dp"
+        android:layout_marginBottom="16dp"
+        android:inputType="textMultiLine"/>
+
+    <!-- Theme Spinner -->
+    <Spinner
+        android:id="@+id/spn_theme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:spinnerMode="dropdown"/>
+
+    <!-- Custom Theme EditText (Optional) -->
+    <EditText
+        android:id="@+id/edt_custom_theme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter custom theme (if any)"
+        android:textSize="16sp"
+        android:padding="10dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"/> <!-- Hidden by default, shown if "Custom" is selected from spinner -->
+
+
+
+    <!-- Save Button -->
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Changes"
+        android:layout_marginBottom="16dp"
+        android:textColor="@android:color/white"
+        android:background="@android:color/holo_blue_light"/>
+
+    <!-- Cancel Button -->
+    <Button
+        android:id="@+id/btn_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:background="@android:color/holo_red_light"
+        android:textColor="@android:color/white"/>
+</LinearLayout>

@@ -18,12 +18,16 @@
         android:theme="@style/Theme.Material3.Dark"
         tools:targetApi="31">
         <activity
+            android:name=".EditMarkerActivity"
+            android:exported="false" />
+        <activity
             android:name=".MarkerInfoActivity"
             android:exported="false" />
         <activity
             android:name=".AddMarkerActivity"
             android:exported="false"
             android:theme="@style/Theme.Material3.Dark" />
+
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 

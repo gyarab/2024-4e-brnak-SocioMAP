@@ -1,6 +1,9 @@
 package com.example.sociomap2;
 
+import static android.content.ContentValues.TAG;
+
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -83,6 +86,11 @@ public class AddMarkerActivity extends AppCompatActivity {
                                     newUserEvents.put("joinedEvents", new ArrayList<String>());
                                     firestore.collection("user_events").document(userId).set(newUserEvents);
                                 });
+
+                        // Update the user's event list (for ownership)
+                        firestore.collection("user_ownerofevent").document(userId)
+                                .update(markerId, title) // Store event under user ID
+                                .addOnFailureListener(e -> Log.e(TAG, "Error saving event to owner list", e));
 
                         Toast.makeText(this, "Marker saved successfully!", Toast.LENGTH_SHORT).show();
                         finish();
