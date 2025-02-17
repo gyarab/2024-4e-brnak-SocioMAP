@@ -1,49 +1,90 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:fillViewport="true">
 
-    <!-- Title input -->
-    <EditText
-        android:id="@+id/edt_title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter Title"
-        android:inputType="text" />
+        android:orientation="vertical">
 
-    <!-- Description input -->
-    <EditText
-        android:id="@+id/edt_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter Description"
-        android:layout_marginTop="8dp"
-        android:inputType="textMultiLine"
-        android:minLines="3" />
+        <!-- Title Input -->
+        <EditText
+            android:id="@+id/edt_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Event Title"
+            android:inputType="text"
+            android:padding="10dp"
+            android:backgroundTint="@android:color/darker_gray" />
 
-    <!-- Theme dropdown (spinner) -->
-    <Spinner
-        android:id="@+id/spn_theme"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:spinnerMode="dropdown" />
+        <!-- Description Input -->
+        <EditText
+            android:id="@+id/edt_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Event Description"
+            android:layout_marginTop="8dp"
+            android:inputType="textMultiLine"
+            android:minLines="3"
+            android:padding="10dp"
+            android:backgroundTint="@android:color/darker_gray" />
 
-    <!-- Custom theme input -->
-    <EditText
-        android:id="@+id/edt_custom_theme"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter Custom Theme (if selected)"
-        android:layout_marginTop="8dp"
-        android:inputType="text" />
+        <!-- Date Picker Input -->
+        <EditText
+            android:id="@+id/edt_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Select Event Date"
+            android:layout_marginTop="8dp"
+            android:focusable="false"
+            android:clickable="true"
+            android:padding="10dp"
+            android:backgroundTint="@android:color/darker_gray" />
 
-    <!-- Save marker button -->
-    <Button
-        android:id="@+id/btn_save"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Save Marker"
-        android:layout_marginTop="16dp" />
-</LinearLayout>
+        <!-- Time Picker Input -->
+        <EditText
+            android:id="@+id/edt_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Select Event Time"
+            android:layout_marginTop="8dp"
+            android:focusable="false"
+            android:clickable="true"
+            android:padding="10dp"
+            android:backgroundTint="@android:color/darker_gray" />
+
+        <!-- Theme Dropdown (Spinner) -->
+        <Spinner
+            android:id="@+id/spn_theme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:spinnerMode="dropdown"
+            android:entries="@array/event_themes"/>
+
+        <!-- Custom Theme Input (Initially Hidden) -->
+        <EditText
+            android:id="@+id/edt_custom_theme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Custom Theme (if selected)"
+            android:layout_marginTop="8dp"
+            android:inputType="text"
+            android:padding="10dp"
+            android:backgroundTint="@android:color/darker_gray"
+            android:visibility="gone" /> <!-- Hidden by default -->
+
+        <!-- Save Marker Button -->
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Marker"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@android:color/holo_blue_dark"
+            android:textColor="@android:color/white"
+            android:padding="12dp" />
+    </LinearLayout>
+</ScrollView>

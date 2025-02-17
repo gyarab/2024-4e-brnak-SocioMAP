@@ -1,10 +1,18 @@
+
 package com.example.sociomap2;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.AdapterView;
+import android.widget.TimePicker;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,14 +20,22 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FieldValue;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+
 
 public class AddMarkerActivity extends AppCompatActivity {
 
     private FirebaseFirestore firestore;
     private FirebaseAuth auth;
+    private EditText edtTitle, edtDescription, edtDate, edtTime, edtCustomTheme;
+    private Spinner spnTheme;
+    private double latitude, longitude;
+    private Calendar selectedDateTime = Calendar.getInstance(); // Stores Date & Time
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,68 +45,81 @@ public class AddMarkerActivity extends AppCompatActivity {
         firestore = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-        double latitude = getIntent().getDoubleExtra("LATITUDE", 0);
-        double longitude = getIntent().getDoubleExtra("LONGITUDE", 0);
+        // Retrieve coordinates from intent
+        latitude = getIntent().getDoubleExtra("LATITUDE", 0);
+        longitude = getIntent().getDoubleExtra("LONGITUDE", 0);
 
-        EditText edtTitle = findViewById(R.id.edt_title);
-        EditText edtDescription = findViewById(R.id.edt_description);
-        Spinner spnTheme = findViewById(R.id.spn_theme);
-        EditText edtCustomTheme = findViewById(R.id.edt_custom_theme);
-
+        // UI Elements
+        edtTitle = findViewById(R.id.edt_title);
+        edtDescription = findViewById(R.id.edt_description);
+        edtDate = findViewById(R.id.edt_date);
+        edtTime = findViewById(R.id.edt_time);
+        spnTheme = findViewById(R.id.spn_theme);
+        edtCustomTheme = findViewById(R.id.edt_custom_theme);
         Button btnSave = findViewById(R.id.btn_save);
-        btnSave.setOnClickListener(v -> {
-            String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : "anonymous";
-            String title = edtTitle.getText().toString().trim();
-            String description = edtDescription.getText().toString().trim();
 
-            // 🛑 Fix Null Pointer Issue for Spinner
-            String selectedTheme = (spnTheme.getSelectedItem() != null) ? spnTheme.getSelectedItem().toString() : "";
-            String customTheme = edtCustomTheme.getText().toString().trim();
+        // Set Click Listeners for Date & Time Pickers
+        edtDate.setOnClickListener(v -> showDatePicker());
+        edtTime.setOnClickListener(v -> showTimePicker());
 
-            if (title.isEmpty() || description.isEmpty()) {
-                Toast.makeText(this, "Please fill in all required fields.", Toast.LENGTH_SHORT).show();
-                return;
+        // Theme Selection Logic
+        spnTheme.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedTheme = parent.getItemAtPosition(position).toString();
+                edtCustomTheme.setVisibility(selectedTheme.equals("Custom") ? View.VISIBLE : View.GONE);
             }
 
-            // Determine the theme (either selected or custom)
-            String theme = selectedTheme.equals("Custom") && !customTheme.isEmpty() ? customTheme : selectedTheme;
-
-            // Create marker data
-            Map<String, Object> marker = new HashMap<>();
-            marker.put("latitude", latitude);
-            marker.put("longitude", longitude);
-            marker.put("title", title);
-            marker.put("description", description);
-            marker.put("userId", userId); // Owner of the marker
-            marker.put("theme", theme); // Event theme
-            marker.put("attendees", new ArrayList<String>()); // Initialize empty attendees list
-
-            firestore.collection("markers").add(marker)
-                    .addOnSuccessListener(documentReference -> {
-                        String markerId = documentReference.getId(); // Get document ID
-
-                        // Ensure event_guest_list is created
-                        Map<String, Object> guestList = new HashMap<>();
-                        guestList.put("users", new ArrayList<String>());
-                        firestore.collection("event_guest_list").document(markerId).set(guestList);
-
-                        // Ensure user_events is created
-                        firestore.collection("user_events").document(userId)
-                                .update("joinedEvents", FieldValue.arrayUnion(markerId))
-                                .addOnFailureListener(e -> {
-                                    // If document doesn't exist, create it
-                                    Map<String, Object> newUserEvents = new HashMap<>();
-                                    newUserEvents.put("joinedEvents", new ArrayList<String>());
-                                    firestore.collection("user_events").document(userId).set(newUserEvents);
-                                });
-
-                        Toast.makeText(this, "Marker saved successfully!", Toast.LENGTH_SHORT).show();
-                        finish();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Error saving marker: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                edtCustomTheme.setVisibility(View.GONE);
+            }
         });
 
+        btnSave.setOnClickListener(v -> saveMarker());
+    }
+
+    private void showDatePicker() {
+        Calendar calendar = Calendar.getInstance();
+        new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            selectedDateTime.set(year, month, dayOfMonth);
+            edtDate.setText(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(selectedDateTime.getTime()));
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
+    }
+
+    private void showTimePicker() {
+        Calendar calendar = Calendar.getInstance();
+        new TimePickerDialog(this, (view, hourOfDay, minute) -> {
+            selectedDateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            selectedDateTime.set(Calendar.MINUTE, minute);
+            edtTime.setText(new SimpleDateFormat("HH:mm", Locale.getDefault()).format(selectedDateTime.getTime()));
+        }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show();
+    }
+
+    private void saveMarker() {
+        String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : "anonymous";
+        String userName = auth.getCurrentUser() != null ? auth.getCurrentUser().getDisplayName() : "Unknown User";
+        String title = edtTitle.getText().toString().trim();
+        String description = edtDescription.getText().toString().trim();
+        String eventDate = edtDate.getText().toString().trim();
+        String eventTime = edtTime.getText().toString().trim();
+
+        if (title.isEmpty() || description.isEmpty() || eventDate.isEmpty() || eventTime.isEmpty()) {
+            Toast.makeText(this, "Please fill in all required fields.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Map<String, Object> marker = new HashMap<>();
+        marker.put("latitude", latitude);
+        marker.put("longitude", longitude);
+        marker.put("title", title);
+        marker.put("description", description);
+        marker.put("userId", userId);
+        marker.put("userName", userName);
+        marker.put("eventDateTime", eventDate + " " + eventTime);
+
+        firestore.collection("markers").add(marker)
+                .addOnSuccessListener(documentReference -> finish())
+                .addOnFailureListener(e -> Toast.makeText(this, "Error saving marker", Toast.LENGTH_SHORT).show());
     }
 }
