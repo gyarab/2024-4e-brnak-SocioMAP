@@ -6,14 +6,63 @@
     android:layout_height="match_parent"
     tools:context=".MapsFragment">
 
-    <!-- Google Map fragment -->
+    <!-- Google Map Fragment -->
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Floating Action Button to add markers -->
+    <!-- CardView for Filters -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_gravity="top"
+        android:background="@color/white"
+        android:elevation="6dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:gravity="center_horizontal">
+
+            <!-- Marker Filter Spinner -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Filter Events"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="4dp" />
+
+            <Spinner
+                android:id="@+id/spn_filter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dropdown" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Button to Toggle Between View Mode & Edit Mode -->
+    <Button
+        android:id="@+id/btn_toggle_mode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="16dp"
+        android:text="Switch to Edit Mode"
+        android:backgroundTint="@android:color/holo_blue_dark"
+        android:textColor="@android:color/white"
+        android:padding="12dp"
+        android:elevation="6dp"/>
+
+    <!-- Floating Action Button for Adding Markers -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_marker"
         android:layout_width="wrap_content"
@@ -21,24 +70,7 @@
         android:layout_gravity="bottom|start"
         android:layout_margin="16dp"
         android:src="@drawable/ic_add"
-        app:backgroundTint="@color/colorAccent" />
+        app:backgroundTint="@color/colorAccent"
+        android:visibility="gone" /> <!-- Hidden by default, shown in Edit Mode -->
 
-    <!-- Button to switch between default map and marker creation map -->
-    <Button
-        android:id="@+id/btn_switch_map"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:text="Switch Map" />
-
-    <!-- Spinner for filtering markers -->
-    <Spinner
-        android:id="@+id/spn_filter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_margin="16dp"
-        android:spinnerMode="dropdown"
-        android:entries="@array/map_filter_options" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
