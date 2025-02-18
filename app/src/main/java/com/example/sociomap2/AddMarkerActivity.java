@@ -1,4 +1,3 @@
-
 package com.example.sociomap2;
 
 import android.app.DatePickerDialog;
@@ -10,8 +9,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.widget.AdapterView;
-import android.widget.TimePicker;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,7 +24,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-
 public class AddMarkerActivity extends AppCompatActivity {
 
     private FirebaseFirestore firestore;
@@ -36,6 +32,7 @@ public class AddMarkerActivity extends AppCompatActivity {
     private Spinner spnTheme;
     private double latitude, longitude;
     private Calendar selectedDateTime = Calendar.getInstance(); // Stores Date & Time
+    private String selectedTheme = ""; // Stores the selected theme
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +63,7 @@ public class AddMarkerActivity extends AppCompatActivity {
         spnTheme.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedTheme = parent.getItemAtPosition(position).toString();
+                selectedTheme = parent.getItemAtPosition(position).toString();
                 edtCustomTheme.setVisibility(selectedTheme.equals("Custom") ? View.VISIBLE : View.GONE);
             }
 
@@ -104,7 +101,12 @@ public class AddMarkerActivity extends AppCompatActivity {
         String eventDate = edtDate.getText().toString().trim();
         String eventTime = edtTime.getText().toString().trim();
 
-        if (title.isEmpty() || description.isEmpty() || eventDate.isEmpty() || eventTime.isEmpty()) {
+        // Check if user chose a custom theme
+        String finalTheme = selectedTheme.equals("Custom") && !edtCustomTheme.getText().toString().trim().isEmpty()
+                ? edtCustomTheme.getText().toString().trim()
+                : selectedTheme;
+
+        if (title.isEmpty() || description.isEmpty() || eventDate.isEmpty() || eventTime.isEmpty() || finalTheme.isEmpty()) {
             Toast.makeText(this, "Please fill in all required fields.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -117,9 +119,13 @@ public class AddMarkerActivity extends AppCompatActivity {
         marker.put("userId", userId);
         marker.put("userName", userName);
         marker.put("eventDateTime", eventDate + " " + eventTime);
+        marker.put("theme", finalTheme); // Store the theme in Firestore ✅
 
         firestore.collection("markers").add(marker)
-                .addOnSuccessListener(documentReference -> finish())
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(this, "Event added successfully!", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
                 .addOnFailureListener(e -> Toast.makeText(this, "Error saving marker", Toast.LENGTH_SHORT).show());
     }
 }
