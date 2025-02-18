@@ -77,11 +77,21 @@ public class AddMarkerActivity extends AppCompatActivity {
     }
 
     private void showDatePicker() {
-        Calendar calendar = Calendar.getInstance();
-        new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
-            selectedDateTime.set(year, month, dayOfMonth);
-            edtDate.setText(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(selectedDateTime.getTime()));
-        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
+        Calendar calendar = Calendar.getInstance(); // Get current date
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                (view, year, month, dayOfMonth) -> {
+                    selectedDateTime.set(year, month, dayOfMonth);
+                    edtDate.setText(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(selectedDateTime.getTime()));
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+
+        // ✅ Restrict past dates
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+
+        datePickerDialog.show();
     }
 
     private void showTimePicker() {
@@ -124,7 +134,9 @@ public class AddMarkerActivity extends AppCompatActivity {
         firestore.collection("markers").add(marker)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(this, "Event added successfully!", Toast.LENGTH_SHORT).show();
-                    finish();
+
+                    // ✅ Redirect user back to `MapsFragment`
+                    finish(); // Close `AddMarkerActivity`
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Error saving marker", Toast.LENGTH_SHORT).show());
     }
