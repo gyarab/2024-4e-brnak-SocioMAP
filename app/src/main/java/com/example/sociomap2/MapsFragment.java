@@ -16,6 +16,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -97,6 +98,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 Double longitude = document.getDouble("longitude");
                 String title = document.getString("title");
                 String description = document.getString("description");
+                String theme = document.getString("theme"); // Get theme from Firestore
 
                 if (latitude == null || longitude == null || title == null || description == null) {
                     Log.e(TAG, "Missing field in document: " + document.getId());
@@ -104,10 +106,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 }
 
                 LatLng position = new LatLng(latitude, longitude);
+                float color = getMarkerColor(theme); // Get color based on theme
+
                 Marker marker = googleMap.addMarker(new MarkerOptions()
                         .position(position)
                         .title(title)
-                        .snippet(description));
+                        .snippet(description)
+                        .icon(BitmapDescriptorFactory.defaultMarker(color))); // Apply color
 
                 if (marker != null) {
                     marker.setTag(document.getId()); // Store Firestore document ID
@@ -119,12 +124,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             // Get the tag associated with the marker (this should be the Firestore document ID or event ID)
             Object tag = marker.getTag();
 
-
             if (tag == null || tag.toString().isEmpty()) {
-                Toast.makeText(getActivity(), "Error: Marker ID  or invalid.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Error: Marker ID or invalid.", Toast.LENGTH_SHORT).show();
                 return false;
             }
-
 
             // Create an intent to open MarkerInfoActivity
             Intent intent = new Intent(getActivity(), MarkerInfoActivity.class);
@@ -132,7 +135,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             // Pass data to MarkerInfoActivity
             intent.putExtra("MARKER_ID", tag.toString());  // Pass Firestore document ID or marker ID
             intent.putExtra("TITLE", marker.getTitle());   // Pass the title of the marker
-            intent.putExtra("DESCRIPTION", marker.getSnippet());  // Pass the description of the marker
+            intent.putExtra("DESCRIPTION", marker.getSnippet()); // Pass the description of the marker
             intent.putExtra("LATITUDE", marker.getPosition().latitude);  // Pass the latitude of the marker
             intent.putExtra("LONGITUDE", marker.getPosition().longitude);  // Pass the longitude of the marker
 
@@ -141,7 +144,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
             return true;
         });
-
     }
 
     private void loadAddMarkerMap() {
@@ -155,5 +157,25 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             intent.putExtra("USER_ID", userId);
             startActivity(intent);
         });
+    }
+
+    // Function to assign marker color based on theme
+    private float getMarkerColor(String theme) {
+        if (theme == null) return BitmapDescriptorFactory.HUE_RED; // Default
+
+        switch (theme.toLowerCase()) {
+            case "sports":
+                return BitmapDescriptorFactory.HUE_BLUE;
+            case "music":
+                return BitmapDescriptorFactory.HUE_VIOLET;
+            case "festival":
+                return BitmapDescriptorFactory.HUE_YELLOW;
+            case "workshop":
+                return BitmapDescriptorFactory.HUE_GREEN;
+            case "custom":
+                return BitmapDescriptorFactory.HUE_ORANGE;
+            default:
+                return BitmapDescriptorFactory.HUE_RED; // Default for unknown themes
+        }
     }
 }
