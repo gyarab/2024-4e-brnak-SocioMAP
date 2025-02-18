@@ -1,19 +1,26 @@
 package com.example.sociomap2;
 
-import android.content.Intent;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FieldValue;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MarkerInfoActivity extends AppCompatActivity {
 
@@ -22,10 +29,14 @@ public class MarkerInfoActivity extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private FirebaseAuth firebaseAuth;
     private String eventId;
-    private TextView eventName, eventDate, eventDescription;
+    private TextView eventName, eventDate, eventDescription, eventTheme;
     private Button signUpButton, deleteButton, editButton;
-    private boolean isUserSignedUp = false;  // Track if the user is signed up
+    private ListView listAttendees;
+    private boolean isUserSignedUp = false;
+    private ArrayAdapter<String> attendeesAdapter;
+    private List<String> attendeesList = new ArrayList<>();
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,160 +48,188 @@ public class MarkerInfoActivity extends AppCompatActivity {
         eventName = findViewById(R.id.event_name);
         eventDate = findViewById(R.id.event_date);
         eventDescription = findViewById(R.id.event_description);
+        eventTheme = findViewById(R.id.event_theme); // Added event theme TextView
         signUpButton = findViewById(R.id.btn_sign_up);
         deleteButton = findViewById(R.id.btn_delete_event);
         editButton = findViewById(R.id.btn_edit_event);
+        listAttendees = findViewById(R.id.list_attendees);
 
-        // Get the event ID from the Intent
+        // Set up ListView Adapter
+        attendeesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, attendeesList);
+        listAttendees.setAdapter(attendeesAdapter);
+
+        // Get event ID from Intent
         eventId = getIntent().getStringExtra("MARKER_ID");
 
         if (eventId == null || eventId.isEmpty()) {
-            Log.e(TAG, "Event ID is missing");
-            Toast.makeText(this, "Error loading event: ID missing", Toast.LENGTH_SHORT).show();
-            finish();  // Close the activity if event ID is missing
+            Toast.makeText(this, "Error: Event ID is missing.", Toast.LENGTH_SHORT).show();
+            finish();
             return;
         }
 
+        // Enable Firestore network
+        firestore.enableNetwork()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "Firestore network re-enabled.");
+                    } else {
+                        Log.e(TAG, "Failed to enable Firestore network", task.getException());
+                    }
+                });
+
         loadEventDetails();
+        loadAttendeesList();
+
+        // ✅ Fix: Set click listener for the sign-up button
+        signUpButton.setOnClickListener(v -> {
+            if (isUserSignedUp) {
+                signOutFromEvent();
+            } else {
+                signUpForEvent();
+            }
+        });
     }
 
     private void loadEventDetails() {
         firestore.collection("markers").document(eventId)
                 .get()
                 .addOnSuccessListener(document -> {
-                    if (document.exists() && document.getData() != null) {
-                        String title = document.getString("title");
-                        String date = document.getString("date");
-                        String description = document.getString("description");
-                        String userId = document.getString("userId");  // owner of the marker
+                    if (document.exists()) {
+                        eventName.setText(document.getString("title"));
+                        eventDate.setText(document.getString("eventDateTime"));
+                        eventDescription.setText(document.getString("description"));
 
-                        eventName.setText(title);
-                        eventDate.setText(date);
-                        eventDescription.setText(description);
+                        // Load and display the event theme
+                        String theme = document.getString("theme");
+                        if (theme != null) {
+                            eventTheme.setText("Theme: " + theme);
+                        } else {
+                            eventTheme.setText("Theme: Not specified");
+                        }
 
-                        // Check if the logged-in user is the owner of the marker
-                        checkIfUserIsOwner(userId);
-                        checkUserParticipation(); // Check if the user is already signed up for the event
+                        checkUserParticipation();
                     }
                 })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error loading event details", e);
-                    Toast.makeText(this, "Error loading event details", Toast.LENGTH_SHORT).show();
-                });
+                .addOnFailureListener(e -> Toast.makeText(this, "Error loading event details.", Toast.LENGTH_SHORT).show());
     }
 
-    private void checkIfUserIsOwner(String ownerId) {
-        String loggedInUserId = firebaseAuth.getCurrentUser().getUid();
-
-        if (ownerId != null && ownerId.equals(loggedInUserId)) {
-            // User is the owner, so show delete and edit buttons
-            deleteButton.setVisibility(View.VISIBLE);
-            editButton.setVisibility(View.VISIBLE);
-            signUpButton.setVisibility(View.VISIBLE);  // Hide the sign up button for the owner
-
-            // Delete and Edit button listeners
-            deleteButton.setOnClickListener(v -> deleteEvent());
-            editButton.setOnClickListener(v -> editEvent());
-        } else {
-            // Hide the delete and edit buttons for non-owners
-            deleteButton.setVisibility(View.GONE);
-            editButton.setVisibility(View.GONE);
-            checkUserParticipation(); // Check if the user is signed up for the event
-        }
-    }
-
-    private void checkUserParticipation() {
+    private void loadAttendeesList() {
         firestore.collection("event_guest_list").document(eventId)
                 .get()
                 .addOnSuccessListener(document -> {
-                    if (document.exists() && document.contains(firebaseAuth.getCurrentUser().getUid())) {
-                        // User is signed up
-                        isUserSignedUp = true;
-                        signUpButton.setText("Sign Out from Event");
-                    } else {
-                        // User is not signed up
-                        isUserSignedUp = false;
-                        signUpButton.setText("Sign Up for Event");
+                    attendeesList.clear();
+                    if (document.exists()) {
+                        List<String> userIds = (List<String>) document.get("users");
+                        if (userIds != null) {
+                            for (String userId : userIds) {
+                                fetchUserDetails(userId); // Fetch name, surname, and username
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error loading attendees", e));
+    }
+
+    // ✅ Fetch `name`, `surname`, and `username` from Firestore
+    private void fetchUserDetails(String userId) {
+        firestore.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(userDoc -> {
+                    if (userDoc.exists()) {
+                        String name = userDoc.getString("name");
+                        String surname = userDoc.getString("surname");
+                        String username = userDoc.getString("username");
+
+                        // Format: "Name Surname (@username)"
+                        String displayText = "";
+                        if (name != null && !name.isEmpty()) {
+                            displayText += name + " ";
+                        }
+                        if (surname != null && !surname.isEmpty()) {
+                            displayText += surname;
+                        }
+                        if (username != null && !username.isEmpty()) {
+                            displayText += " (@" + username + ")";
+                        }
+
+                        if (displayText.isEmpty()) {
+                            displayText = "Unknown User"; // Fallback if missing
+                        }
+
+                        attendeesList.add(displayText);
+                        attendeesAdapter.notifyDataSetChanged(); // Refresh ListView
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error fetching user details", e));
+    }
+
+    private void checkUserParticipation() {
+        firestore.collection("user_events").document(firebaseAuth.getCurrentUser().getUid())
+                .get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        List<String> joinedEvents = (List<String>) document.get("events");
+                        if (joinedEvents != null && joinedEvents.contains(eventId)) {
+                            isUserSignedUp = true;
+                            signUpButton.setText("Sign Out from Event");
+                        } else {
+                            isUserSignedUp = false;
+                            signUpButton.setText("Sign Up for Event");
+                        }
                     }
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Error checking user participation", e));
     }
 
-    // Sign up or sign out when the user clicks the button
-    public void onSignUpButtonClick(View view) {
-        if (isUserSignedUp) {
-            signOutFromEvent();
-        } else {
-            signUpForEvent();
-        }
-    }
-
     private void signUpForEvent() {
         String userId = firebaseAuth.getCurrentUser().getUid();
-        String userFullName = firebaseAuth.getCurrentUser().getDisplayName(); // You can use this or fetch it from Firestore
+        String userName = firebaseAuth.getCurrentUser().getDisplayName();
 
-        if (userFullName == null) {
-            Log.e(TAG, "User's full name is missing");
+        if (userName == null) {
+            Toast.makeText(this, "Error: User name is missing.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Add user to the event's guest list
-        firestore.collection("event_guest_list").document(eventId)
-                .update(userId, userFullName)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(MarkerInfoActivity.this, "Signed up for the event!", Toast.LENGTH_SHORT).show();
-                    isUserSignedUp = true;
-                    signUpButton.setText("Sign Out from Event");
-                })
+        // ✅ Add event ID to user's `user_events` document
+        firestore.collection("user_events").document(userId)
+                .update("events", FieldValue.arrayUnion(eventId))
                 .addOnFailureListener(e -> {
-                    firestore.collection("event_guest_list").document(eventId)
-                            .set(new java.util.HashMap<String, Object>() {{
-                                put(userId, userFullName);
-                            }})
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(MarkerInfoActivity.this, "Signed up for the event!", Toast.LENGTH_SHORT).show();
-                                isUserSignedUp = true;
-                                signUpButton.setText("Sign Out from Event");
-                            })
-                            .addOnFailureListener(error -> {
-                                Log.e(TAG, "Error signing up for event", error);
-                                Toast.makeText(MarkerInfoActivity.this, "Error signing up for the event", Toast.LENGTH_SHORT).show();
-                            });
+                    Map<String, Object> userEventsData = new HashMap<>();
+                    userEventsData.put("events", new ArrayList<String>() {{
+                        add(eventId);
+                    }});
+                    firestore.collection("user_events").document(userId).set(userEventsData);
                 });
+
+        // ✅ Add user ID to event's `event_guest_list` document
+        firestore.collection("event_guest_list").document(eventId)
+                .update("users", FieldValue.arrayUnion(userId))
+                .addOnFailureListener(e -> {
+                    Map<String, Object> eventGuestData = new HashMap<>();
+                    eventGuestData.put("users", new ArrayList<String>() {{
+                        add(userId);
+                    }});
+                    firestore.collection("event_guest_list").document(eventId).set(eventGuestData);
+                });
+
+        Toast.makeText(this, "Signed up for the event!", Toast.LENGTH_SHORT).show();
+        loadAttendeesList();
+        checkUserParticipation();
     }
 
     private void signOutFromEvent() {
-        // Remove user from the event's guest list
+        String userId = firebaseAuth.getCurrentUser().getUid();
+
+        // ✅ Remove event ID from user's `user_events` document
+        firestore.collection("user_events").document(userId)
+                .update("events", FieldValue.arrayRemove(eventId));
+
+        // ✅ Remove user ID from event's `event_guest_list` document
         firestore.collection("event_guest_list").document(eventId)
-                .update(firebaseAuth.getCurrentUser().getUid(), FieldValue.delete())
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(MarkerInfoActivity.this, "Signed out from the event!", Toast.LENGTH_SHORT).show();
-                    isUserSignedUp = false;
-                    signUpButton.setText("Sign Up for Event");
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error signing out from event", e);
-                    Toast.makeText(MarkerInfoActivity.this, "Error signing out from event", Toast.LENGTH_SHORT).show();
-                });
-    }
+                .update("users", FieldValue.arrayRemove(userId));
 
-    private void deleteEvent() {
-        firestore.collection("markers").document(eventId)
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(MarkerInfoActivity.this, "Event deleted", Toast.LENGTH_SHORT).show();
-                    finish();  // Close the activity after deletion
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error deleting event", e);
-                    Toast.makeText(MarkerInfoActivity.this, "Error deleting event", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    private void editEvent() {
-        // Redirect to an edit screen or allow user to modify event details
-        Intent intent = new Intent(MarkerInfoActivity.this, EditMarkerActivity.class);
-        intent.putExtra("EVENT_ID", eventId);  // Pass eventId for editing
-        startActivity(intent);
+        Toast.makeText(this, "Signed out from event!", Toast.LENGTH_SHORT).show();
+        loadAttendeesList();
+        checkUserParticipation();
     }
 }
