@@ -79,6 +79,8 @@ public class MarkerInfoActivity extends AppCompatActivity {
 
         loadEventDetails();
         loadAttendeesList();
+        checkIfUserIsOwner();
+
 
         // ✅ Fix: Set click listener for the sign-up button
         signUpButton.setOnClickListener(v -> {
@@ -88,6 +90,65 @@ public class MarkerInfoActivity extends AppCompatActivity {
                 signUpForEvent();
             }
         });
+    }
+
+    private void checkIfUserIsOwner() {
+        firestore.collection("markers").document(eventId)
+                .get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        String ownerId = document.getString("userId"); // Get event owner ID
+                        String currentUserId = firebaseAuth.getCurrentUser().getUid();
+
+                        if (ownerId != null && ownerId.equals(currentUserId)) {
+                            // ✅ Show buttons if the user is the owner
+                            deleteButton.setVisibility(View.VISIBLE);
+                            editButton.setVisibility(View.VISIBLE);
+
+                            // Set button listeners
+                            deleteButton.setOnClickListener(v -> deleteEvent());
+                            editButton.setOnClickListener(v -> editEvent());
+                        } else {
+                            // ❌ Hide buttons if not the owner
+                            deleteButton.setVisibility(View.GONE);
+                            editButton.setVisibility(View.GONE);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error checking event ownership", e));
+    }
+
+    private void deleteEvent() {
+        firestore.collection("event_guest_list").document(eventId)
+                .get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        List<String> userIds = (List<String>) document.get("users");
+                        if (userIds != null) {
+                            for (String userId : userIds) {
+                                removeEventFromUserEvents(userId);
+                            }
+                        }
+                    }
+
+                    // ✅ Delete the event from Firestore collections
+                    firestore.collection("markers").document(eventId).delete();
+                    firestore.collection("event_guest_list").document(eventId).delete();
+
+                    Toast.makeText(this, "Event deleted successfully!", Toast.LENGTH_SHORT).show();
+                    finish(); // Close activity
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error deleting event", e));
+    }
+
+    public void editEvent() {
+        //To new activity for editing the marker
+    }
+
+    private void removeEventFromUserEvents(String userId) {
+        firestore.collection("user_events").document(userId)
+                .update("events", FieldValue.arrayRemove(eventId))
+                .addOnFailureListener(e -> Log.e(TAG, "Error removing event from user_events", e));
     }
 
     private void loadEventDetails() {
