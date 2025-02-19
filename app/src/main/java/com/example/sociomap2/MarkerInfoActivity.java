@@ -36,6 +36,11 @@ public class MarkerInfoActivity extends AppCompatActivity {
     private ArrayAdapter<String> attendeesAdapter;
     private List<String> attendeesList = new ArrayList<>();
 
+    private TextView eventCapacity;
+    private int maxCapacity = 0;
+    private int currentAttendees = 0;
+
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,17 +53,16 @@ public class MarkerInfoActivity extends AppCompatActivity {
         eventName = findViewById(R.id.event_name);
         eventDate = findViewById(R.id.event_date);
         eventDescription = findViewById(R.id.event_description);
-        eventTheme = findViewById(R.id.event_theme); // Added event theme TextView
+        eventTheme = findViewById(R.id.event_theme);
+        eventCapacity = findViewById(R.id.event_capacity); // ✅ Add this to fix the crash!
         signUpButton = findViewById(R.id.btn_sign_up);
         deleteButton = findViewById(R.id.btn_delete_event);
         editButton = findViewById(R.id.btn_edit_event);
         listAttendees = findViewById(R.id.list_attendees);
 
-        // Set up ListView Adapter
         attendeesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, attendeesList);
         listAttendees.setAdapter(attendeesAdapter);
 
-        // Get event ID from Intent
         eventId = getIntent().getStringExtra("MARKER_ID");
 
         if (eventId == null || eventId.isEmpty()) {
@@ -67,7 +71,6 @@ public class MarkerInfoActivity extends AppCompatActivity {
             return;
         }
 
-        // Enable Firestore network
         firestore.enableNetwork()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -81,8 +84,6 @@ public class MarkerInfoActivity extends AppCompatActivity {
         loadAttendeesList();
         checkIfUserIsOwner();
 
-
-        // ✅ Fix: Set click listener for the sign-up button
         signUpButton.setOnClickListener(v -> {
             if (isUserSignedUp) {
                 signOutFromEvent();
@@ -160,7 +161,7 @@ public class MarkerInfoActivity extends AppCompatActivity {
                         eventDate.setText(document.getString("eventDateTime"));
                         eventDescription.setText(document.getString("description"));
 
-                        // Load and display the event theme
+                        // ✅ Load and display the event theme
                         String theme = document.getString("theme");
                         if (theme != null) {
                             eventTheme.setText("Theme: " + theme);
@@ -168,11 +169,20 @@ public class MarkerInfoActivity extends AppCompatActivity {
                             eventTheme.setText("Theme: Not specified");
                         }
 
-                        checkUserParticipation();
+                        // ✅ Get capacity details
+                        maxCapacity = document.contains("maxCapacity") ? document.getLong("maxCapacity").intValue() : 0;
+                        currentAttendees = document.contains("currentAttendees") ? document.getLong("currentAttendees").intValue() : 0;
+
+                        // ✅ Display capacity info
+                        eventCapacity.setText("Capacity: " + currentAttendees + "/" + maxCapacity);
+
+                        checkUserParticipation(); // Check if user is signed up
                     }
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Error loading event details.", Toast.LENGTH_SHORT).show());
     }
+
+
 
     private void loadAttendeesList() {
         firestore.collection("event_guest_list").document(eventId)
@@ -238,11 +248,23 @@ public class MarkerInfoActivity extends AppCompatActivity {
                             signUpButton.setText("Sign Up for Event");
                         }
                     }
+
+                    // Disable button if full
+                    if (currentAttendees >= maxCapacity) {
+                        signUpButton.setEnabled(false);
+                        signUpButton.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+                    }
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Error checking user participation", e));
     }
 
+
     private void signUpForEvent() {
+        if (currentAttendees >= maxCapacity) {
+            Toast.makeText(this, "This event is already full!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String userId = firebaseAuth.getCurrentUser().getUid();
         String userName = firebaseAuth.getCurrentUser().getDisplayName();
 
@@ -262,20 +284,29 @@ public class MarkerInfoActivity extends AppCompatActivity {
                     firestore.collection("user_events").document(userId).set(userEventsData);
                 });
 
-        // ✅ Add user ID to event's `event_guest_list` document
+        // ✅ Add user ID & name to `event_guest_list` document
         firestore.collection("event_guest_list").document(eventId)
-                .update("users", FieldValue.arrayUnion(userId))
+                .update("users", FieldValue.arrayUnion(userId), userId, userName) // Store both ID & name
                 .addOnFailureListener(e -> {
                     Map<String, Object> eventGuestData = new HashMap<>();
                     eventGuestData.put("users", new ArrayList<String>() {{
                         add(userId);
                     }});
+                    eventGuestData.put(userId, userName); // Store the name
                     firestore.collection("event_guest_list").document(eventId).set(eventGuestData);
                 });
 
-        Toast.makeText(this, "Signed up for the event!", Toast.LENGTH_SHORT).show();
-        loadAttendeesList();
-        checkUserParticipation();
+        // ✅ Update attendee count in Firestore
+        firestore.collection("markers").document(eventId)
+                .update("currentAttendees", FieldValue.increment(1))
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Signed up for the event!", Toast.LENGTH_SHORT).show();
+                    currentAttendees++; // Update local variable
+                    eventCapacity.setText("Capacity: " + currentAttendees + "/" + maxCapacity);
+                    checkUserParticipation(); // Refresh button state
+                    loadAttendeesList(); // ✅ Refresh attendees list
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error updating attendee count", e));
     }
 
     private void signOutFromEvent() {
@@ -289,8 +320,15 @@ public class MarkerInfoActivity extends AppCompatActivity {
         firestore.collection("event_guest_list").document(eventId)
                 .update("users", FieldValue.arrayRemove(userId));
 
-        Toast.makeText(this, "Signed out from event!", Toast.LENGTH_SHORT).show();
-        loadAttendeesList();
-        checkUserParticipation();
+        // ✅ Decrease attendee count in Firestore
+        firestore.collection("markers").document(eventId)
+                .update("currentAttendees", FieldValue.increment(-1))
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Signed out from event!", Toast.LENGTH_SHORT).show();
+                    currentAttendees--; // Update local variable
+                    eventCapacity.setText("Capacity: " + currentAttendees + "/" + maxCapacity);
+                    checkUserParticipation(); // Refresh button state
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error updating attendee count", e));
     }
 }

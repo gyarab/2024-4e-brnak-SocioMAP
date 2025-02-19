@@ -55,6 +55,17 @@
             android:padding="10dp"
             android:backgroundTint="@android:color/darker_gray" />
 
+        <!-- Max Capacity Input -->
+        <EditText
+            android:id="@+id/edt_max_capacity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Max Capacity"
+            android:inputType="number"
+            android:minLines="1"
+            android:maxLines="1"
+            android:layout_marginTop="8dp"/>
+
         <!-- Theme Dropdown (Spinner) -->
         <Spinner
             android:id="@+id/spn_theme"

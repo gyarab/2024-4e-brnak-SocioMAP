@@ -28,11 +28,12 @@ public class AddMarkerActivity extends AppCompatActivity {
 
     private FirebaseFirestore firestore;
     private FirebaseAuth auth;
-    private EditText edtTitle, edtDescription, edtDate, edtTime, edtCustomTheme;
+    private EditText edtTitle, edtDescription, edtDate, edtTime, edtCustomTheme, edtMaxCapacity;
     private Spinner spnTheme;
     private double latitude, longitude;
     private Calendar selectedDateTime = Calendar.getInstance(); // Stores Date & Time
     private String selectedTheme = ""; // Stores the selected theme
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +52,7 @@ public class AddMarkerActivity extends AppCompatActivity {
         edtDescription = findViewById(R.id.edt_description);
         edtDate = findViewById(R.id.edt_date);
         edtTime = findViewById(R.id.edt_time);
+        edtMaxCapacity = findViewById(R.id.edt_max_capacity);
         spnTheme = findViewById(R.id.spn_theme);
         edtCustomTheme = findViewById(R.id.edt_custom_theme);
         Button btnSave = findViewById(R.id.btn_save);
@@ -110,17 +112,32 @@ public class AddMarkerActivity extends AppCompatActivity {
         String description = edtDescription.getText().toString().trim();
         String eventDate = edtDate.getText().toString().trim();
         String eventTime = edtTime.getText().toString().trim();
+        String maxCapacityStr = edtMaxCapacity.getText().toString().trim();
 
-        // Check if user chose a custom theme
+        // ✅ Check if user chose a custom theme
         String finalTheme = selectedTheme.equals("Custom") && !edtCustomTheme.getText().toString().trim().isEmpty()
                 ? edtCustomTheme.getText().toString().trim()
                 : selectedTheme;
 
-        if (title.isEmpty() || description.isEmpty() || eventDate.isEmpty() || eventTime.isEmpty() || finalTheme.isEmpty()) {
+        if (title.isEmpty() || description.isEmpty() || eventDate.isEmpty() || eventTime.isEmpty() || finalTheme.isEmpty() || maxCapacityStr.isEmpty()) {
             Toast.makeText(this, "Please fill in all required fields.", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // ✅ Validate and convert max capacity
+        int maxCapacity;
+        try {
+            maxCapacity = Integer.parseInt(maxCapacityStr);
+            if (maxCapacity < 0) {
+                Toast.makeText(this, "Capacity cannot be negative!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Please enter a valid number for capacity!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // ✅ Create marker data
         Map<String, Object> marker = new HashMap<>();
         marker.put("latitude", latitude);
         marker.put("longitude", longitude);
@@ -129,14 +146,15 @@ public class AddMarkerActivity extends AppCompatActivity {
         marker.put("userId", userId);
         marker.put("userName", userName);
         marker.put("eventDateTime", eventDate + " " + eventTime);
-        marker.put("theme", finalTheme); // Store the theme in Firestore ✅
+        marker.put("theme", finalTheme); // ✅ Keep the theme storage
+        marker.put("maxCapacity", maxCapacity); // ✅ Store the max capacity
+        marker.put("currentAttendees", 0); // ✅ Start attendee count at 0
 
+        // ✅ Save marker to Firestore
         firestore.collection("markers").add(marker)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(this, "Event added successfully!", Toast.LENGTH_SHORT).show();
-
-                    // ✅ Redirect user back to `MapsFragment`
-                    finish(); // Close `AddMarkerActivity`
+                    finish(); // ✅ Redirect user back to `MapsFragment`
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Error saving marker", Toast.LENGTH_SHORT).show());
     }
