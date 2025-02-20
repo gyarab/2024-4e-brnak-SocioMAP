@@ -1,74 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Past Events Section -->
-    <TextView
-        android:id="@+id/txt_past_events"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Past Events"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:paddingBottom="8dp" />
+        android:orientation="vertical">
 
-    <ListView
-        android:id="@+id/list_past_events"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:divider="@android:color/darker_gray"
-        android:dividerHeight="1dp"
-        android:scrollbars="vertical" />
+        <!-- Past Events Section -->
+        <TextView
+            android:id="@+id/txt_archived_events"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Archived Events You Attended"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray"
-        android:layout_marginVertical="8dp" />
+        <ListView
+            android:id="@+id/list_archived_events"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@android:color/darker_gray"
+            android:dividerHeight="1dp"
+            android:scrollbars="vertical" />
 
-    <!-- Signed-up Events Section -->
-    <TextView
-        android:id="@+id/txt_signed_up_events"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Signed-up Events"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:paddingBottom="8dp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginVertical="8dp" />
 
-    <ListView
-        android:id="@+id/list_signed_events"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:divider="@android:color/darker_gray"
-        android:dividerHeight="1dp"
-        android:scrollbars="vertical" />
+        <!-- Signed-up Events Section -->
+        <TextView
+            android:id="@+id/txt_signed_up_events"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Signed-up Events"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingBottom="8dp" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray"
-        android:layout_marginVertical="8dp" />
+        <ListView
+            android:id="@+id/list_signed_events"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@android:color/darker_gray"
+            android:dividerHeight="1dp"
+            android:scrollbars="vertical" />
 
-    <!-- Created Events Section -->
-    <TextView
-        android:id="@+id/txt_created_events"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Your Created Events"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:paddingBottom="8dp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginVertical="8dp" />
 
-    <ListView
-        android:id="@+id/list_created_events"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:divider="@android:color/darker_gray"
-        android:dividerHeight="1dp"
-        android:scrollbars="vertical" />
+        <!-- Created Events Section -->
+        <TextView
+            android:id="@+id/txt_created_events"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Your Created Events"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingBottom="8dp" />
 
-</LinearLayout>
+        <ListView
+            android:id="@+id/list_created_events"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@android:color/darker_gray"
+            android:dividerHeight="1dp"
+            android:scrollbars="vertical" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginVertical="8dp" />
+
+        <!-- Archived Created Events Section -->
+        <TextView
+            android:id="@+id/txt_archived_created_events"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Your Archived Created Events"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp" />
+
+        <ListView
+            android:id="@+id/list_archived_created_events"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@android:color/darker_gray"
+            android:dividerHeight="1dp"
+            android:scrollbars="vertical" />
+
+    </LinearLayout>
+
+</ScrollView>

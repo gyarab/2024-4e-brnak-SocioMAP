@@ -24,6 +24,18 @@
         app:cardCornerRadius="12dp"
         app:cardElevation="8dp">
 
+        <!-- Calendar Filter Button (Top Right) -->
+        <Button
+            android:id="@+id/btn_calendar_filter"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="top|end"
+            android:layout_margin="16dp"
+            android:background="@android:color/white"
+            android:elevation="6dp"
+            android:padding="8dp"
+            android:contentDescription="Filter by Date"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

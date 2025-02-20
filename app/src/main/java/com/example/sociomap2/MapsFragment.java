@@ -1,8 +1,10 @@
 package com.example.sociomap2;
 
 import android.Manifest;
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.icu.util.Calendar;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,6 +37,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.Locale;
+
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     private static final String TAG = "MapsFragment";
@@ -47,6 +51,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private String selectedTheme = "All";
     private boolean isEditMode = false; // Default: View Mode
     private FusedLocationProviderClient fusedLocationClient;
+    private String selectedDate = null; // Stores selected date
 
 
     @Nullable
@@ -57,14 +62,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         return inflater.inflate(R.layout.fragment_maps, container, false);
     }
 
+
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         firestore = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
-
-        // ✅ Initialize FusedLocationProviderClient here
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
         FirebaseUser user = firebaseAuth.getCurrentUser();
@@ -81,20 +86,25 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             mapFragment.getMapAsync(this);
         }
 
-        // Initialize Spinner (filter)
+        // Initialize Spinner (Filter)
         spnFilter = view.findViewById(R.id.spn_filter);
         setupFilterSpinner();
 
-        // Button to toggle between View Mode and Edit Mode
+        // Toggle Edit Mode Button
         btnToggleMode = view.findViewById(R.id.btn_toggle_mode);
         btnToggleMode.setOnClickListener(v -> {
             isEditMode = !isEditMode;
             updateMapMode();
         });
 
-        // Load View Mode by default
+        // ✅ Initialize Calendar Filter Button
+        Button btnCalendarFilter = view.findViewById(R.id.btn_calendar_filter);
+        btnCalendarFilter.setOnClickListener(v -> showDatePickerDialog());
+
         updateMapMode();
     }
+
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -165,14 +175,29 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 String title = document.getString("title");
                 String description = document.getString("description");
                 String theme = document.getString("theme");
+                String eventDateTime = document.getString("eventDateTime"); // Get full date-time string
 
                 if (latitude == null || longitude == null || title == null || description == null || theme == null) {
                     Log.e(TAG, "Missing field in document: " + document.getId());
                     continue;
                 }
 
-                // ✅ Apply the filter: Only add markers that match the selected theme
+                // ✅ Check if eventDateTime is valid before splitting
+                String eventDate = null;
+                if (eventDateTime != null && eventDateTime.contains(" ")) {
+                    String[] dateTimeParts = eventDateTime.split(" ");
+                    if (dateTimeParts.length > 1) {
+                        eventDate = dateTimeParts[0]; // Extract only the date (YYYY-MM-DD)
+                    }
+                }
+
+                // ✅ Apply Theme Filter
                 if (!selectedTheme.equals("All") && !selectedTheme.equalsIgnoreCase(theme)) {
+                    continue;
+                }
+
+                // ✅ Apply Date Filter (If a date is selected)
+                if (selectedDate != null && (eventDate == null || !selectedDate.equals(eventDate))) {
                     continue;
                 }
 
@@ -211,6 +236,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
+
+
     private void setupFilterSpinner() {
         String[] themes = {"All", "Sports", "Music", "Festival", "Workshop", "Custom"};
 
@@ -238,6 +265,22 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             }
         });
     }
+
+    private void showDatePickerDialog() {
+        Calendar calendar = Calendar.getInstance();
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(),
+                (view, year, month, dayOfMonth) -> {
+                    selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth);
+                    loadMarkers(); // Reload markers after selecting a date
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+
+        datePickerDialog.show();
+    }
+
 
     private float getMarkerColor(String theme) {
         if (theme == null) return BitmapDescriptorFactory.HUE_RED;
