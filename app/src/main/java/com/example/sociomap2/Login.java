@@ -11,16 +11,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -31,28 +27,21 @@ public class Login extends AppCompatActivity {
     TextInputEditText editTextEmail, editTextPassword;
     Button btnLog;
     FirebaseAuth mAuth;
-    FirebaseFirestore db;  // Firestore instance
+    FirebaseFirestore db;
     ProgressBar progressBar;
     TextView textView;
 
-
     @Override
     public void onStart() {
-
         super.onStart();
-
         if (mAuth == null) {
             mAuth = FirebaseAuth.getInstance();
         }
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null && !isFinishing()) {
-            checkAdminStatus(currentUser.getUid());
+            checkBanStatus(currentUser.getUid());
         }
-
-
     }
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +55,7 @@ public class Login extends AppCompatActivity {
         });
 
         mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance(); // Initialize Firestore instance
+        db = FirebaseFirestore.getInstance();
 
         editTextEmail = findViewById(R.id.email);
         editTextPassword = findViewById(R.id.password);
@@ -101,10 +90,7 @@ public class Login extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
-                                checkAdminStatus(user.getUid());
-                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                startActivity(intent);
-                                finish();
+                                checkBanStatus(user.getUid());
                             }
                         } else {
                             Toast.makeText(Login.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
@@ -114,9 +100,37 @@ public class Login extends AppCompatActivity {
     }
 
     /**
-     * Check if the user has admin privileges by querying Firestore.
-     *
-     * @param userId The UID of the logged-in user.
+     * Check if the user is banned before allowing login.
+     */
+    private void checkBanStatus(String userId) {
+        db.collection("users").document(userId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            Boolean isBanned = document.getBoolean("ban");
+
+                            if (isBanned != null && isBanned) {
+                                // 🚫 User is banned, prevent login
+                                Toast.makeText(Login.this, "Your account has been banned.", Toast.LENGTH_LONG).show();
+                                mAuth.signOut(); // Log the user out immediately
+                                return;
+                            }
+
+                            // ✅ User is NOT banned, continue to role check
+                            checkAdminStatus(userId);
+                        } else {
+                            Log.d("Login", "No such document");
+                        }
+                    } else {
+                        Log.d("Login", "get failed with ", task.getException());
+                    }
+                });
+    }
+
+    /**
+     * Check if the user is an admin or a regular user.
      */
     private void checkAdminStatus(String userId) {
         db.collection("users").document(userId)
@@ -126,15 +140,15 @@ public class Login extends AppCompatActivity {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
                             Boolean isAdmin = document.getBoolean("isAdmin");
+                            Intent intent;
                             if (isAdmin != null && isAdmin) {
-                                // Redirect to Admin Interface
-                                Intent intent = new Intent(getApplicationContext(), AdminProfile.class);
-                                startActivity(intent);
+                                // 👑 Redirect to Admin Interface
+                                intent = new Intent(getApplicationContext(), AdminProfile.class);
                             } else {
-                                // Redirect to Main Activity for regular users
-                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                startActivity(intent);
+                                // 🔓 Redirect to Main Activity for regular users
+                                intent = new Intent(getApplicationContext(), MainActivity.class);
                             }
+                            startActivity(intent);
                             finish();
                         } else {
                             Log.d("Login", "No such document");

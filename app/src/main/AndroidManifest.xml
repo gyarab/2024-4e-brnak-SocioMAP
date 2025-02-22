@@ -7,12 +7,10 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-    <!-- first back arrow-->
     <application
-
-        android:enableOnBackInvokedCallback="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -20,6 +18,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Material3.Dark"
         tools:targetApi="31">
+        <activity
+            android:name=".AdminUserDetails"
+            android:exported="false" />
+        <activity
+            android:name=".AdminUserList"
+            android:exported="false" />
         <activity
             android:name=".EditMarkerActivity"
             android:exported="false" />
@@ -30,7 +34,6 @@
             android:name=".AddMarkerActivity"
             android:exported="false"
             android:theme="@style/Theme.Material3.Dark" />
-
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 

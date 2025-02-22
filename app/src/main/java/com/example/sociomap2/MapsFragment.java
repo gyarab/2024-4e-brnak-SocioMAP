@@ -34,10 +34,18 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
+import java.util.TimeZone;
+
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
@@ -169,27 +177,40 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         firestore.collection("markers").get().addOnSuccessListener(queryDocumentSnapshots -> {
             googleMap.clear(); // Clear previous markers before applying the filter
 
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC")); // Ensure consistent time zone handling
+            Date currentDate = new Date(); // Current time
+
             for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                String eventId = document.getId();
                 Double latitude = document.getDouble("latitude");
                 Double longitude = document.getDouble("longitude");
                 String title = document.getString("title");
                 String description = document.getString("description");
                 String theme = document.getString("theme");
-                String eventDateTime = document.getString("eventDateTime"); // Get full date-time string
+                String eventDateTime = document.getString("eventDateTime");
+                String ownerId = document.getString("userId"); // Get event creator ID
 
-                if (latitude == null || longitude == null || title == null || description == null || theme == null) {
+                if (latitude == null || longitude == null || title == null || description == null || theme == null || eventDateTime == null || ownerId == null) {
                     Log.e(TAG, "Missing field in document: " + document.getId());
                     continue;
                 }
 
-                // ✅ Check if eventDateTime is valid before splitting
-                String eventDate = null;
-                if (eventDateTime != null && eventDateTime.contains(" ")) {
-                    String[] dateTimeParts = eventDateTime.split(" ");
-                    if (dateTimeParts.length > 1) {
-                        eventDate = dateTimeParts[0]; // Extract only the date (YYYY-MM-DD)
+                try {
+                    Date eventDate = sdf.parse(eventDateTime); // Parse event date
+
+                    if (eventDate != null && eventDate.before(currentDate)) {
+                        // ✅ The event has already happened - Archive it
+                        archiveEvent(document, eventId, ownerId);
+                        continue; // Skip displaying this marker
                     }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error parsing eventDateTime for event: " + eventId, e);
+                    continue;
                 }
+
+                // ✅ Check if eventDateTime is valid before splitting
+                String eventDate = eventDateTime.split(" ")[0]; // Extract only the date (YYYY-MM-DD)
 
                 // ✅ Apply Theme Filter
                 if (!selectedTheme.equals("All") && !selectedTheme.equalsIgnoreCase(theme)) {
@@ -197,7 +218,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 }
 
                 // ✅ Apply Date Filter (If a date is selected)
-                if (selectedDate != null && (eventDate == null || !selectedDate.equals(eventDate))) {
+                if (selectedDate != null && !selectedDate.equals(eventDate)) {
                     continue;
                 }
 
@@ -211,7 +232,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         .icon(BitmapDescriptorFactory.defaultMarker(color)));
 
                 if (marker != null) {
-                    marker.setTag(document.getId());
+                    marker.setTag(eventId);
                 }
             }
         }).addOnFailureListener(e -> Log.e(TAG, "Error fetching markers", e));
@@ -235,6 +256,50 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             return true;
         });
     }
+
+    private void archiveEvent(QueryDocumentSnapshot document, String eventId, String ownerId) {
+        firestore.collection("event_guest_list").document(eventId)
+                .get()
+                .addOnSuccessListener(guestListDoc -> {
+                    List<String> attendees = (List<String>) guestListDoc.get("users");
+
+                    // ✅ Move event to `markers_arch`
+                    firestore.collection("markers_arch").document(eventId)
+                            .set(document.getData())
+                            .addOnSuccessListener(aVoid -> Log.d(TAG, "Event archived successfully: " + eventId));
+
+                    // ✅ Remove event from `markers`
+                    firestore.collection("markers").document(eventId)
+                            .delete()
+                            .addOnSuccessListener(aVoid -> Log.d(TAG, "Event removed from active markers: " + eventId));
+
+                    // ✅ Add event to each user's archive
+                    if (attendees != null) {
+                        for (String userId : attendees) {
+                            firestore.collection("user_arch").document(userId)
+                                    .update("events", FieldValue.arrayUnion(eventId))
+                                    .addOnFailureListener(e -> {
+                                        // If the document doesn't exist, create it
+                                        firestore.collection("user_arch").document(userId)
+                                                .set(Map.of("events", new ArrayList<String>() {{ add(eventId); }}));
+                                    });
+                        }
+                    }
+
+                    // ✅ Add event to the owner's archive
+                    firestore.collection("user_owner_arch").document(ownerId)
+                            .update("events", FieldValue.arrayUnion(eventId))
+                            .addOnFailureListener(e -> {
+                                firestore.collection("user_owner_arch").document(ownerId)
+                                        .set(Map.of("events", new ArrayList<String>() {{ add(eventId); }}));
+                            });
+
+                    // ✅ Remove event from `event_guest_list`
+                    firestore.collection("event_guest_list").document(eventId).delete();
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error retrieving guest list for event: " + eventId, e));
+    }
+
 
 
 

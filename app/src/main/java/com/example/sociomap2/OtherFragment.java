@@ -139,13 +139,14 @@ public class OtherFragment extends Fragment {
                         List<String> events = (List<String>) document.get("events");
                         if (events != null) {
                             for (String eventId : events) {
-                                fetchEventDetails(eventId, archivedEvents, archivedEventIds, archivedAdapter);
+                                fetchArchivedEventDetails(eventId, archivedEvents, archivedEventIds, archivedAdapter);
                             }
                         }
                     }
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Error loading archived events", e));
     }
+
 
     private void loadArchivedCreatedEvents() {
         firestore.collection("user_owner_arch").document(userId)
@@ -158,13 +159,33 @@ public class OtherFragment extends Fragment {
                         List<String> events = (List<String>) document.get("events");
                         if (events != null) {
                             for (String eventId : events) {
-                                fetchEventDetails(eventId, archivedCreatedEvents, archivedCreatedEventIds, archivedCreatedAdapter);
+                                fetchArchivedEventDetails(eventId, archivedCreatedEvents, archivedCreatedEventIds, archivedCreatedAdapter);
                             }
                         }
                     }
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Error loading archived created events", e));
     }
+
+    private void fetchArchivedEventDetails(String eventId, List<String> eventList, List<String> eventIdList, ArrayAdapter<String> adapter) {
+        firestore.collection("markers_arch").document(eventId)
+                .get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        String eventName = document.getString("title");
+                        String eventDate = document.getString("eventDateTime");
+
+                        if (eventName != null && eventDate != null) {
+                            eventList.add(eventName + " - " + eventDate);
+                            eventIdList.add(eventId);
+                            adapter.notifyDataSetChanged();
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error fetching archived event details", e));
+    }
+
+
 
     private void fetchEventDetails(String eventId, List<String> eventList, List<String> eventIdList, ArrayAdapter<String> adapter) {
         firestore.collection("markers").document(eventId)
