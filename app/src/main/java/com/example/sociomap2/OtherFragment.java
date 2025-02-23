@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -110,20 +111,25 @@ public class OtherFragment extends Fragment {
     }
 
     private void loadCreatedEvents() {
-        firestore.collection("user_owner_events").document(userId)
+        firestore.collection("markers")
+                .whereEqualTo("userId", userId)  // ✅ Find markers where the user is the owner
                 .get()
-                .addOnSuccessListener(document -> {
+                .addOnSuccessListener(querySnapshot -> {
                     createdEvents.clear();
                     createdEventIds.clear();
 
-                    if (document.exists() && document.getData() != null) {
-                        List<String> events = (List<String>) document.get("events");
-                        if (events != null) {
-                            for (String eventId : events) {
-                                fetchEventDetails(eventId, createdEvents, createdEventIds, createdAdapter);
-                            }
+                    for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                        String eventId = document.getId();
+                        String eventName = document.getString("title");
+                        String eventDate = document.getString("eventDateTime");
+
+                        if (eventName != null && eventDate != null) {
+                            createdEvents.add(eventName + " - " + eventDate);
+                            createdEventIds.add(eventId);
                         }
                     }
+
+                    createdAdapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Error loading created events", e));
     }

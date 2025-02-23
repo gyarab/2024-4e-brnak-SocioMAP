@@ -266,47 +266,59 @@ public class MarkerInfoActivity extends AppCompatActivity {
         }
 
         String userId = firebaseAuth.getCurrentUser().getUid();
-        String userName = firebaseAuth.getCurrentUser().getDisplayName();
 
-        if (userName == null) {
-            Toast.makeText(this, "Error: User name is missing.", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // ✅ Fetch the username from Firestore (instead of using getDisplayName())
+        firestore.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(userDoc -> {
+                    if (userDoc.exists()) {
+                        String username = userDoc.getString("username");
 
-        // ✅ Add event ID to user's `user_events` document
-        firestore.collection("user_events").document(userId)
-                .update("events", FieldValue.arrayUnion(eventId))
-                .addOnFailureListener(e -> {
-                    Map<String, Object> userEventsData = new HashMap<>();
-                    userEventsData.put("events", new ArrayList<String>() {{
-                        add(eventId);
-                    }});
-                    firestore.collection("user_events").document(userId).set(userEventsData);
-                });
+                        if (username == null || username.trim().isEmpty()) {
+                            Toast.makeText(this, "Error: Username is missing.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
-        // ✅ Add user ID & name to `event_guest_list` document
-        firestore.collection("event_guest_list").document(eventId)
-                .update("users", FieldValue.arrayUnion(userId), userId, userName) // Store both ID & name
-                .addOnFailureListener(e -> {
-                    Map<String, Object> eventGuestData = new HashMap<>();
-                    eventGuestData.put("users", new ArrayList<String>() {{
-                        add(userId);
-                    }});
-                    eventGuestData.put(userId, userName); // Store the name
-                    firestore.collection("event_guest_list").document(eventId).set(eventGuestData);
-                });
+                        // ✅ Add event ID to user's `user_events` document
+                        firestore.collection("user_events").document(userId)
+                                .update("events", FieldValue.arrayUnion(eventId))
+                                .addOnFailureListener(e -> {
+                                    Map<String, Object> userEventsData = new HashMap<>();
+                                    userEventsData.put("events", new ArrayList<String>() {{
+                                        add(eventId);
+                                    }});
+                                    firestore.collection("user_events").document(userId).set(userEventsData);
+                                });
 
-        // ✅ Update attendee count in Firestore
-        firestore.collection("markers").document(eventId)
-                .update("currentAttendees", FieldValue.increment(1))
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Signed up for the event!", Toast.LENGTH_SHORT).show();
-                    currentAttendees++; // Update local variable
-                    eventCapacity.setText("Capacity: " + currentAttendees + "/" + maxCapacity);
-                    checkUserParticipation(); // Refresh button state
-                    loadAttendeesList(); // ✅ Refresh attendees list
+                        // ✅ Add user ID & username to `event_guest_list` document
+                        firestore.collection("event_guest_list").document(eventId)
+                                .update("users", FieldValue.arrayUnion(userId), userId, username) // Store both ID & username
+                                .addOnFailureListener(e -> {
+                                    Map<String, Object> eventGuestData = new HashMap<>();
+                                    eventGuestData.put("users", new ArrayList<String>() {{
+                                        add(userId);
+                                    }});
+                                    eventGuestData.put(userId, username); // Store the username
+                                    firestore.collection("event_guest_list").document(eventId).set(eventGuestData);
+                                });
+
+                        // ✅ Update attendee count in Firestore
+                        firestore.collection("markers").document(eventId)
+                                .update("currentAttendees", FieldValue.increment(1))
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(this, "Signed up for the event!", Toast.LENGTH_SHORT).show();
+                                    currentAttendees++; // Update local variable
+                                    eventCapacity.setText("Capacity: " + currentAttendees + "/" + maxCapacity);
+                                    checkUserParticipation(); // Refresh button state
+                                    loadAttendeesList(); // ✅ Refresh attendees list
+                                })
+                                .addOnFailureListener(e -> Log.e(TAG, "Error updating attendee count", e));
+
+                    } else {
+                        Toast.makeText(this, "Error: User details not found.", Toast.LENGTH_SHORT).show();
+                    }
                 })
-                .addOnFailureListener(e -> Log.e(TAG, "Error updating attendee count", e));
+                .addOnFailureListener(e -> Log.e(TAG, "Error fetching user details", e));
     }
 
     private void signOutFromEvent() {

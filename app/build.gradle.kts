@@ -61,6 +61,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    //Email sending
+    implementation (libs.android.mail)
+    implementation (libs.mail.android.activation)
 }
 
 apply(plugin = "com.google.gms.google-services")

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/default_background"
     tools:context=".MapsFragment">
 
     <!-- Google Map Fragment -->
@@ -61,6 +62,16 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_toggle_famous"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_star_outline"
+    app:backgroundTint="@color/white"
+    android:tint="@color/black"/>
+
     <!-- Button to Toggle Between View Mode & Edit Mode -->
     <Button
         android:id="@+id/btn_toggle_mode"
@@ -86,3 +97,13 @@
         android:visibility="gone" /> <!-- Hidden by default, shown in Edit Mode -->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+
+
+
+
+
+
+
+

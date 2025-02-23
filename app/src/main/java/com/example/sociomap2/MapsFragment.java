@@ -32,6 +32,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
@@ -60,6 +61,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private boolean isEditMode = false; // Default: View Mode
     private FusedLocationProviderClient fusedLocationClient;
     private String selectedDate = null; // Stores selected date
+    private boolean showOnlyFamous = false; // 🔹 Track the famous filter state
+    private FloatingActionButton btnToggleFamous;
 
 
     @Nullable
@@ -105,7 +108,22 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             updateMapMode();
         });
 
-        // ✅ Initialize Calendar Filter Button
+        // 🔹 Star Button to Filter Famous Users
+        btnToggleFamous = view.findViewById(R.id.btn_toggle_famous);
+        btnToggleFamous.setOnClickListener(v -> {
+            showOnlyFamous = !showOnlyFamous; // Toggle filter
+
+            // 🔹 Change Star Icon Based on Filter State
+            if (showOnlyFamous) {
+                btnToggleFamous.setImageResource(android.R.drawable.btn_star); // Filled Star
+            } else {
+                btnToggleFamous.setImageResource(android.R.drawable.btn_star_big_on); // Outline Star
+            }
+
+            loadMarkers(); // Refresh markers with filter applied
+        });
+
+        // Calendar Filter Button
         Button btnCalendarFilter = view.findViewById(R.id.btn_calendar_filter);
         btnCalendarFilter.setOnClickListener(v -> showDatePickerDialog());
 
@@ -175,11 +193,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     private void loadMarkers() {
         firestore.collection("markers").get().addOnSuccessListener(queryDocumentSnapshots -> {
-            googleMap.clear(); // Clear previous markers before applying the filter
+            googleMap.clear();
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC")); // Ensure consistent time zone handling
-            Date currentDate = new Date(); // Current time
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date currentDate = new Date();
 
             for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                 String eventId = document.getId();
@@ -189,7 +207,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 String description = document.getString("description");
                 String theme = document.getString("theme");
                 String eventDateTime = document.getString("eventDateTime");
-                String ownerId = document.getString("userId"); // Get event creator ID
+                String ownerId = document.getString("userId");
 
                 if (latitude == null || longitude == null || title == null || description == null || theme == null || eventDateTime == null || ownerId == null) {
                     Log.e(TAG, "Missing field in document: " + document.getId());
@@ -197,43 +215,59 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 }
 
                 try {
-                    Date eventDate = sdf.parse(eventDateTime); // Parse event date
-
+                    Date eventDate = sdf.parse(eventDateTime);
                     if (eventDate != null && eventDate.before(currentDate)) {
-                        // ✅ The event has already happened - Archive it
                         archiveEvent(document, eventId, ownerId);
-                        continue; // Skip displaying this marker
+                        continue;
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Error parsing eventDateTime for event: " + eventId, e);
                     continue;
                 }
 
-                // ✅ Check if eventDateTime is valid before splitting
-                String eventDate = eventDateTime.split(" ")[0]; // Extract only the date (YYYY-MM-DD)
+                String eventDate = eventDateTime.split(" ")[0];
 
                 // ✅ Apply Theme Filter
                 if (!selectedTheme.equals("All") && !selectedTheme.equalsIgnoreCase(theme)) {
                     continue;
                 }
 
-                // ✅ Apply Date Filter (If a date is selected)
+                // ✅ Apply Date Filter
                 if (selectedDate != null && !selectedDate.equals(eventDate)) {
                     continue;
                 }
 
                 LatLng position = new LatLng(latitude, longitude);
-                float color = getMarkerColor(theme);
 
-                Marker marker = googleMap.addMarker(new MarkerOptions()
-                        .position(position)
-                        .title(title)
-                        .snippet(description)
-                        .icon(BitmapDescriptorFactory.defaultMarker(color)));
+                // 🔹 Fetch user data to check if the owner is famous
+                firestore.collection("users").document(ownerId).get()
+                        .addOnSuccessListener(userDoc -> {
+                            boolean isFamous = userDoc.contains("isFamous") && Boolean.TRUE.equals(userDoc.getBoolean("isFamous"));
 
-                if (marker != null) {
-                    marker.setTag(eventId);
-                }
+                            // ✅ If famous filter is ON, skip non-famous markers
+                            if (showOnlyFamous && !isFamous) {
+                                return;
+                            }
+
+                            float markerColor = getMarkerColor(theme);
+                            float markerSize = 1.0f;
+
+                            if (isFamous) {
+                                markerColor = BitmapDescriptorFactory.HUE_CYAN;
+                                markerSize = 1.5f;
+                            }
+
+                            Marker marker = googleMap.addMarker(new MarkerOptions()
+                                    .position(position)
+                                    .title(title)
+                                    .snippet(description)
+                                    .icon(BitmapDescriptorFactory.defaultMarker(markerColor))
+                                    .anchor(0.5f, markerSize));
+
+                            if (marker != null) {
+                                marker.setTag(eventId);
+                            }
+                        });
             }
         }).addOnFailureListener(e -> Log.e(TAG, "Error fetching markers", e));
 
@@ -304,7 +338,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
 
     private void setupFilterSpinner() {
-        String[] themes = {"All", "Sports", "Music", "Festival", "Workshop", "Custom"};
+        String[] themes = {"All", "Sports", "Music", "Festival", "Concert", "Custom"};
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_spinner_dropdown_item, themes);

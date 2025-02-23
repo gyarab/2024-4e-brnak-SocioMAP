@@ -95,13 +95,38 @@ public class AdminUserDetails extends AppCompatActivity {
 
     private void toggleFamousStatus() {
         isFamous = !isFamous;
+
         firestore.collection("users").document(userId)
                 .update("isFamous", isFamous)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, isFamous ? "User is now Famous!" : "User is no longer Famous", Toast.LENGTH_SHORT).show();
                     updateButtonText();
+
+                    if (isFamous) {
+                        // Fetch user email and send a fame notification email
+                        firestore.collection("users").document(userId)
+                                .get()
+                                .addOnSuccessListener(document -> {
+                                    if (document.exists() && document.contains("email")) {
+                                        String email = document.getString("email");
+                                        if (email != null && !email.isEmpty()) {
+                                            sendFameEmail(email);
+                                        }
+                                    }
+                                })
+                                .addOnFailureListener(e -> Log.e(TAG, "Error fetching email for famous user", e));
+                    }
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Error updating famous status", e));
+    }
+
+    private void sendFameEmail(String recipientEmail) {
+        String subject = "Congratulations! You Are Now Famous 🎉";
+        String messageBody = "Dear User,\n\nYou have been selected as a Famous User on SocioMap! 🎉\n\n" +
+                "Your markers will now be highlighted, and you will receive special privileges.\n\n" +
+                "Keep creating amazing events and enjoy your new status!\n\nBest regards,\nSocioMap Team";
+
+        new EmailSender(recipientEmail, subject, messageBody).execute();
     }
 }
 
