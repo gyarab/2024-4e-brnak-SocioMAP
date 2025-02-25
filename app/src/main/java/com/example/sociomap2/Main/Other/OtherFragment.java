@@ -1,4 +1,4 @@
-package com.example.sociomap2;
+package com.example.sociomap2.Main.Other;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -15,13 +16,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.sociomap2.Main.Map.MarkerInfoActivity;
+import com.example.sociomap2.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class OtherFragment extends Fragment {
 
@@ -32,6 +34,7 @@ public class OtherFragment extends Fragment {
 
     private ListView listSignedEvents, listCreatedEvents, listArchivedEvents, listArchivedCreatedEvents;
     private ArrayAdapter<String> signedAdapter, createdAdapter, archivedAdapter, archivedCreatedAdapter;
+    private Button btnManageFollowing; // ✅ New button for following feature
 
     private List<String> signedEvents = new ArrayList<>();
     private List<String> createdEvents = new ArrayList<>();
@@ -63,6 +66,7 @@ public class OtherFragment extends Fragment {
         listCreatedEvents = view.findViewById(R.id.list_created_events);
         listArchivedEvents = view.findViewById(R.id.list_archived_events);
         listArchivedCreatedEvents = view.findViewById(R.id.list_archived_created_events);
+        btnManageFollowing = view.findViewById(R.id.btn_manage_following); // ✅ Initialize button
 
         // Initialize Adapters
         signedAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, signedEvents);
@@ -87,6 +91,12 @@ public class OtherFragment extends Fragment {
         listCreatedEvents.setOnItemClickListener((parent, view1, position, id) -> openMarkerInfo(createdEventIds.get(position)));
         listArchivedEvents.setOnItemClickListener((parent, view1, position, id) -> openMarkerInfo(archivedEventIds.get(position)));
         listArchivedCreatedEvents.setOnItemClickListener((parent, view1, position, id) -> openMarkerInfo(archivedCreatedEventIds.get(position)));
+
+        // ✅ Open FollowingActivity when clicked
+        btnManageFollowing.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), FollowingActivity.class);
+            startActivity(intent);
+        });
 
         return view;
     }

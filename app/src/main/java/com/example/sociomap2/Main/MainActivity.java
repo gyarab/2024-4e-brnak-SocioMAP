@@ -1,17 +1,19 @@
-package com.example.sociomap2;
+package com.example.sociomap2.Main;
 
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.sociomap2.Main.Map.MapsFragment;
+import com.example.sociomap2.Main.Other.OtherFragment;
+import com.example.sociomap2.Main.Profile.ProfileFragment;
+import com.example.sociomap2.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {

@@ -1,16 +1,15 @@
-package com.example.sociomap2;
+package com.example.sociomap2.Admin;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.example.sociomap2.EmailSender;
+import com.example.sociomap2.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class AdminUserDetails extends AppCompatActivity {

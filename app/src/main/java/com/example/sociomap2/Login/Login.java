@@ -1,4 +1,4 @@
-package com.example.sociomap2;
+package com.example.sociomap2.Login;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.sociomap2.Admin.AdminProfile;
+import com.example.sociomap2.Main.MainActivity;
+import com.example.sociomap2.R;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

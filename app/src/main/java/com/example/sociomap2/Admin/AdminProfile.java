@@ -1,8 +1,7 @@
-package com.example.sociomap2;
+package com.example.sociomap2.Admin;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -12,6 +11,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.sociomap2.Login.Login;
+import com.example.sociomap2.R;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class AdminProfile extends AppCompatActivity {

@@ -10,6 +10,17 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- 🔹 Manage Following Button -->
+        <Button
+            android:id="@+id/btn_manage_following"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Manage Following"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="@color/default_background"
+            android:textColor="@android:color/white" />
+
         <!-- 🔹 Archived Events (Attended) -->
         <TextView
             android:id="@+id/txt_archived_events"
@@ -101,33 +112,6 @@
             android:divider="@android:color/darker_gray"
             android:dividerHeight="1dp"
             android:scrollbars="vertical" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginVertical="8dp" />
-
-        <!-- 🔹 Famous User Events (if needed in the future) -->
-        <TextView
-            android:id="@+id/txt_famous_user_events"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Famous User Events (Upcoming Feature)"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp"
-            android:visibility="gone"/> <!-- Hidden for now, can be enabled later -->
-
-        <ListView
-            android:id="@+id/list_famous_user_events"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:divider="@android:color/darker_gray"
-            android:dividerHeight="1dp"
-            android:scrollbars="vertical"
-            android:visibility="gone"/> <!-- Hidden for now -->
 
     </LinearLayout>
 
