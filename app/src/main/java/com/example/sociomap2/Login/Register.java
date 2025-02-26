@@ -98,6 +98,10 @@ public class Register extends AppCompatActivity {
         });
     }
 
+    private boolean isValidEmail(String email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
     private void registerUser() {
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
@@ -109,7 +113,13 @@ public class Register extends AppCompatActivity {
 
         progressBar.setVisibility(View.VISIBLE);
 
-        // Validate inputs
+        // ✅ **Validate Email Format**
+        if (!isValidEmail(email)) {
+            Toast.makeText(Register.this, "Invalid email format!", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.GONE);
+            return;
+        }
+
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(confirmPassword) ||
                 TextUtils.isEmpty(username) || TextUtils.isEmpty(name) || TextUtils.isEmpty(surname) || TextUtils.isEmpty(birthday)) {
             Toast.makeText(Register.this, "Please fill all fields.", Toast.LENGTH_SHORT).show();
@@ -123,20 +133,46 @@ public class Register extends AppCompatActivity {
             return;
         }
 
-        // Create user with email and password
         mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        progressBar.setVisibility(View.GONE);
-                        if (task.isSuccessful()) {
-                            saveUserInfo(username, name, surname, birthday, email);
-                        } else {
-                            Toast.makeText(Register.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                .addOnCompleteListener(task -> {
+                    progressBar.setVisibility(View.GONE);
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            user.sendEmailVerification()
+                                    .addOnCompleteListener(emailTask -> {
+                                        if (emailTask.isSuccessful()) {
+                                            Toast.makeText(Register.this, "Verification email sent. Check your inbox!", Toast.LENGTH_LONG).show();
+                                            saveTempUserData(username, name, surname, birthday, email);
+                                        } else {
+                                            Toast.makeText(Register.this, "Failed to send verification email.", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+
+                            // Prevent automatic login
+                            Toast.makeText(Register.this, "Account created! Please verify your email before logging in.", Toast.LENGTH_LONG).show();
+                            mAuth.signOut();
+                            finish();
                         }
+                    } else {
+                        Toast.makeText(Register.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
     }
+
+
+    private void saveTempUserData(String username, String name, String surname, String birthday, String email) {
+        getSharedPreferences("USER_DATA", MODE_PRIVATE).edit()
+                .putString("username", username)
+                .putString("name", name)
+                .putString("surname", surname)
+                .putString("birthday", birthday)
+                .putString("email", email)
+                .apply();
+    }
+
+
+
     private void saveUserInfo(String username, String name, String surname, String birthday, String email) {
         // Create a map to hold user info
         Map<String, Object> user = new HashMap<>();
@@ -173,5 +209,3 @@ public class Register extends AppCompatActivity {
 
 
 }
-
-

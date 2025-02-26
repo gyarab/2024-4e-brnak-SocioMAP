@@ -1,6 +1,7 @@
 package com.example.sociomap2.Login;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -24,6 +25,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Login extends AppCompatActivity {
 
@@ -80,6 +84,10 @@ public class Login extends AppCompatActivity {
                 Toast.makeText(Login.this, "No email", Toast.LENGTH_SHORT).show();
                 return;
             }
+            if (!isValidEmail(email)) {
+                Toast.makeText(Login.this, "Invalid email format!", Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (TextUtils.isEmpty(password)) {
                 Toast.makeText(Login.this, "No password", Toast.LENGTH_SHORT).show();
                 return;
@@ -93,13 +101,41 @@ public class Login extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
-                                checkBanStatus(user.getUid());
+                                if (user.isEmailVerified()) {
+                                    checkBanStatus(user.getUid());
+                                } else {
+                                    Toast.makeText(Login.this, "Please verify your email before logging in.", Toast.LENGTH_LONG).show();
+                                    mAuth.signOut();
+                                }
                             }
                         } else {
                             Toast.makeText(Login.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                         }
                     });
         });
+    }
+
+
+    private void showResendVerificationDialog(FirebaseUser user) {
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Email Not Verified")
+                .setMessage("Would you like to resend the verification email?")
+                .setPositiveButton("Resend", (dialog, which) -> {
+                    user.sendEmailVerification()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    Toast.makeText(Login.this, "Verification email resent! Check your inbox.", Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(Login.this, "Failed to send verification email.", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private boolean isValidEmail(String email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     /**
@@ -113,24 +149,55 @@ public class Login extends AppCompatActivity {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
                             Boolean isBanned = document.getBoolean("ban");
-
                             if (isBanned != null && isBanned) {
-                                // 🚫 User is banned, prevent login
                                 Toast.makeText(Login.this, "Your account has been banned.", Toast.LENGTH_LONG).show();
-                                mAuth.signOut(); // Log the user out immediately
+                                mAuth.signOut();
                                 return;
                             }
-
-                            // ✅ User is NOT banned, continue to role check
                             checkAdminStatus(userId);
                         } else {
-                            Log.d("Login", "No such document");
+                            Log.d("Login", "User not found in Firestore, creating user...");
+                            createUserInFirestore(userId);
                         }
                     } else {
-                        Log.d("Login", "get failed with ", task.getException());
+                        Log.d("Login", "Firestore check failed", task.getException());
                     }
                 });
     }
+
+    private void createUserInFirestore(String userId) {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) return;
+
+        // Retrieve stored user data
+        SharedPreferences prefs = getSharedPreferences("USER_DATA", MODE_PRIVATE);
+        String username = prefs.getString("username", "NewUser");
+        String name = prefs.getString("name", "");
+        String surname = prefs.getString("surname", "");
+        String birthday = prefs.getString("birthday", "");
+        String email = user.getEmail();
+
+        // Store in Firestore
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("username", username);
+        userData.put("name", name);
+        userData.put("surname", surname);
+        userData.put("birthday", birthday);
+        userData.put("email", email);
+        userData.put("famous", false);
+        userData.put("isAdmin", false);
+
+        db.collection("users").document(userId)
+                .set(userData)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firestore", "User data created in Firestore.");
+                    // ✅ Clear stored user data after saving -------------------------------------
+                    ((SharedPreferences) prefs).edit().clear().apply();
+                    checkAdminStatus(userId);
+                })
+                .addOnFailureListener(e -> Log.e("Firestore", "Error creating user in Firestore", e));
+    }
+
 
     /**
      * Check if the user is an admin or a regular user.

@@ -135,23 +135,40 @@ public class UserListAdapter extends ArrayAdapter<User> {
                     boolean isFollowing = document.exists() && document.contains("following") &&
                             ((List<String>) document.get("following")).contains(followedUserId);
 
-                    // 🔄 **Instant UI update** before Firestore operation
+                    // 🔄 **Instant UI update before Firestore operation**
                     followButton.setText(isFollowing ? "Follow" : "Unfollow");
 
-                    // 🔄 **Use Firestore's array operations**
-                    firestore.collection(collection).document(currentUserId)
-                            .update("following", isFollowing ? FieldValue.arrayRemove(followedUserId) : FieldValue.arrayUnion(followedUserId))
-                            .addOnSuccessListener(aVoid -> {
-                                if (isFollowing) {
-                                    Toast.makeText(context, "Unfollowed!", Toast.LENGTH_SHORT).show();
-                                } else {
+                    if (document.exists()) {
+                        // ✅ **Document exists → Update the following array**
+                        firestore.collection(collection).document(currentUserId)
+                                .update("following", isFollowing ? FieldValue.arrayRemove(followedUserId) : FieldValue.arrayUnion(followedUserId))
+                                .addOnSuccessListener(aVoid -> {
+                                    if (isFollowing) {
+                                        Toast.makeText(context, "Unfollowed!", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(context, "Now following!", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "Error toggling follow status", e);
+                                    followButton.setText(isFollowing ? "Unfollow" : "Follow"); // Revert UI if failed
+                                });
+                    } else {
+                        // ❌ **Document does NOT exist → Create it first**
+                        Map<String, Object> newFollowData = new HashMap<>();
+                        newFollowData.put("following", List.of(followedUserId));
+
+                        firestore.collection(collection).document(currentUserId)
+                                .set(newFollowData)
+                                .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(context, "Now following!", Toast.LENGTH_SHORT).show();
-                                }
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e(TAG, "Error toggling follow status", e);
-                                followButton.setText(isFollowing ? "Unfollow" : "Follow"); // Revert UI if failed
-                            });
+                                    followButton.setText("Unfollow");
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "Error creating follow document", e);
+                                    followButton.setText("Follow"); // Revert UI if failed
+                                });
+                    }
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Error retrieving follow status", e));
     }
