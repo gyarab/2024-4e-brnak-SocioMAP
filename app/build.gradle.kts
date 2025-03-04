@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.example.sociomap2"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.sociomap2"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -39,10 +39,12 @@ android {
 }
 
 dependencies {
+
+    implementation(libs.play.services.auth)
     // Firebase dependencies
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore.ktx)
-    implementation(libs.firebase.auth.ktx)
+    //implementation(libs.firebase.auth.ktx)
 
     // Google Play Services Maps
     implementation (libs.play.services.maps.v1802)
@@ -56,6 +58,13 @@ dependencies {
     implementation (libs.play.services.maps)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation(libs.firebase.auth.v2231)
+    implementation(libs.credentials)
+    implementation(libs.credentials.play.services.auth)
+    implementation(libs.core.ktx)
+    implementation(libs.googleid)
+    //noinspection UseTomlInstead
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 
     // Testing dependencies
     testImplementation(libs.junit)

@@ -19,13 +19,16 @@
         android:theme="@style/Theme.Material3.Dark"
         tools:targetApi="31">
         <activity
+            android:name=".Main.Profile.EditProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Login.GoogleRegister"
+            tools:ignore="MissingClass" />
+        <activity
             android:name=".Main.Other.SearchUsersActivity"
             android:exported="false" />
         <activity
             android:name=".Main.Other.FollowingActivity"
-            android:exported="false" />
-        <activity
-            android:name=".FriendsHome"
             android:exported="false" />
         <activity
             android:name=".Admin.AdminUserDetails"
@@ -59,13 +62,6 @@
             android:value="AIzaSyDFOZqa0svTBECJxHUZs31cXWZNBXc4t3A" /> <!-- Activities -->
         <activity
             android:name=".Admin.AdminProfile"
-            android:exported="false" />
-        <activity
-            android:name=".MainMap"
-            android:exported="false"
-            android:label="@string/title_activity_main_map" />
-        <activity
-            android:name=".Profile"
             android:exported="false" />
         <activity
             android:name=".Login.Register"

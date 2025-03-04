@@ -12,7 +12,20 @@
           "package_name": "com.example.sociomap2"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "619168565709-mb9a2oi8f23fbl45s16vrdfrn03sb3b8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sociomap2",
+            "certificate_hash": "aef75b1cf744a34de4d4173a45b2719092e4d238"
+          }
+        },
+        {
+          "client_id": "619168565709-1s82fbjctc6l44qm51eot31ffsreka0m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDHSmduAhZ6jvzDI57z3c3r8UUKvmJXqV0"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "619168565709-1s82fbjctc6l44qm51eot31ffsreka0m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

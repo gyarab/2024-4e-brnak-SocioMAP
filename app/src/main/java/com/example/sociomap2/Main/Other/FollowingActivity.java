@@ -64,7 +64,7 @@ public class FollowingActivity extends AppCompatActivity {
         loadFollowingSigned();
         loadFollowingCreated();
 
-        // ✅ Button to Open SearchUsersActivity
+        // Button to Open SearchUsersActivity
         btnSearchUsers.setOnClickListener(v -> {
             Intent intent = new Intent(FollowingActivity.this, SearchUsersActivity.class);
             startActivity(intent);
@@ -97,7 +97,7 @@ public class FollowingActivity extends AppCompatActivity {
                     followingCreated.clear();
 
                     if (document.exists()) {
-                        // ✅ Extract the "following" array correctly
+                        // Extract the "following" array correctly
                         List<String> followedUsers = (List<String>) document.get("following");
                         if (followedUsers != null) {
                             for (String followedUserId : followedUsers) {

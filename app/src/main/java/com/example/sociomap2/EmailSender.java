@@ -24,8 +24,8 @@ public class EmailSender extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        final String senderEmail = "your-email@gmail.com"; // Your Gmail
-        final String senderPassword = "your-email-password"; // App-specific password
+        final String senderEmail = "tobik.brnak@gmail.com";
+        final String senderPassword = "brnoboss";
 
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
