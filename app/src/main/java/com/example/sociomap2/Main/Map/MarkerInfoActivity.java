@@ -1,6 +1,7 @@
 package com.example.sociomap2.Main.Map;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,8 +11,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.sociomap2.EmailSender;
 import com.example.sociomap2.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -54,11 +57,13 @@ public class MarkerInfoActivity extends AppCompatActivity {
         eventDate = findViewById(R.id.event_date);
         eventDescription = findViewById(R.id.event_description);
         eventTheme = findViewById(R.id.event_theme);
-        eventCapacity = findViewById(R.id.event_capacity); // ✅ Add this to fix the crash!
+        eventCapacity = findViewById(R.id.event_capacity);
         signUpButton = findViewById(R.id.btn_sign_up);
         deleteButton = findViewById(R.id.btn_delete_event);
         editButton = findViewById(R.id.btn_edit_event);
         listAttendees = findViewById(R.id.list_attendees);
+        Button reportButton = findViewById(R.id.btn_report_event);
+        reportButton.setOnClickListener(v -> showReportConfirmationDialog());
 
         attendeesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, attendeesList);
         listAttendees.setAdapter(attendeesAdapter);
@@ -102,7 +107,7 @@ public class MarkerInfoActivity extends AppCompatActivity {
                         String currentUserId = firebaseAuth.getCurrentUser().getUid();
 
                         if (ownerId != null && ownerId.equals(currentUserId)) {
-                            // ✅ Show buttons if the user is the owner
+                            //  Show buttons if the user is the owner
                             deleteButton.setVisibility(View.VISIBLE);
                             editButton.setVisibility(View.VISIBLE);
 
@@ -110,7 +115,7 @@ public class MarkerInfoActivity extends AppCompatActivity {
                             deleteButton.setOnClickListener(v -> deleteEvent());
                             editButton.setOnClickListener(v -> editEvent());
                         } else {
-                            // ❌ Hide buttons if not the owner
+                            //  Hide buttons if not the owner
                             deleteButton.setVisibility(View.GONE);
                             editButton.setVisibility(View.GONE);
                         }
@@ -201,7 +206,7 @@ public class MarkerInfoActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.e(TAG, "Error loading attendees", e));
     }
 
-    // ✅ Fetch `name`, `surname`, and `username` from Firestore
+    //  Fetch `name`, `surname`, and `username` from Firestore
     private void fetchUserDetails(String userId) {
         firestore.collection("users").document(userId)
                 .get()
@@ -267,7 +272,7 @@ public class MarkerInfoActivity extends AppCompatActivity {
 
         String userId = firebaseAuth.getCurrentUser().getUid();
 
-        // ✅ Fetch the username from Firestore (instead of using getDisplayName())
+        // Fetch the username from Firestore (instead of using getDisplayName())
         firestore.collection("users").document(userId)
                 .get()
                 .addOnSuccessListener(userDoc -> {
@@ -279,7 +284,7 @@ public class MarkerInfoActivity extends AppCompatActivity {
                             return;
                         }
 
-                        // ✅ Add event ID to user's `user_events` document
+                        //  Add event ID to user's `user_events` document
                         firestore.collection("user_events").document(userId)
                                 .update("events", FieldValue.arrayUnion(eventId))
                                 .addOnFailureListener(e -> {
@@ -290,7 +295,7 @@ public class MarkerInfoActivity extends AppCompatActivity {
                                     firestore.collection("user_events").document(userId).set(userEventsData);
                                 });
 
-                        // ✅ Add user ID & username to `event_guest_list` document
+                        // Add user ID & username to `event_guest_list` document
                         firestore.collection("event_guest_list").document(eventId)
                                 .update("users", FieldValue.arrayUnion(userId), userId, username) // Store both ID & username
                                 .addOnFailureListener(e -> {
@@ -302,15 +307,15 @@ public class MarkerInfoActivity extends AppCompatActivity {
                                     firestore.collection("event_guest_list").document(eventId).set(eventGuestData);
                                 });
 
-                        // ✅ Update attendee count in Firestore
+                        // Update attendee count in Firestore
                         firestore.collection("markers").document(eventId)
                                 .update("currentAttendees", FieldValue.increment(1))
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(this, "Signed up for the event!", Toast.LENGTH_SHORT).show();
-                                    currentAttendees++; // Update local variable
+                                    currentAttendees++;
                                     eventCapacity.setText("Capacity: " + currentAttendees + "/" + maxCapacity);
-                                    checkUserParticipation(); // Refresh button state
-                                    loadAttendeesList(); // ✅ Refresh attendees list
+                                    checkUserParticipation();
+                                    loadAttendeesList();
                                 })
                                 .addOnFailureListener(e -> Log.e(TAG, "Error updating attendee count", e));
 
@@ -324,15 +329,15 @@ public class MarkerInfoActivity extends AppCompatActivity {
     private void signOutFromEvent() {
         String userId = firebaseAuth.getCurrentUser().getUid();
 
-        // ✅ Remove event ID from user's `user_events` document
+        // Remove event ID from users `user_events` document
         firestore.collection("user_events").document(userId)
                 .update("events", FieldValue.arrayRemove(eventId));
 
-        // ✅ Remove user ID from event's `event_guest_list` document
+        // Remove user ID from events `event_guest_list` document
         firestore.collection("event_guest_list").document(eventId)
                 .update("users", FieldValue.arrayRemove(userId));
 
-        // ✅ Decrease attendee count in Firestore
+        // Decrease attendee count in Firestore
         firestore.collection("markers").document(eventId)
                 .update("currentAttendees", FieldValue.increment(-1))
                 .addOnSuccessListener(aVoid -> {
@@ -342,5 +347,31 @@ public class MarkerInfoActivity extends AppCompatActivity {
                     checkUserParticipation(); // Refresh button state
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Error updating attendee count", e));
+    }
+
+    private void showReportConfirmationDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Report Event")
+                .setMessage("Are you sure you want to report this event?")
+                .setPositiveButton("Yes, Report", (dialog, which) -> sendReportEmail())  // ✅ If confirmed, send email
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void sendReportEmail() {
+        String me = "tobik.brnak@gmail.com";
+        String eventTitle = eventName.getText().toString();
+        String eventDateTime = eventDate.getText().toString();
+        String reportReason = "User reported this event as inappropriate.";
+
+        String subject = "⚠️ Event Report: " + eventTitle;
+        String messageBody = "🚨 Reported Event Details:\n\n"
+                + "📌 Event: " + eventTitle + "\n"
+                + "📅 Date: " + eventDateTime + "\n"
+                + "🆔 Event ID: " + eventId + "\n"
+                + "📢 Reason: " + reportReason;
+
+        new EmailSender(me, subject, messageBody).execute();
+        Toast.makeText(this, "Report sent successfully!", Toast.LENGTH_LONG).show();
     }
 }

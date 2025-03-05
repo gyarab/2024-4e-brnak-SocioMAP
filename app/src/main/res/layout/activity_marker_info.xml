@@ -114,7 +114,19 @@
             android:layout_marginTop="8dp"
             android:padding="12dp"
             android:elevation="4dp"
-            android:visibility="gone" /> <!-- Hidden by default -->
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btn_report_event"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Report Event"
+            android:background="@android:color/holo_red_dark"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="8dp"
+            android:padding="12dp"
+            android:elevation="4dp"/>
+
 
     </LinearLayout>
 

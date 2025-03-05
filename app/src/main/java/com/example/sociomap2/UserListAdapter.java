@@ -16,7 +16,6 @@ import androidx.annotation.Nullable;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +41,7 @@ public class UserListAdapter extends ArrayAdapter<User> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        // 🔹 Prevents crash when userList is empty
+        // Prevents crash when userList is empty
         if (userList == null || userList.isEmpty() || position >= userList.size()) {
             Log.e(TAG, "getView: Attempted to access an empty list at position " + position);
             return new View(context);
@@ -50,7 +49,7 @@ public class UserListAdapter extends ArrayAdapter<User> {
 
         ViewHolder holder;
 
-        // 🔹 Ensure convertView is never null
+        // Ensure convertView is never null
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_user, parent, false);
             holder = new ViewHolder();
@@ -62,7 +61,7 @@ public class UserListAdapter extends ArrayAdapter<User> {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        // 🔹 Ensure ViewHolder is correctly initialized
+        // Ensure VHolder is correctly initialized
         if (holder == null || holder.txtUserInfo == null || holder.btnFollowSigned == null || holder.btnFollowCreated == null) {
             Log.e(TAG, "getView: ViewHolder or its views are null, reinitializing...");
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_user, parent, false);
@@ -77,11 +76,11 @@ public class UserListAdapter extends ArrayAdapter<User> {
         User user = userList.get(position);
         holder.txtUserInfo.setText(user.getFullName());
 
-        // ✅ Check if user is already followed and update button text
+        // Check if user is already followed and update button text
         checkIfUserIsFollowed(user.getUserId(), "user_signup_follow", holder.btnFollowSigned);
         checkIfUserIsFollowed(user.getUserId(), "user_create_follow", holder.btnFollowCreated);
 
-        // ✅ Toggle Follow/Unfollow
+        // Toggle Follow/unfollow
         ViewHolder finalHolder = holder;
         holder.btnFollowSigned.setOnClickListener(v -> toggleFollowUser(user.getUserId(), "user_signup_follow", finalHolder.btnFollowSigned));
         ViewHolder finalHolder1 = holder;
@@ -104,7 +103,7 @@ public class UserListAdapter extends ArrayAdapter<User> {
             Log.e(TAG, "updateList: The updated list is empty.");
         }
 
-        notifyDataSetChanged(); // ✅ Ensures UI updates properly
+        notifyDataSetChanged();
     }
 
     private void checkIfUserIsFollowed(String followedUserId, String collection, Button followButton) {

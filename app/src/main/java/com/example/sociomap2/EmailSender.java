@@ -1,6 +1,7 @@
 package com.example.sociomap2;
 
 import android.os.AsyncTask;
+import android.util.Log;
 import java.util.Properties;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -25,7 +26,7 @@ public class EmailSender extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected Boolean doInBackground(Void... params) {
         final String senderEmail = "tobik.brnak@gmail.com";
-        final String senderPassword = "brnoboss";
+        final String senderPassword = "vozy wzhi ygka xeua";
 
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
@@ -34,7 +35,7 @@ public class EmailSender extends AsyncTask<Void, Void, Boolean> {
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.port", "465");
 
-        Session session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
+        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(senderEmail, senderPassword);
             }
@@ -51,6 +52,7 @@ public class EmailSender extends AsyncTask<Void, Void, Boolean> {
             return true;
         } catch (MessagingException e) {
             e.printStackTrace();
+            Log.e("EmailSender", "Error sending email: " + e.getMessage());
             return false;
         }
     }

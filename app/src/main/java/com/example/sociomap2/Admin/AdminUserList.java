@@ -28,7 +28,9 @@ public class AdminUserList extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private ArrayAdapter<String> userAdapter;
     private List<String> userDisplayList = new ArrayList<>();
-    private List<String> userIdList = new ArrayList<>(); // Store user IDs for navigation
+    private List<String> userIdList = new ArrayList<>();
+    private List<String> fullUserDisplayList = new ArrayList<>(); // Full copy of the list
+    private List<String> fullUserIdList = new ArrayList<>(); // Full copy of user IDs
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +45,9 @@ public class AdminUserList extends AppCompatActivity {
         userAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, userDisplayList);
         userListView.setAdapter(userAdapter);
 
-        loadUsers();
+        loadUsers(); // ✅ Ensure this loads users at the start
 
-        // Filter users when typing in the search bar
+        // Search bar listener
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -61,7 +63,7 @@ public class AdminUserList extends AppCompatActivity {
 
         // Handle user click
         userListView.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedUserId = userIdList.get(position); // Get the corresponding user ID
+            String selectedUserId = userIdList.get(position);
             openUserDetails(selectedUserId);
         });
     }
@@ -72,6 +74,9 @@ public class AdminUserList extends AppCompatActivity {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     userDisplayList.clear();
                     userIdList.clear();
+                    fullUserDisplayList.clear();
+                    fullUserIdList.clear(); // Reset full lists
+
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         String userId = document.getId();
                         String name = document.getString("name");
@@ -80,10 +85,14 @@ public class AdminUserList extends AppCompatActivity {
 
                         String displayText = formatUserDisplay(name, surname, username);
                         userDisplayList.add(displayText);
-                        userIdList.add(userId); // Store user ID
+                        userIdList.add(userId);
 
-                        userAdapter.notifyDataSetChanged();
+                        // Save copies for resetting the search
+                        fullUserDisplayList.add(displayText);
+                        fullUserIdList.add(userId);
                     }
+
+                    userAdapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error fetching users", e);
@@ -92,21 +101,30 @@ public class AdminUserList extends AppCompatActivity {
     }
 
     private void filterUsers(String query) {
-        List<String> filteredList = new ArrayList<>();
-        List<String> filteredIds = new ArrayList<>();
+        if (query.isEmpty()) {
+            // ✅ Reset to full list when search is cleared
+            userDisplayList.clear();
+            userDisplayList.addAll(fullUserDisplayList);
+            userIdList.clear();
+            userIdList.addAll(fullUserIdList);
+        } else {
+            List<String> filteredList = new ArrayList<>();
+            List<String> filteredIds = new ArrayList<>();
 
-        for (int i = 0; i < userDisplayList.size(); i++) {
-            if (userDisplayList.get(i).toLowerCase().contains(query.toLowerCase())) {
-                filteredList.add(userDisplayList.get(i));
-                filteredIds.add(userIdList.get(i));
+            for (int i = 0; i < fullUserDisplayList.size(); i++) {
+                if (fullUserDisplayList.get(i).toLowerCase().contains(query.toLowerCase())) {
+                    filteredList.add(fullUserDisplayList.get(i));
+                    filteredIds.add(fullUserIdList.get(i));
+                }
             }
+
+            userDisplayList.clear();
+            userDisplayList.addAll(filteredList);
+            userIdList.clear();
+            userIdList.addAll(filteredIds);
         }
 
-        userAdapter.clear();
-        userAdapter.addAll(filteredList);
         userAdapter.notifyDataSetChanged();
-
-        userIdList = filteredIds; // Update filtered user IDs
     }
 
     private void openUserDetails(String userId) {
@@ -130,9 +148,3 @@ public class AdminUserList extends AppCompatActivity {
         return displayText.isEmpty() ? "Unknown User" : displayText;
     }
 }
-
-
-
-
-
-
