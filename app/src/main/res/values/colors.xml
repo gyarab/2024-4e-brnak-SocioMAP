@@ -4,7 +4,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="colorAccent">#9C27B0</color>
 
-    <color name="default_background">#F5F5F5</color>
+    <color name="default_background">#000000</color>
+    <color name="default_background_white">#FFFFFF</color>
     <color name="famous_light_blue">#ADD8E6</color>
     <color name="filter_button">#F20858</color>
 

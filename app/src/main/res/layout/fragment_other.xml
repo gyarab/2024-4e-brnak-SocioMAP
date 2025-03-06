@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- 🔹 Manage Following Button -->
+        <!--  Manage Following Button -->
         <Button
             android:id="@+id/btn_manage_following"
             android:layout_width="match_parent"
@@ -18,8 +18,8 @@
             android:text="Manage Following"
             android:padding="12dp"
             android:layout_marginBottom="12dp"
-            android:backgroundTint="@color/default_background"
-            android:textColor="@android:color/white" />
+            android:backgroundTint="@color/default_background_white"
+            android:textColor="@android:color/black" />
 
         <!-- 🔹 Archived Events (Attended) -->
         <TextView
@@ -36,7 +36,7 @@
             android:id="@+id/list_archived_events"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:divider="@android:color/darker_gray"
+            android:divider="@android:color/black"
             android:dividerHeight="1dp"
             android:scrollbars="vertical" />
 
@@ -46,7 +46,7 @@
             android:background="@android:color/darker_gray"
             android:layout_marginVertical="8dp" />
 
-        <!-- 🔹 Signed-up Events -->
+        <!-- Signed-up Events -->
         <TextView
             android:id="@+id/txt_signed_up_events"
             android:layout_width="match_parent"

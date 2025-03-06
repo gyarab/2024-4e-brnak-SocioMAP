@@ -9,32 +9,35 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- 🔹 Search Users Button -->
+        <!--  Search Users Button -->
+
+        <!-- 🔹 Following (Signed-up Events) -->
+
         <Button
             android:id="@+id/btn_search_users"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Search and Follow Users"
-            android:padding="12dp"
             android:layout_marginBottom="12dp"
-            android:backgroundTint="@color/default_background"
-            android:textColor="@android:color/white" />
+            android:backgroundTint="@color/default_background_white"
+            android:padding="12dp"
+            android:layout_marginTop="30dp"
+            android:text="Search and Follow Users"
+            android:textColor="@android:color/black" />
 
-        <!-- 🔹 Following (Signed-up Events) -->
         <TextView
             android:id="@+id/txt_following_signed"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             android:text="Following (Signed-up Events)"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp" />
+            android:textStyle="bold" />
 
         <ListView
             android:id="@+id/list_following_signed"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="204dp"
             android:divider="@android:color/darker_gray"
             android:dividerHeight="1dp"
             android:scrollbars="vertical" />
@@ -58,7 +61,7 @@
         <ListView
             android:id="@+id/list_following_created"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="218dp"
             android:divider="@android:color/darker_gray"
             android:dividerHeight="1dp"
             android:scrollbars="vertical" />

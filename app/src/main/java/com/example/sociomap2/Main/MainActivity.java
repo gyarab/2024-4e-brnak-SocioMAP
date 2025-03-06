@@ -57,9 +57,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Load default fragment
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new MapsFragment())
-                .commit();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new MapsFragment())
+                    .commit();
+
+            bottomNav.setSelectedItemId(R.id.nav_map);
+
+        }
+
     }
 
     private void checkIfFamous(String userId) {
