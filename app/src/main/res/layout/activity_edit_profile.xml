@@ -27,7 +27,9 @@
         android:id="@+id/edit_birthyear"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Birth Year" />
+        android:hint="Birth Year"
+        android:focusable="false"
+        android:clickable="true"/>
 
     <Button
         android:id="@+id/save_changes"

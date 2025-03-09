@@ -93,7 +93,7 @@ public class ProfileFragment extends Fragment {
                         emailText.setText(documentSnapshot.getString("email"));
                         usernameText.setText(documentSnapshot.getString("username"));
                         nameText.setText(documentSnapshot.getString("name") + " " + documentSnapshot.getString("surname"));
-                        birthYearText.setText(documentSnapshot.getString("birthday"));
+                        birthYearText.setText(documentSnapshot.getString("birthyear"));
                         famousText.setText(documentSnapshot.getBoolean("famous") ? "Yes" : "No");
                         adminText.setText(documentSnapshot.getBoolean("isAdmin") ? "Yes" : "No");
                     } else {

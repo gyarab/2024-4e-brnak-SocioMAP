@@ -3,6 +3,7 @@ package com.example.sociomap2.Main.Map;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -25,6 +26,8 @@ public class EditMarkerActivity extends AppCompatActivity {
 
     private EditText edtTitle, edtDescription, edtDate;
     private Button btnSave;
+    private Spinner spnAgeLimit;
+    private int selectedAgeLimit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,16 +43,17 @@ public class EditMarkerActivity extends AppCompatActivity {
         edtDescription = findViewById(R.id.edt_description);
         //edtDate = findViewById(R.id.edt_date);
         btnSave = findViewById(R.id.btn_save);
+        btnSave.setOnClickListener(v -> saveEvent());
 
         loadEventDetails();
 
-        btnSave.setOnClickListener(v -> saveEvent());
+
 
         // In EditMarkerActivity
         Spinner spnTheme = findViewById(R.id.spn_theme);
         EditText edtCustomTheme = findViewById(R.id.edt_custom_theme);
 
-// When a user selects a theme from the spinner
+        // When a user selects a theme from the spinner
         spnTheme.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -66,6 +70,13 @@ public class EditMarkerActivity extends AppCompatActivity {
             }
         });
 
+        spnAgeLimit = findViewById(R.id.spn_age_limit);
+
+        // Spinner with age
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.age_limits, android.R.layout.simple_spinner_dropdown_item);
+        spnAgeLimit.setAdapter(adapter);
+
     }
 
     private void loadEventDetails() {
@@ -76,6 +87,9 @@ public class EditMarkerActivity extends AppCompatActivity {
                         edtTitle.setText(document.getString("title"));
                         edtDescription.setText(document.getString("description"));
                         edtDate.setText(document.getString("date"));
+                        // Set age limit
+                        int ageLimit = document.contains("ageLimit") ? document.getLong("ageLimit").intValue() : 3;
+                        spnAgeLimit.setSelection(ageLimit / 3 - 1);
                     }
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Error loading event", Toast.LENGTH_SHORT).show());
@@ -92,6 +106,7 @@ public class EditMarkerActivity extends AppCompatActivity {
         updatedEvent.put("title", title);
         updatedEvent.put("description", description);
         updatedEvent.put("date", date);
+        updatedEvent.put("ageLimit", selectedAgeLimit);
 
         firestore.collection("markers").document(eventId)
                 .update(updatedEvent)

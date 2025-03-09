@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -31,6 +32,8 @@ public class AddMarkerActivity extends AppCompatActivity {
     private double latitude, longitude;
     private Calendar selectedDateTime = Calendar.getInstance(); // Stores Date & Time
     private String selectedTheme = ""; // Stores the selected theme
+    private Spinner spnAgeLimit;
+    private int selectedAgeLimit = 3;
 
 
     @Override
@@ -40,6 +43,7 @@ public class AddMarkerActivity extends AppCompatActivity {
 
         firestore = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
+
 
         // Retrieve coordinates from intent
         latitude = getIntent().getDoubleExtra("LATITUDE", 0);
@@ -74,9 +78,32 @@ public class AddMarkerActivity extends AppCompatActivity {
         });
 
         btnSave.setOnClickListener(v -> saveMarker());
+
+
+        // Initialize UI Elements
+        spnAgeLimit = findViewById(R.id.spn_age_limit);
+
+        // Populate Spinner with age options (3+ to 18+)
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.age_limits, android.R.layout.simple_spinner_dropdown_item);
+        spnAgeLimit.setAdapter(adapter);
+
+        spnAgeLimit.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedAgeLimit = Integer.parseInt(parent.getItemAtPosition(position).toString().replace("+", ""));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        btnSave = findViewById(R.id.btn_save);
+        btnSave.setOnClickListener(v -> saveMarker());
     }
 
-    private void showDatePicker() {
+
+            private void showDatePicker() {
         Calendar calendar = Calendar.getInstance(); // Get current date
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
@@ -88,7 +115,7 @@ public class AddMarkerActivity extends AppCompatActivity {
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
 
-        // ✅ Restrict past dates
+        // Restrict past dates
         datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
 
         datePickerDialog.show();
@@ -112,7 +139,7 @@ public class AddMarkerActivity extends AppCompatActivity {
         String eventTime = edtTime.getText().toString().trim();
         String maxCapacityStr = edtMaxCapacity.getText().toString().trim();
 
-        // ✅ Check if user chose a custom theme
+        // Check if user chose a custom theme
         String finalTheme = selectedTheme.equals("Custom") && !edtCustomTheme.getText().toString().trim().isEmpty()
                 ? edtCustomTheme.getText().toString().trim()
                 : selectedTheme;
@@ -122,7 +149,7 @@ public class AddMarkerActivity extends AppCompatActivity {
             return;
         }
 
-        // ✅ Validate and convert max capacity
+        // Validate and convert max capacity
         int maxCapacity;
         try {
             maxCapacity = Integer.parseInt(maxCapacityStr);
@@ -135,7 +162,7 @@ public class AddMarkerActivity extends AppCompatActivity {
             return;
         }
 
-        // ✅ Create marker data
+        // Create marker data
         Map<String, Object> marker = new HashMap<>();
         marker.put("latitude", latitude);
         marker.put("longitude", longitude);
@@ -144,15 +171,17 @@ public class AddMarkerActivity extends AppCompatActivity {
         marker.put("userId", userId);
         marker.put("userName", userName);
         marker.put("eventDateTime", eventDate + " " + eventTime);
-        marker.put("theme", finalTheme); // ✅ Keep the theme storage
-        marker.put("maxCapacity", maxCapacity); // ✅ Store the max capacity
-        marker.put("currentAttendees", 0); // ✅ Start attendee count at 0
+        marker.put("theme", finalTheme); // Keep the theme storage
+        marker.put("maxCapacity", maxCapacity); // Store the max capacity
+        marker.put("currentAttendees", 0); // Start attendee count at 0
+        marker.put("ageLimit", selectedAgeLimit);
 
-        // ✅ Save marker to Firestore
+
+        // Save marker to Firestore
         firestore.collection("markers").add(marker)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(this, "Event added successfully!", Toast.LENGTH_SHORT).show();
-                    finish(); // ✅ Redirect user back to `MapsFragment`
+                    finish(); // Redirect user back to `MapsFragment`
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Error saving marker", Toast.LENGTH_SHORT).show());
     }

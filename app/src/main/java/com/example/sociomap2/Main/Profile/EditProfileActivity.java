@@ -1,6 +1,8 @@
 package com.example.sociomap2.Main.Profile;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -17,6 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class EditProfileActivity extends AppCompatActivity {
@@ -41,6 +44,8 @@ public class EditProfileActivity extends AppCompatActivity {
         editName = findViewById(R.id.edit_name);
         editSurname = findViewById(R.id.edit_surname);
         editBirthYear = findViewById(R.id.edit_birthyear);
+        editBirthYear.setFocusable(false);
+        editBirthYear.setOnClickListener(v -> showDatePickerDialog());
         saveButton = findViewById(R.id.save_changes);
         cancelButton = findViewById(R.id.cancel_changes);
 
@@ -55,6 +60,25 @@ public class EditProfileActivity extends AppCompatActivity {
         });
     }
 
+    private void showDatePickerDialog() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.YEAR, -10); // Prevent selecting future dates, assumes min 10 years old
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                (view, year, month, dayOfMonth) -> {
+                    String formattedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth);
+                    editBirthYear.setText(formattedDate);
+                },
+                calendar.get(Calendar.YEAR) - 18, // Default selection (18 years ago)
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+
+        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis()); // Prevent future dates
+        datePickerDialog.show();
+    }
+
+
     private void loadUserData(String userId) {
         db.collection("users").document(userId).get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -62,7 +86,7 @@ public class EditProfileActivity extends AppCompatActivity {
                         editUsername.setText(documentSnapshot.getString("username"));
                         editName.setText(documentSnapshot.getString("name"));
                         editSurname.setText(documentSnapshot.getString("surname"));
-                        editBirthYear.setText(documentSnapshot.getString("birthday"));
+                        editBirthYear.setText(documentSnapshot.getString("birthyear"));
                     } else {
                         Toast.makeText(EditProfileActivity.this, "User data not found.", Toast.LENGTH_SHORT).show();
                     }

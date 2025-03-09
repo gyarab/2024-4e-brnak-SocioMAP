@@ -66,6 +66,11 @@
             android:maxLines="1"
             android:layout_marginTop="8dp"/>
 
+        <Spinner
+            android:id="@+id/spn_age_limit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
         <!-- Theme Dropdown (Spinner) -->
         <Spinner
             android:id="@+id/spn_theme"

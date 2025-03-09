@@ -61,8 +61,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private boolean isEditMode = false; // Default: View Mode
     private FusedLocationProviderClient fusedLocationClient;
     private String selectedDate = null; // Stores selected date
-    private boolean showOnlyFamous = false; // 🔹 Track the famous filter state
+    private boolean showOnlyFamous = false; // Track the famous filter state
     private FloatingActionButton btnToggleFamous;
+
 
 
     @Nullable
@@ -82,6 +83,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         firestore = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+
 
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
@@ -108,8 +110,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             updateMapMode();
         });
 
-        // 🔹 Star Button to Filter Famous Users
+        // Star Button to Filter Famous Users
         btnToggleFamous = view.findViewById(R.id.btn_toggle_famous);
+        btnToggleFamous.setImageResource(android.R.drawable.btn_star_big_on);
         btnToggleFamous.setOnClickListener(v -> {
             showOnlyFamous = !showOnlyFamous; // Toggle filter
 
@@ -166,10 +169,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private void updateMapMode() {
         if (googleMap == null) return;
 
-        googleMap.clear(); // Clear the map when switching modes
+        googleMap.clear(); // Clear map when switching
 
         if (isEditMode) {
-            // ✅ Edit Mode: Hide markers, enable map clicks for adding events
+            // Edit Mode: Hide markers, enable map clicks - adding events
             btnToggleMode.setText("Switch to View Mode");
             spnFilter.setVisibility(View.GONE); // Hide filter in Edit Mode
 
@@ -184,7 +187,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             googleMap.setOnMarkerClickListener(null); // Disable marker clicks
 
         } else {
-            // ✅ View Mode: Show markers and allow users to click on them
+            // View Mode: Show markers, allow users to click on them
             btnToggleMode.setText("Switch to Edit Mode");
             spnFilter.setVisibility(View.VISIBLE); // Show filter in View Mode
             loadMarkers();
@@ -192,84 +195,114 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void loadMarkers() {
-        firestore.collection("markers").get().addOnSuccessListener(queryDocumentSnapshots -> {
-            googleMap.clear();
+        firestore.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
+            if (!userDoc.exists() || !userDoc.contains("birthyear")) {
+                Log.e(TAG, "User's birthDate not found in Firestore.");
+                return;
+            }
 
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-            Date currentDate = new Date();
+            // Get user's birthdate from Firestore
+            String birthDateString = userDoc.getString("birthyear"); // Format: "YYYY-MM-DD"
+            if (birthDateString == null || birthDateString.isEmpty()) {
+                Log.e(TAG, "User birthDate is empty.");
+                return;
+            }
 
-            for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                String eventId = document.getId();
-                Double latitude = document.getDouble("latitude");
-                Double longitude = document.getDouble("longitude");
-                String title = document.getString("title");
-                String description = document.getString("description");
-                String theme = document.getString("theme");
-                String eventDateTime = document.getString("eventDateTime");
-                String ownerId = document.getString("userId");
+            // Calculate user's age
+            int userAge = calculateAge(birthDateString);
+            Log.d(TAG, "User age: " + userAge);
 
-                if (latitude == null || longitude == null || title == null || description == null || theme == null || eventDateTime == null || ownerId == null) {
-                    Log.e(TAG, "Missing field in document: " + document.getId());
-                    continue;
-                }
+            // Now fetch markers
+            firestore.collection("markers").get().addOnSuccessListener(queryDocumentSnapshots -> {
+                googleMap.clear();
 
-                try {
-                    Date eventDate = sdf.parse(eventDateTime);
-                    if (eventDate != null && eventDate.before(currentDate)) {
-                        archiveEvent(document, eventId, ownerId);
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date currentDate = new Date();
+
+                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                    String eventId = document.getId();
+                    Double latitude = document.getDouble("latitude");
+                    Double longitude = document.getDouble("longitude");
+                    String title = document.getString("title");
+                    String description = document.getString("description");
+                    String theme = document.getString("theme");
+                    String eventDateTime = document.getString("eventDateTime");
+                    String ownerId = document.getString("userId");
+                    int eventAgeLimit = document.contains("ageLimit") ? document.getLong("ageLimit").intValue() : 0; // Default to 0 if missing
+
+                    if (latitude == null || longitude == null || title == null || description == null || theme == null || eventDateTime == null || ownerId == null) {
+                        Log.e(TAG, "Missing field in document: " + document.getId());
                         continue;
                     }
-                } catch (Exception e) {
-                    Log.e(TAG, "Error parsing eventDateTime for event: " + eventId, e);
-                    continue;
+
+                    try {
+                        Date eventDate = sdf.parse(eventDateTime);
+                        if (eventDate != null && eventDate.before(currentDate)) {
+                            archiveEvent(document, eventId, ownerId);
+                            continue;
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parsing eventDateTime for event: " + eventId, e);
+                        continue;
+                    }
+
+                    String eventDate = eventDateTime.split(" ")[0];
+
+                    // Log event details for debugging
+                    Log.d(TAG, "Checking event: " + title + " | Age Limit: " + eventAgeLimit);
+
+                    // Age Limit Filter
+                    if (userAge < eventAgeLimit) {
+                        Log.d(TAG, "Skipping event: " + title + " (Age limit: " + eventAgeLimit + ", User age: " + userAge + ")");
+                        continue;
+                    }
+
+                    // Theme Filter
+                    if (!selectedTheme.equals("All") && !selectedTheme.equalsIgnoreCase(theme)) {
+                        continue;
+                    }
+
+                    // Date Filter
+                    if (selectedDate != null && !selectedDate.equals(eventDate)) {
+                        continue;
+                    }
+
+                    LatLng position = new LatLng(latitude, longitude);
+
+                    // 🔹 Fetch user data to check if the owner is famous
+                    firestore.collection("users").document(ownerId).get()
+                            .addOnSuccessListener(ownerDoc -> {
+                                boolean isFamous = ownerDoc.contains("isFamous") && Boolean.TRUE.equals(ownerDoc.getBoolean("isFamous"));
+
+                                // If famous filter is ON, skip non-famous markers
+                                if (showOnlyFamous && !isFamous) {
+                                    return;
+                                }
+
+                                float markerColor = getMarkerColor(theme);
+                                float markerSize = 1.0f;
+
+                                if (isFamous) {
+                                    markerColor = BitmapDescriptorFactory.HUE_CYAN;
+                                    markerSize = 1.5f;
+                                }
+
+                                Marker marker = googleMap.addMarker(new MarkerOptions()
+                                        .position(position)
+                                        .title(title)
+                                        .snippet(description)
+                                        .icon(BitmapDescriptorFactory.defaultMarker(markerColor))
+                                        .anchor(0.5f, markerSize));
+
+                                if (marker != null) {
+                                    marker.setTag(eventId);
+                                }
+                            });
                 }
+            }).addOnFailureListener(e -> Log.e(TAG, "Error fetching markers", e));
 
-                String eventDate = eventDateTime.split(" ")[0];
-
-                // ✅ Apply Theme Filter
-                if (!selectedTheme.equals("All") && !selectedTheme.equalsIgnoreCase(theme)) {
-                    continue;
-                }
-
-                // ✅ Apply Date Filter
-                if (selectedDate != null && !selectedDate.equals(eventDate)) {
-                    continue;
-                }
-
-                LatLng position = new LatLng(latitude, longitude);
-
-                // 🔹 Fetch user data to check if the owner is famous
-                firestore.collection("users").document(ownerId).get()
-                        .addOnSuccessListener(userDoc -> {
-                            boolean isFamous = userDoc.contains("isFamous") && Boolean.TRUE.equals(userDoc.getBoolean("isFamous"));
-
-                            // ✅ If famous filter is ON, skip non-famous markers
-                            if (showOnlyFamous && !isFamous) {
-                                return;
-                            }
-
-                            float markerColor = getMarkerColor(theme);
-                            float markerSize = 1.0f;
-
-                            if (isFamous) {
-                                markerColor = BitmapDescriptorFactory.HUE_CYAN;
-                                markerSize = 1.5f;
-                            }
-
-                            Marker marker = googleMap.addMarker(new MarkerOptions()
-                                    .position(position)
-                                    .title(title)
-                                    .snippet(description)
-                                    .icon(BitmapDescriptorFactory.defaultMarker(markerColor))
-                                    .anchor(0.5f, markerSize));
-
-                            if (marker != null) {
-                                marker.setTag(eventId);
-                            }
-                        });
-            }
-        }).addOnFailureListener(e -> Log.e(TAG, "Error fetching markers", e));
+        }).addOnFailureListener(e -> Log.e(TAG, "Error fetching user birthDate", e));
 
         googleMap.setOnMarkerClickListener(marker -> {
             Object tag = marker.getTag();
@@ -302,12 +335,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                             .set(document.getData())
                             .addOnSuccessListener(aVoid -> Log.d(TAG, "Event archived successfully: " + eventId));
 
-                    // ✅ Remove event from `markers`
+                    // Remove event from markers
                     firestore.collection("markers").document(eventId)
                             .delete()
                             .addOnSuccessListener(aVoid -> Log.d(TAG, "Event removed from active markers: " + eventId));
 
-                    // ✅ Add event to each user's archive
+                    // Add event to each user's archive
                     if (attendees != null) {
                         for (String userId : attendees) {
                             firestore.collection("user_arch").document(userId)
@@ -320,7 +353,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         }
                     }
 
-                    // ✅ Add event to the owner's archive
+                    // Add event to the owner's archive
                     firestore.collection("user_owner_arch").document(ownerId)
                             .update("events", FieldValue.arrayUnion(eventId))
                             .addOnFailureListener(e -> {
@@ -328,7 +361,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                         .set(Map.of("events", new ArrayList<String>() {{ add(eventId); }}));
                             });
 
-                    // ✅ Remove event from `event_guest_list`
+                    // Remove event from `event_guest_list`
                     firestore.collection("event_guest_list").document(eventId).delete();
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Error retrieving guest list for event: " + eventId, e));
@@ -397,6 +430,36 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 return BitmapDescriptorFactory.HUE_ORANGE;
             default:
                 return BitmapDescriptorFactory.HUE_RED;
+        }
+    }
+
+    private int calculateAge(String birthDateString) {
+        try {
+            // Parse the birthDate string (format: "YYYY-MM-DD")
+            String[] parts = birthDateString.split("-");
+            int birthYear = Integer.parseInt(parts[0]);
+            int birthMonth = Integer.parseInt(parts[1]);
+            int birthDay = Integer.parseInt(parts[2]);
+
+            // Get current date
+            Calendar today = Calendar.getInstance();
+            int currentYear = today.get(Calendar.YEAR);
+            int currentMonth = today.get(Calendar.MONTH) + 1; // Months are 0-based
+            int currentDay = today.get(Calendar.DAY_OF_MONTH);
+
+            // Calculate age
+            int age = currentYear - birthYear;
+
+            // Adjust if birthday hasn't occurred yet this year
+            if (currentMonth < birthMonth || (currentMonth == birthMonth && currentDay < birthDay)) {
+                age--;
+            }
+
+            Log.d(TAG, "Calculated age: " + age);
+            return age;
+        } catch (Exception e) {
+            Log.e(TAG, "Error parsing birthDate: " + birthDateString, e);
+            return 0; // Return 0 if there's an error
         }
     }
 }

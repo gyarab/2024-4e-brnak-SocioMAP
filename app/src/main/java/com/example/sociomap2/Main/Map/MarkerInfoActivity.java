@@ -2,6 +2,7 @@ package com.example.sociomap2.Main.Map;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -32,7 +33,7 @@ public class MarkerInfoActivity extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private FirebaseAuth firebaseAuth;
     private String eventId;
-    private TextView eventName, eventDate, eventDescription, eventTheme;
+    private TextView eventName, eventDate, eventDescription, eventTheme, eventAgeLimit;
     private Button signUpButton, deleteButton, editButton;
     private ListView listAttendees;
     private boolean isUserSignedUp = false;
@@ -67,6 +68,9 @@ public class MarkerInfoActivity extends AppCompatActivity {
 
         attendeesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, attendeesList);
         listAttendees.setAdapter(attendeesAdapter);
+
+        eventAgeLimit = findViewById(R.id.event_age_limit);
+
 
         eventId = getIntent().getStringExtra("MARKER_ID");
 
@@ -137,7 +141,7 @@ public class MarkerInfoActivity extends AppCompatActivity {
                         }
                     }
 
-                    // ✅ Delete the event from Firestore collections
+                    // Delete the event from Firestore collections
                     firestore.collection("markers").document(eventId).delete();
                     firestore.collection("event_guest_list").document(eventId).delete();
 
@@ -166,7 +170,11 @@ public class MarkerInfoActivity extends AppCompatActivity {
                         eventDate.setText(document.getString("eventDateTime"));
                         eventDescription.setText(document.getString("description"));
 
-                        // ✅ Load and display the event theme
+                        // Age limit
+                        int ageLimit = document.contains("ageLimit") ? document.getLong("ageLimit").intValue() : 3;
+                        eventAgeLimit.setText("Minimum Age: " + ageLimit + "+");
+
+                        // Load and display the event theme
                         String theme = document.getString("theme");
                         if (theme != null) {
                             eventTheme.setText("Theme: " + theme);
@@ -174,11 +182,11 @@ public class MarkerInfoActivity extends AppCompatActivity {
                             eventTheme.setText("Theme: Not specified");
                         }
 
-                        // ✅ Get capacity details
+                        // Get capacity details
                         maxCapacity = document.contains("maxCapacity") ? document.getLong("maxCapacity").intValue() : 0;
                         currentAttendees = document.contains("currentAttendees") ? document.getLong("currentAttendees").intValue() : 0;
 
-                        // ✅ Display capacity info
+                        // Display capacity info
                         eventCapacity.setText("Capacity: " + currentAttendees + "/" + maxCapacity);
 
                         checkUserParticipation(); // Check if user is signed up
@@ -186,7 +194,6 @@ public class MarkerInfoActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Error loading event details.", Toast.LENGTH_SHORT).show());
     }
-
 
 
     private void loadAttendeesList() {
@@ -284,6 +291,7 @@ public class MarkerInfoActivity extends AppCompatActivity {
                             return;
                         }
 
+
                         //  Add event ID to user's `user_events` document
                         firestore.collection("user_events").document(userId)
                                 .update("events", FieldValue.arrayUnion(eventId))
@@ -374,4 +382,7 @@ public class MarkerInfoActivity extends AppCompatActivity {
         new EmailSender(me, subject, messageBody).execute();
         Toast.makeText(this, "Report sent successfully!", Toast.LENGTH_LONG).show();
     }
+
+
+
 }

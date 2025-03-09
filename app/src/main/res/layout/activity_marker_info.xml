@@ -29,6 +29,15 @@
             android:textColor="@android:color/darker_gray"
             android:paddingBottom="4dp" />
 
+        <TextView
+            android:id="@+id/event_age_limit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Minimum Age: "
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+
         <!-- Event Theme -->
         <TextView
             android:id="@+id/event_theme"

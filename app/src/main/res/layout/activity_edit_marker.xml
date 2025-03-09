@@ -26,6 +26,12 @@
         android:layout_marginBottom="16dp"
         android:inputType="textMultiLine"/>
 
+    <Spinner
+        android:id="@+id/spn_age_limit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+
     <!-- Theme Spinner -->
     <Spinner
         android:id="@+id/spn_theme"

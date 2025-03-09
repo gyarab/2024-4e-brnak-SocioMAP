@@ -1,7 +1,9 @@
 package com.example.sociomap2.Login;
 
 import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -31,6 +33,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -83,6 +86,8 @@ public class Register extends AppCompatActivity {
         editTextName = findViewById(R.id.name);
         editTextSurname = findViewById(R.id.surname);
         editTextBirthday = findViewById(R.id.birthday);
+        editTextBirthday.setFocusable(false);
+        editTextBirthday.setOnClickListener(v -> showDatePickerDialog());
         btnReg = findViewById(R.id.btn_register);
         progressBar = findViewById(R.id.progressBar);
         textView = findViewById(R.id.loginNow);
@@ -100,6 +105,26 @@ public class Register extends AppCompatActivity {
         });
     }
 
+    private void showDatePickerDialog() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.YEAR, -10); // Prevent selecting future dates, assumes min 10 years old
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                (view, year, month, dayOfMonth) -> {
+                    String formattedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth);
+                    editTextBirthday.setText(formattedDate);
+                },
+                calendar.get(Calendar.YEAR) - 18, // Default selection (18 years ago)
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+
+        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis()); // Prevent future dates
+        datePickerDialog.show();
+    }
+
+
+
     private boolean isValidEmail(String email) {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
@@ -115,7 +140,7 @@ public class Register extends AppCompatActivity {
 
         progressBar.setVisibility(View.VISIBLE);
 
-        // ✅ **Validate Email Format**
+        // Validate Email Format
         if (!isValidEmail(email)) {
             Toast.makeText(Register.this, "Invalid email format!", Toast.LENGTH_SHORT).show();
             progressBar.setVisibility(View.GONE);
@@ -174,7 +199,6 @@ public class Register extends AppCompatActivity {
     }
 
 
-
     private void saveUserInfo(String username, String name, String surname, String birthday, String email) {
         // Create a map to hold user info
         Map<String, Object> user = new HashMap<>();
@@ -208,6 +232,4 @@ public class Register extends AppCompatActivity {
                     Toast.makeText(Register.this, "Error saving user info: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
-
-
 }
