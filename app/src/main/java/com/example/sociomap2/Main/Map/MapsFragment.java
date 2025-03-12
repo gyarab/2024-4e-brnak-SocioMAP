@@ -127,7 +127,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         });
 
         // Calendar Filter Button
-        Button btnCalendarFilter = view.findViewById(R.id.btn_calendar_filter);
+        FloatingActionButton btnCalendarFilter = view.findViewById(R.id.btn_calendar_filter);
         btnCalendarFilter.setOnClickListener(v -> showDatePickerDialog());
 
         updateMapMode();

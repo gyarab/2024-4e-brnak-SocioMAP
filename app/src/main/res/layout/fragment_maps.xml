@@ -8,60 +8,29 @@
     tools:context=".Main.Map.MapsFragment">
 
     <!-- Google Map Fragment -->
+
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- CardView for Filters -->
+    <!-- Glassmorphic Floating Card for Filters -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
         android:layout_gravity="top"
-        android:background="@color/white"
-        android:elevation="6dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="8dp">
+        android:layout_margin="16dp"
+        android:background="@drawable/glassmorphic_background"
+        android:elevation="10dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="12dp">
 
-        <!-- Calendar Filter Button (Top Right) -->
-        <Button
-            android:id="@+id/btn_calendar_filter"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="top|end"
-            android:layout_margin="16dp"
-            android:background="@android:color/white"
-            android:elevation="6dp"
-            android:padding="8dp"
-            android:contentDescription="Filter by Date"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="12dp"
-            android:gravity="center_horizontal">
-
-            <!-- Marker Filter Spinner -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Filter Events"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
-                android:layout_marginBottom="4dp" />
-
-            <Spinner
-                android:id="@+id/spn_filter"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:spinnerMode="dropdown" />
-        </LinearLayout>
     </androidx.cardview.widget.CardView>
 
+    <!-- Floating Calendar Filter Button (Top Right) -->
+
+    <!-- Toggle Famous Markers FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_toggle_famous"
         android:layout_width="wrap_content"
@@ -69,21 +38,34 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:src="@drawable/ic_star_outline"
-    app:backgroundTint="@color/white"
-    android:tint="@color/black"/>
+        app:backgroundTint="@color/colorAccent"
+        android:tint="@color/black"
+        android:elevation="10dp"/>
 
-    <!-- Button to Toggle Between View Mode & Edit Mode -->
-    <Button
-        android:id="@+id/btn_toggle_mode"
+    <!-- Switch Mode Button (Map View ↔ Edit Mode) -->
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_calendar_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
+        android:layout_gravity="bottom|start"
         android:layout_margin="16dp"
+        android:elevation="8dp"
+        android:src="@drawable/ic_calendar"
+        app:backgroundTint="@color/colorAccent"
+        app:rippleColor="@color/white" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_toggle_mode"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="20dp"
         android:text="Switch to Edit Mode"
-        android:backgroundTint="@android:color/holo_blue_dark"
         android:textColor="@android:color/white"
-        android:padding="12dp"
-        android:elevation="6dp"/>
+        app:backgroundTint="@color/colorPrimary"
+        app:cornerRadius="30dp"
+        android:elevation="8dp"/>
 
     <!-- Floating Action Button for Adding Markers -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -94,16 +76,35 @@
         android:layout_margin="16dp"
         android:src="@drawable/ic_add"
         app:backgroundTint="@color/colorAccent"
-        android:visibility="gone" /> <!-- Hidden by default, shown in Edit Mode -->
+        android:elevation="8dp"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="3dp"
+            android:text=""
+            android:textColor="@color/text_primary_light"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Marker Filter Spinner -->
+        <Spinner
+            android:id="@+id/spn_filter"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="@drawable/rounded_spinner"
+            android:padding="8dp"
+            android:spinnerMode="dropdown" />
+    </LinearLayout> <!-- Hidden by default, shown in Edit Mode -->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-
-
-
-
-
-
-
-
-

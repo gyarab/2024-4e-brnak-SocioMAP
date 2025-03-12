@@ -58,7 +58,7 @@ dependencies {
     implementation (libs.play.services.maps)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-    implementation(libs.firebase.auth.v2231)
+    implementation (libs.firebase.auth.v2220)
     implementation(libs.credentials)
     implementation(libs.credentials.play.services.auth)
     implementation(libs.core.ktx)
@@ -74,6 +74,13 @@ dependencies {
     //Email sending
     implementation (libs.android.mail)
     implementation (libs.mail.android.activation)
+
+    //Material
+    implementation (libs.material.v190)
+
+
+    implementation (libs.play.services.auth)
+
 }
 
 apply(plugin = "com.google.gms.google-services")

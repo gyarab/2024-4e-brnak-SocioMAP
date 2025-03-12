@@ -1,7 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="roundedImageView">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
+    <!--
+    <style name="ButtonStyle">
+        <item name="android:backgroundTint">@color/colorPrimary</item>
+        <item name="android:textColor">@color/colorOnPrimary</item>
+        <item name="android:paddingVertical" tools:targetApi="o">12dp</item>
+        <item name="android:minHeight">48dp</item> - Fixes height issue
+         </style>-->
+
+    <!--
+        <style name="ButtonStyle.Dark">
+            <item name="android:backgroundTint">@color/colorPrimary</item>
+            <item name="android:textColor">@color/colorOnPrimary</item>
+            <item name="android:paddingVertical" tools:targetApi="o">12dp</item>
+            <item name="android:minHeight">48dp</item> - Ensures consistent size
+             </style>-->
+
+
 </resources>

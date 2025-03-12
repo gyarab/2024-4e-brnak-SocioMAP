@@ -3,152 +3,91 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp"
     android:gravity="center_horizontal"
-    android:background="?android:attr/windowBackground">
+    android:padding="24dp"
+    android:background="@drawable/gradient_background">
 
+    <!-- Profile Information Container -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:paddingVertical="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center_horizontal">
+            android:gravity="center_horizontal"
+            android:padding="24dp"
+            android:background="@drawable/glass_card"
+            android:elevation="10dp">
 
-            <!-- User Information Row Layout -->
+            <ImageView
+                android:id="@+id/profile_image"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/default_profile"
+                android:background="@drawable/rounded_border"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- User Details -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingVertical="8dp">
+                android:orientation="vertical"
+                android:padding="8dp">
 
                 <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="20dp"
-                    android:text="Email:"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:text="Profile Information"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_gold"
+                    android:gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="12dp"/>
 
-                <TextView
-                    android:id="@+id/text_email"
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp"
-                    android:textSize="16sp"/>
+                <!-- User Info Rows -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="8dp">
+                    <TextView android:text="Email:" android:textStyle="bold" android:textColor="@color/white" android:layout_width="0dp" android:layout_weight="1" android:layout_height="20dp"/>
+                    <TextView android:id="@+id/text_email" android:textColor="@color/text_gold" android:layout_width="wrap_content" android:layout_height="20dp"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="8dp">
+                    <TextView android:text="Username:" android:textStyle="bold" android:textColor="@color/white" android:layout_width="0dp" android:layout_weight="1" android:layout_height="20dp"/>
+                    <TextView android:id="@+id/text_username" android:textColor="@color/text_gold" android:layout_width="wrap_content" android:layout_height="20dp"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="8dp">
+                    <TextView android:text="Name:" android:textStyle="bold" android:textColor="@color/white" android:layout_width="0dp" android:layout_weight="1" android:layout_height="20dp"/>
+                    <TextView android:id="@+id/text_name" android:textColor="@color/text_gold" android:layout_width="wrap_content" android:layout_height="20dp"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="8dp">
+                    <TextView android:text="Birth Year:" android:textStyle="bold" android:textColor="@color/white" android:layout_width="0dp" android:layout_weight="1" android:layout_height="20dp"/>
+                    <TextView android:id="@+id/text_birthyear" android:textColor="@color/text_gold" android:layout_width="wrap_content" android:layout_height="20dp"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="8dp">
+                    <TextView android:text="Famous:" android:textStyle="bold" android:textColor="@color/white" android:layout_width="0dp" android:layout_weight="1" android:layout_height="20dp"/>
+                    <TextView android:id="@+id/text_famous" android:textColor="@color/text_gold" android:layout_width="wrap_content" android:layout_height="20dp"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="8dp">
+                    <TextView android:text="Admin:" android:textStyle="bold" android:textColor="@color/white" android:layout_width="0dp" android:layout_weight="1" android:layout_height="20dp"/>
+                    <TextView android:id="@+id/text_admin" android:textColor="@color/text_gold" android:layout_width="wrap_content" android:layout_height="20dp"/>
+                </LinearLayout>
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingVertical="8dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="20dp"
-                    android:text="Username:"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/text_username"
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp"
-                    android:textSize="16sp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingVertical="8dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="20dp"
-                    android:text="Name:"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/text_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp"
-                    android:textSize="16sp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingVertical="8dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="20dp"
-                    android:text="Birth Year:"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/text_birthyear"
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp"
-                    android:textSize="16sp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingVertical="8dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="20dp"
-                    android:text="Famous:"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/text_famous"
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp"
-                    android:textSize="16sp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingVertical="8dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="20dp"
-                    android:text="Admin:"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/text_admin"
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp"
-                    android:textSize="16sp"/>
-            </LinearLayout>
-
         </LinearLayout>
     </ScrollView>
 
-    <!-- Sticky Button Container -->
+    <!-- Sticky Buttons with Gold Gradient -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -159,15 +98,21 @@
         <Button
             android:id="@+id/logout"
             android:layout_width="0dp"
-            android:layout_height="80dp"
+            android:layout_height="60dp"
             android:layout_weight="1"
-            android:text="Logout"/>
+            android:text="Logout"
+            android:textColor="@color/black"
+            android:background="@drawable/button_gradient"/>
+
+        <View android:layout_width="16dp" android:layout_height="match_parent"/> <!-- Spacing -->
 
         <Button
             android:id="@+id/edit_profile"
             android:layout_width="0dp"
-            android:layout_height="80dp"
+            android:layout_height="60dp"
             android:layout_weight="1"
-            android:text="Edit Profile"/>
+            android:text="Edit Profile"
+            android:textColor="@color/black"
+            android:background="@drawable/button_gradient"/>
     </LinearLayout>
 </LinearLayout>

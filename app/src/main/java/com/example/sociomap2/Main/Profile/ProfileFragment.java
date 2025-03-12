@@ -1,15 +1,18 @@
 package com.example.sociomap2.Main.Profile;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -26,8 +29,10 @@ public class ProfileFragment extends Fragment {
     private FirebaseFirestore db;
     private FirebaseUser firebaseUser;
 
-    private TextView emailText, usernameText, nameText, birthYearText, famousText, adminText;
+    private TextView emailText, usernameText, nameText, birthYearText;
     private Button logoutButton, editButton;
+    private Switch themeSwitch;
+    private SharedPreferences sharedPreferences;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,11 +57,9 @@ public class ProfileFragment extends Fragment {
         usernameText = view.findViewById(R.id.text_username);
         nameText = view.findViewById(R.id.text_name);
         birthYearText = view.findViewById(R.id.text_birthyear);
-        famousText = view.findViewById(R.id.text_famous);
-        adminText = view.findViewById(R.id.text_admin);
-
         logoutButton = view.findViewById(R.id.logout);
         editButton = view.findViewById(R.id.edit_profile);
+
 
         ViewCompat.setOnApplyWindowInsetsListener(view.findViewById(R.id.main), (v, insets) -> {
             v.setPadding(insets.getInsets(WindowInsetsCompat.Type.systemBars()).left,
@@ -65,6 +68,7 @@ public class ProfileFragment extends Fragment {
                     insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom);
             return insets;
         });
+
 
         if (firebaseUser != null) {
             fetchAndDisplayUserInfo(firebaseUser.getUid());
@@ -77,7 +81,6 @@ public class ProfileFragment extends Fragment {
             requireActivity().finish();
         });
 
-        // Edit button logic
         editButton.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), EditProfileActivity.class);
             startActivity(intent);
@@ -94,8 +97,6 @@ public class ProfileFragment extends Fragment {
                         usernameText.setText(documentSnapshot.getString("username"));
                         nameText.setText(documentSnapshot.getString("name") + " " + documentSnapshot.getString("surname"));
                         birthYearText.setText(documentSnapshot.getString("birthyear"));
-                        famousText.setText(documentSnapshot.getBoolean("famous") ? "Yes" : "No");
-                        adminText.setText(documentSnapshot.getBoolean("isAdmin") ? "Yes" : "No");
                     } else {
                         Toast.makeText(getContext(), "User data not found.", Toast.LENGTH_SHORT).show();
                     }
@@ -103,5 +104,19 @@ public class ProfileFragment extends Fragment {
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "Failed to load user data.", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    private void applyTheme(boolean isDarkMode) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        int newMode = isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
+
+        if (AppCompatDelegate.getDefaultNightMode() != newMode) {
+            editor.putBoolean("dark_mode", isDarkMode);
+            editor.putString("last_fragment", "ProfileFragment"); // Save the current fragment
+            editor.apply();
+
+            AppCompatDelegate.setDefaultNightMode(isDarkMode ?
+                    AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+        }
     }
 }

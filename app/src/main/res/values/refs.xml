@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <drawable name="ic_back_arrow" />
-    <!--
-    <drawable name="ic_star_outline">star_outline</drawable>
-    <drawable name="ic_star_filled">star_filled</drawable>
-    -->
 </resources>

@@ -1,12 +1,27 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.SocioMap" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    <style name="Theme.SocioMap" parent="Theme.Material3.Dark">
+        <!-- Background Colors -->
+        <item name="android:windowBackground">@color/default_background_dark</item>
+        <item name="colorBackground">@color/default_background_dark</item>
+        <item name="colorOnBackground">@color/default_background_dark</item>
+        <item name="colorSurface">@color/colorSurfaceDark</item>
+        <item name="colorOnSurface">@color/text_primary_dark</item>
+
+        <!-- Primary & Accent Colors -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorAccent">@color/filter_button</item>
+
+        <!-- System Bars -->
+        <item name="android:statusBarColor">@color/status_bar_dark</item>
+        <item name="android:navigationBarColor">@color/nav_bar_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Button Style
+        <item name="android:buttonStyle">@style/ButtonStyle.Dark</item>
+         -->
     </style>
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Material3.Dark" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
-    </style>
+
+    <!-- Button Style (Dark Mode) -->
+    
 </resources>

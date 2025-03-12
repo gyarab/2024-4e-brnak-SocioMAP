@@ -1,12 +1,39 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="colorAccent">#9C27B0</color>
+    <!-- Primary Colors -->
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="famous_light_blue">#ADD8E6</color> <!-- Special users -->
+    <color name="filter_button">#F20858</color> <!-- Button color -->
+    <color name="colorPrimary">#ADD8E6</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
 
-    <color name="default_background">#000000</color>
-    <color name="default_background_white">#FFFFFF</color>
-    <color name="famous_light_blue">#ADD8E6</color>
-    <color name="filter_button">#F20858</color>
+    <!-- Background Colors -->
+    <color name="default_background_light">#F5F5F5</color> <!-- Light Mode Background -->
+    <color name="default_background_white">#F5F5F5</color> <!-- Light Mode Background -->
 
+    <color name="default_background_dark">#000000</color>
+    <color name="default_background">#000000</color><!-- Dark Mode Background -->
+
+    <!-- Surface (Cards, Buttons, Elements) -->
+    <color name="colorSurface">#FFFFFF</color> <!-- Light Mode -->
+    <color name="colorSurfaceDark">#1E1E1E</color> <!-- Dark Mode -->
+
+    <!-- Text Colors -->
+    <color name="text_primary_light">#000000</color>
+    <color name="text_primary_dark">#FFFFFF</color>
+
+    <!-- System Bar Colors -->
+    <color name="status_bar_light">#F5F5F5</color>
+    <color name="status_bar_dark">#121212</color>
+    <color name="nav_bar_light">#FFFFFF</color>
+    <color name="nav_bar_dark">#000000</color>
+
+    <!-- Secondary & Accent Colors -->
+    <color name="colorAccent">#FF4081</color> <!-- Pinkish accent color -->
+
+    <color name="glass_surface">#80FFFFFF</color> <!-- Translucent White for Card -->
+    <color name="button_gradient_start">#D97706</color> <!-- Gold Gradient Start -->
+    <color name="button_gradient_end">#B45309</color> <!-- Gold Gradient End -->
+    <color name="text_gold">#FACC15</color> <!-- Gold for Premium Look -->
+    <color name="profile_background_gradient">#121212</color> <!-- Dark Gradient -->
 </resources>
