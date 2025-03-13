@@ -8,6 +8,7 @@
     android:background="@drawable/gradient_background">
 
     <!-- Profile Information Container -->
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -17,20 +18,21 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:padding="24dp"
             android:background="@drawable/glass_card"
-            android:elevation="10dp">
+            android:elevation="10dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:layout_marginTop="10dp">
 
             <ImageView
                 android:id="@+id/profile_image"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/default_profile"
+                android:layout_marginBottom="16dp"
                 android:background="@drawable/rounded_border"
-                android:layout_marginBottom="16dp"/>
+                android:scaleType="centerCrop"
+                android:src="@drawable/default_profile" />
 
             <!-- User Details -->
             <LinearLayout
@@ -40,14 +42,14 @@
                 android:padding="8dp">
 
                 <TextView
-                    android:text="Profile Information"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_gold"
-                    android:gravity="center"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="12dp"/>
+                    android:gravity="center"
+                    android:paddingBottom="12dp"
+                    android:text="Profile Information"
+                    android:textColor="@color/text_gold"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
                 <!-- User Info Rows -->
                 <LinearLayout
@@ -55,37 +57,159 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:paddingVertical="8dp">
-                    <TextView android:text="Email:" android:textStyle="bold" android:textColor="@color/white" android:layout_width="0dp" android:layout_weight="1" android:layout_height="20dp"/>
-                    <TextView android:id="@+id/text_email" android:textColor="@color/text_gold" android:layout_width="wrap_content" android:layout_height="20dp"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="20dp"
+                        android:layout_weight="1"
+                        android:text="Email:"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/text_email"
+                        android:layout_width="wrap_content"
+                        android:layout_height="20dp"
+                        android:textColor="@color/text_gold" />
                 </LinearLayout>
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="8dp">
-                    <TextView android:text="Username:" android:textStyle="bold" android:textColor="@color/white" android:layout_width="0dp" android:layout_weight="1" android:layout_height="20dp"/>
-                    <TextView android:id="@+id/text_username" android:textColor="@color/text_gold" android:layout_width="wrap_content" android:layout_height="20dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="20dp"
+                        android:layout_weight="1"
+                        android:text="Username:"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/text_username"
+                        android:layout_width="wrap_content"
+                        android:layout_height="20dp"
+                        android:textColor="@color/text_gold" />
                 </LinearLayout>
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="8dp">
-                    <TextView android:text="Name:" android:textStyle="bold" android:textColor="@color/white" android:layout_width="0dp" android:layout_weight="1" android:layout_height="20dp"/>
-                    <TextView android:id="@+id/text_name" android:textColor="@color/text_gold" android:layout_width="wrap_content" android:layout_height="20dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="20dp"
+                        android:layout_weight="1"
+                        android:text="Name:"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/text_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="20dp"
+                        android:textColor="@color/text_gold" />
                 </LinearLayout>
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="8dp">
-                    <TextView android:text="Birth Year:" android:textStyle="bold" android:textColor="@color/white" android:layout_width="0dp" android:layout_weight="1" android:layout_height="20dp"/>
-                    <TextView android:id="@+id/text_birthyear" android:textColor="@color/text_gold" android:layout_width="wrap_content" android:layout_height="20dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="20dp"
+                        android:layout_weight="1"
+                        android:text="Birth Year:"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/text_birthyear"
+                        android:layout_width="wrap_content"
+                        android:layout_height="20dp"
+                        android:textColor="@color/text_gold" />
                 </LinearLayout>
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="8dp">
-                    <TextView android:text="Famous:" android:textStyle="bold" android:textColor="@color/white" android:layout_width="0dp" android:layout_weight="1" android:layout_height="20dp"/>
-                    <TextView android:id="@+id/text_famous" android:textColor="@color/text_gold" android:layout_width="wrap_content" android:layout_height="20dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="20dp"
+                        android:layout_weight="1"
+                        android:text="Famous:"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/text_famous"
+                        android:layout_width="wrap_content"
+                        android:layout_height="20dp"
+                        android:textColor="@color/text_gold" />
                 </LinearLayout>
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="8dp">
-                    <TextView android:text="Admin:" android:textStyle="bold" android:textColor="@color/white" android:layout_width="0dp" android:layout_weight="1" android:layout_height="20dp"/>
-                    <TextView android:id="@+id/text_admin" android:textColor="@color/text_gold" android:layout_width="wrap_content" android:layout_height="20dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="20dp"
+                        android:layout_weight="1"
+                        android:text="Admin:"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/text_admin"
+                        android:layout_width="wrap_content"
+                        android:layout_height="20dp"
+                        android:textColor="@color/text_gold" />
                 </LinearLayout>
             </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp"
+        android:background="@drawable/glass_card"
+        android:elevation="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Dark Mode"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:paddingEnd="8dp"/>
+
+        <Switch
+            android:id="@+id/theme_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dark Mode"
+            android:minWidth="100dp"
+            android:minHeight="48dp"
+            android:padding="8dp"/>
+    </LinearLayout>
 
     <!-- Sticky Buttons with Gold Gradient -->
     <LinearLayout

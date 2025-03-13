@@ -1,5 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.SocioMap" parent="Theme.Material3.Light">
+    <style name="Theme.SocioMap" parent="Theme.Material3.Light.NoActionBar">
+
         <!-- Background Colors -->
         <item name="android:windowBackground">@color/default_background_light</item>
         <item name="colorBackground">@color/default_background_light</item>
@@ -21,6 +22,4 @@
         <item name="android:buttonStyle">@style/ButtonStyle</item>
         -->
     </style>
-
-
 </resources>

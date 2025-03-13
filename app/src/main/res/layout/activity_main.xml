@@ -10,7 +10,7 @@
         android:layout_height="620dp"
         android:layout_above="@id/bottom_navigation"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="31dp"
+        android:layout_marginTop="1dp"
         android:layout_marginBottom="0dp" /> <!-- Space for BottomNavigationView -->
 
     <!-- Bottom Navigation View -->

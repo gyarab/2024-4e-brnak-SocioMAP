@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -129,8 +130,41 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         // Calendar Filter Button
         FloatingActionButton btnCalendarFilter = view.findViewById(R.id.btn_calendar_filter);
         btnCalendarFilter.setOnClickListener(v -> showDatePickerDialog());
+        FloatingActionButton btnFriendsSignUp = view.findViewById(R.id.btn_friends_sign_up);
+        FloatingActionButton btnFriendsCreateOwner = view.findViewById(R.id.btn_friends_create_owner);
+
 
         updateMapMode();
+
+        FloatingActionButton btnToggleFilters = view.findViewById(R.id.btn_toggle_filters);
+        LinearLayout layoutFilterMenu = view.findViewById(R.id.layout_filter_menu);
+
+        btnFriendsSignUp.setOnClickListener(v -> {
+            Toast.makeText(getActivity(), "Friends Sign-Up Filter Activated", Toast.LENGTH_SHORT).show();
+            // TODO: Implement filtering logic
+        });
+        btnFriendsCreateOwner.setOnClickListener(v -> {
+            Toast.makeText(getActivity(), "Friends Owner Filter Activated", Toast.LENGTH_SHORT).show();
+
+            // TODO: Implement filtering logic
+
+        });
+
+        // Toggle filter menu visibility
+
+        btnToggleFilters.setOnClickListener(v -> {
+
+            if (layoutFilterMenu.getVisibility() == View.VISIBLE) {
+
+                layoutFilterMenu.setVisibility(View.GONE);
+
+            } else {
+
+                layoutFilterMenu.setVisibility(View.VISIBLE);
+
+            }
+
+        });
     }
 
 

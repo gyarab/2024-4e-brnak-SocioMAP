@@ -30,10 +30,20 @@
 
     <!-- Secondary & Accent Colors -->
     <color name="colorAccent">#FF4081</color> <!-- Pinkish accent color -->
+    <color name="colorAccentDark">#FF4081</color> <!-- Light Mode Accent -->
+    <color name="colorAccentLight">#284EE9</color> <!-- Dark Mode Accent (Gold) -->
 
     <color name="glass_surface">#80FFFFFF</color> <!-- Translucent White for Card -->
     <color name="button_gradient_start">#D97706</color> <!-- Gold Gradient Start -->
     <color name="button_gradient_end">#B45309</color> <!-- Gold Gradient End -->
     <color name="text_gold">#FACC15</color> <!-- Gold for Premium Look -->
     <color name="profile_background_gradient">#121212</color> <!-- Dark Gradient -->
+
+
+    <color name="colorOnSurface">#000000</color> <!-- Text in Light Mode -->
+    <color name="colorBackground">#FFFFFF</color> <!-- Light Mode Background -->
+    <color name="colorBackgroundDark">#121212</color> <!-- Dark Mode Background -->
+    <color name="colorOnSurfaceDark">#FFFFFF</color> <!-- Text in Dark Mode -->
+
+
 </resources>

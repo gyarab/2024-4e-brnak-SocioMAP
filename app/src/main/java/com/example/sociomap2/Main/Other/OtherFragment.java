@@ -89,10 +89,10 @@ public class OtherFragment extends Fragment {
         // Handle click events
         listSignedEvents.setOnItemClickListener((parent, view1, position, id) -> openMarkerInfo(signedEventIds.get(position)));
         listCreatedEvents.setOnItemClickListener((parent, view1, position, id) -> openMarkerInfo(createdEventIds.get(position)));
-        listArchivedEvents.setOnItemClickListener((parent, view1, position, id) -> openMarkerInfo(archivedEventIds.get(position)));
-        listArchivedCreatedEvents.setOnItemClickListener((parent, view1, position, id) -> openMarkerInfo(archivedCreatedEventIds.get(position)));
+        listArchivedEvents.setOnItemClickListener((parent, view1, position, id) -> openMarkerInfoArch(archivedEventIds.get(position)));
+        listArchivedCreatedEvents.setOnItemClickListener((parent, view1, position, id) -> openMarkerInfoArch(archivedCreatedEventIds.get(position)));
 
-        // ✅ Open FollowingActivity when clicked
+        // Open FollowingActivity when clicked
         btnManageFollowing.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), FollowingActivity.class);
             startActivity(intent);
@@ -223,6 +223,26 @@ public class OtherFragment extends Fragment {
 
     private void openMarkerInfo(String eventId) {
         firestore.collection("markers").document(eventId)
+                .get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        Intent intent = new Intent(getActivity(), MarkerInfoActivity.class);
+                        intent.putExtra("MARKER_ID", eventId);
+                        intent.putExtra("TITLE", document.getString("title"));
+                        intent.putExtra("DESCRIPTION", document.getString("description"));
+                        intent.putExtra("LATITUDE", document.getDouble("latitude"));
+                        intent.putExtra("LONGITUDE", document.getDouble("longitude"));
+
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(getActivity(), "Event details not found!", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error fetching event details", e));
+    }
+
+    private void openMarkerInfoArch(String eventId) {
+        firestore.collection("markers_arch").document(eventId)
                 .get()
                 .addOnSuccessListener(document -> {
                     if (document.exists()) {

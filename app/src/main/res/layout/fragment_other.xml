@@ -1,118 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/default_background">
 
-    <LinearLayout
+    <!-- Scrollable Content -->
+    <ScrollView
+        android:id="@+id/scroll_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/btn_manage_following"
+        android:padding="16dp"
+        android:paddingTop="35dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingBottom="120dp"> <!-- Extra bottom padding to avoid overlap -->
+
+            <!-- 🔹 Event Categories -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="10dp"
+                android:background="@drawable/glass_card"
+                android:padding="20dp"
+                android:layout_marginBottom="24dp">
+
+                <TextView
+                    android:id="@+id/txt_archived_events"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Archived Events You Attended"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:gravity="center"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="20dp"/>
+
+                <ListView
+                    android:id="@+id/list_archived_events"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:divider="@android:color/darker_gray"
+                    android:dividerHeight="1dp"
+                    android:paddingTop="16dp"/> <!-- ⬅️ More space before events -->
+            </androidx.cardview.widget.CardView>
+
+            <!-- 🔹 Signed-up Events -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="10dp"
+                android:background="@drawable/glass_card"
+                android:padding="20dp"
+                android:layout_marginBottom="24dp">
+
+                <TextView
+                    android:id="@+id/txt_signed_up_events"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Signed-up Events"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:gravity="center"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="20dp"/>
+
+                <ListView
+                    android:id="@+id/list_signed_events"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:divider="@android:color/darker_gray"
+                    android:dividerHeight="1dp"
+                    android:paddingTop="16dp"/>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 🔹 Created Events -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="10dp"
+                android:background="@drawable/glass_card"
+                android:padding="20dp"
+                android:layout_marginBottom="24dp">
+
+                <TextView
+                    android:id="@+id/txt_created_events"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Your Created Events"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:gravity="center"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="20dp"/>
+
+                <ListView
+                    android:id="@+id/list_created_events"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:divider="@android:color/darker_gray"
+                    android:dividerHeight="1dp"
+                    android:paddingTop="16dp"/>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 🔹 Archived Created Events -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="10dp"
+                android:background="@drawable/glass_card"
+                android:padding="20dp"
+                android:layout_marginBottom="32dp">
+
+                <TextView
+                    android:id="@+id/txt_archived_created_events"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Your Archived Created Events"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:gravity="center"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="20dp"/>
+
+                <ListView
+                    android:id="@+id/list_archived_created_events"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:divider="@android:color/darker_gray"
+                    android:dividerHeight="1dp"
+                    android:paddingTop="30dp"/>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- 🔹 Sticked to Bottom -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_manage_following"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <!--  Manage Following Button -->
-        <Button
-            android:id="@+id/btn_manage_following"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Manage Following"
-            android:padding="12dp"
-            android:layout_marginBottom="12dp"
-            android:backgroundTint="@color/default_background_white"
-            android:textColor="@android:color/black" />
-
-        <!-- 🔹 Archived Events (Attended) -->
-        <TextView
-            android:id="@+id/txt_archived_events"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Archived Events You Attended"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp" />
-
-        <ListView
-            android:id="@+id/list_archived_events"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:divider="@android:color/black"
-            android:dividerHeight="1dp"
-            android:scrollbars="vertical" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginVertical="8dp" />
-
-        <!-- Signed-up Events -->
-        <TextView
-            android:id="@+id/txt_signed_up_events"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Signed-up Events"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:paddingBottom="8dp" />
-
-        <ListView
-            android:id="@+id/list_signed_events"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:divider="@android:color/darker_gray"
-            android:dividerHeight="1dp"
-            android:scrollbars="vertical" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginVertical="8dp" />
-
-        <!-- 🔹 Created Events -->
-        <TextView
-            android:id="@+id/txt_created_events"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Your Created Events"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:paddingBottom="8dp" />
-
-        <ListView
-            android:id="@+id/list_created_events"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:divider="@android:color/darker_gray"
-            android:dividerHeight="1dp"
-            android:scrollbars="vertical" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginVertical="8dp" />
-
-        <!-- 🔹 Archived Created Events -->
-        <TextView
-            android:id="@+id/txt_archived_created_events"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Your Archived Created Events"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp" />
-
-        <ListView
-            android:id="@+id/list_archived_created_events"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:divider="@android:color/darker_gray"
-            android:dividerHeight="1dp"
-            android:scrollbars="vertical" />
-
-    </LinearLayout>
-
-</ScrollView>
+        android:layout_alignParentBottom="true"
+        android:text="Manage Following"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/colorAccent"
+        app:cornerRadius="30dp"
+        android:paddingVertical="18dp"
+        android:layout_margin="16dp"/>
+</RelativeLayout>

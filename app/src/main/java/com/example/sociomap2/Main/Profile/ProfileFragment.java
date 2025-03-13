@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -34,12 +35,23 @@ public class ProfileFragment extends Fragment {
     private Switch themeSwitch;
     private SharedPreferences sharedPreferences;
 
+    int accentColor;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         firebaseUser = auth.getCurrentUser();
+
+        // ✅ Initialize SharedPreferences
+        sharedPreferences = requireActivity().getSharedPreferences("Settings", 0);
+
+        // ✅ Load theme from SharedPreferences and apply
+        boolean isDarkMode = sharedPreferences.getBoolean("dark_mode", false);
+        AppCompatDelegate.setDefaultNightMode(isDarkMode ?
+                AppCompatDelegate.MODE_NIGHT_YES :
+                AppCompatDelegate.MODE_NIGHT_NO);
 
         if (firebaseUser == null) {
             Intent intent = new Intent(getContext(), Login.class);
@@ -59,16 +71,29 @@ public class ProfileFragment extends Fragment {
         birthYearText = view.findViewById(R.id.text_birthyear);
         logoutButton = view.findViewById(R.id.logout);
         editButton = view.findViewById(R.id.edit_profile);
+        themeSwitch = view.findViewById(R.id.theme_switch); // ✅ Make sure this ID exists in XML
 
+        // ✅ Set the switch to the correct initial state
+        boolean isDarkMode = sharedPreferences.getBoolean("dark_mode", false);
+        themeSwitch.setChecked(isDarkMode);
+
+        // ✅ Set accent color based on theme
+        accentColor = isDarkMode ?
+                ContextCompat.getColor(requireContext(), R.color.colorAccentDark) :
+                ContextCompat.getColor(requireContext(), R.color.colorAccentLight);
+
+        editButton.setBackgroundColor(accentColor);
+        logoutButton.setBackgroundColor(accentColor);
 
         ViewCompat.setOnApplyWindowInsetsListener(view.findViewById(R.id.main), (v, insets) -> {
-            v.setPadding(insets.getInsets(WindowInsetsCompat.Type.systemBars()).left,
+            v.setPadding(
+                    insets.getInsets(WindowInsetsCompat.Type.systemBars()).left,
                     insets.getInsets(WindowInsetsCompat.Type.systemBars()).top,
                     insets.getInsets(WindowInsetsCompat.Type.systemBars()).right,
-                    insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom);
+                    insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+            );
             return insets;
         });
-
 
         if (firebaseUser != null) {
             fetchAndDisplayUserInfo(firebaseUser.getUid());
@@ -84,6 +109,11 @@ public class ProfileFragment extends Fragment {
         editButton.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), EditProfileActivity.class);
             startActivity(intent);
+        });
+
+        // ✅ Add listener to theme switch
+        themeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            applyTheme(isChecked);
         });
 
         return view;
@@ -112,11 +142,16 @@ public class ProfileFragment extends Fragment {
 
         if (AppCompatDelegate.getDefaultNightMode() != newMode) {
             editor.putBoolean("dark_mode", isDarkMode);
-            editor.putString("last_fragment", "ProfileFragment"); // Save the current fragment
             editor.apply();
 
-            AppCompatDelegate.setDefaultNightMode(isDarkMode ?
-                    AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+            accentColor = isDarkMode ?
+                    ContextCompat.getColor(requireContext(), R.color.colorAccentDark) :
+                    ContextCompat.getColor(requireContext(), R.color.colorAccentLight);
+
+            editButton.setBackgroundColor(accentColor);
+            logoutButton.setBackgroundColor(accentColor);
+
+            requireActivity().runOnUiThread(() -> AppCompatDelegate.setDefaultNightMode(newMode));
         }
     }
 }
