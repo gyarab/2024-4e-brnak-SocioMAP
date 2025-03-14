@@ -13,12 +13,15 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
@@ -36,11 +39,13 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.text.SimpleDateFormat;
@@ -65,6 +70,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private boolean showOnlyFamous = false; // Track the famous filter state
     private FloatingActionButton btnToggleFamous;
 
+    private List<String> filteredSignUpUsers = new ArrayList<>();
+    private List<String> filteredOwnerUsers = new ArrayList<>();
+
 
 
     @Nullable
@@ -85,6 +93,22 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         firebaseAuth = FirebaseAuth.getInstance();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
+        FloatingActionButton btnFriendsSignUp = view.findViewById(R.id.btn_friends_sign_up);
+        FloatingActionButton btnFriendsCreateOwner = view.findViewById(R.id.btn_friends_create_owner);
+        FloatingActionButton btnToggleFilters = view.findViewById(R.id.btn_toggle_filters);
+        LinearLayout layoutFilterMenu = view.findViewById(R.id.layout_filter_menu);
+
+        //btnFriendsSignUp.setOnClickListener(v -> openUserSearchDialog("signUp"));
+        //btnFriendsCreateOwner.setOnClickListener(v -> openUserSearchDialog("createOwner"));
+
+        // Toggle filter menu visibility
+        btnToggleFilters.setOnClickListener(v -> {
+            if (layoutFilterMenu.getVisibility() == View.VISIBLE) {
+                layoutFilterMenu.setVisibility(View.GONE);
+            } else {
+                layoutFilterMenu.setVisibility(View.VISIBLE);
+            }
+        });
 
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
@@ -130,44 +154,32 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         // Calendar Filter Button
         FloatingActionButton btnCalendarFilter = view.findViewById(R.id.btn_calendar_filter);
         btnCalendarFilter.setOnClickListener(v -> showDatePickerDialog());
-        FloatingActionButton btnFriendsSignUp = view.findViewById(R.id.btn_friends_sign_up);
-        FloatingActionButton btnFriendsCreateOwner = view.findViewById(R.id.btn_friends_create_owner);
-
 
         updateMapMode();
-
-        FloatingActionButton btnToggleFilters = view.findViewById(R.id.btn_toggle_filters);
-        LinearLayout layoutFilterMenu = view.findViewById(R.id.layout_filter_menu);
 
         btnFriendsSignUp.setOnClickListener(v -> {
             Toast.makeText(getActivity(), "Friends Sign-Up Filter Activated", Toast.LENGTH_SHORT).show();
             // TODO: Implement filtering logic
+            showUserSearchDialog("signup");
         });
         btnFriendsCreateOwner.setOnClickListener(v -> {
             Toast.makeText(getActivity(), "Friends Owner Filter Activated", Toast.LENGTH_SHORT).show();
 
             // TODO: Implement filtering logic
+            showUserSearchDialog("owner");
 
         });
 
         // Toggle filter menu visibility
-
         btnToggleFilters.setOnClickListener(v -> {
-
             if (layoutFilterMenu.getVisibility() == View.VISIBLE) {
-
                 layoutFilterMenu.setVisibility(View.GONE);
-
             } else {
-
                 layoutFilterMenu.setVisibility(View.VISIBLE);
-
             }
 
         });
     }
-
-
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -203,7 +215,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private void updateMapMode() {
         if (googleMap == null) return;
 
-        googleMap.clear(); // Clear map when switching
+
+        googleMap.clear(); // Only clear once
+        if (!isEditMode) {
+            loadMarkers(); // Reload markers when switching to View Mode
+        }
 
         if (isEditMode) {
             // Edit Mode: Hide markers, enable map clicks - adding events
@@ -219,12 +235,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             });
 
             googleMap.setOnMarkerClickListener(null); // Disable marker clicks
-
         } else {
-            // View Mode: Show markers, allow users to click on them
+            // ✅ View Mode: Show markers & ensure they load
             btnToggleMode.setText("Switch to Edit Mode");
-            spnFilter.setVisibility(View.VISIBLE); // Show filter in View Mode
-            loadMarkers();
+            spnFilter.setVisibility(View.VISIBLE);
+            loadMarkers(); // ✅ Ensure markers load when switching modes
         }
     }
 
@@ -246,15 +261,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             int userAge = calculateAge(birthDateString);
             Log.d(TAG, "User age: " + userAge);
 
-            // Now fetch markers
+            // Fetch all markers
             firestore.collection("markers").get().addOnSuccessListener(queryDocumentSnapshots -> {
                 googleMap.clear();
-
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
                 sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
                 Date currentDate = new Date();
 
-                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                for (DocumentSnapshot document : queryDocumentSnapshots) {
                     String eventId = document.getId();
                     Double latitude = document.getDouble("latitude");
                     Double longitude = document.getDouble("longitude");
@@ -263,13 +277,17 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                     String theme = document.getString("theme");
                     String eventDateTime = document.getString("eventDateTime");
                     String ownerId = document.getString("userId");
-                    int eventAgeLimit = document.contains("ageLimit") ? document.getLong("ageLimit").intValue() : 0; // Default to 0 if missing
+                    boolean isFamous = document.contains("isFamous") && Boolean.TRUE.equals(document.getBoolean("isFamous"));
+                    int eventAgeLimit = document.contains("ageLimit") ? document.getLong("ageLimit").intValue() : 0; // Default to 0
 
-                    if (latitude == null || longitude == null || title == null || description == null || theme == null || eventDateTime == null || ownerId == null) {
-                        Log.e(TAG, "Missing field in document: " + document.getId());
+                    // Skip if any critical information is missing
+                    if (latitude == null || longitude == null || title == null || description == null ||
+                            theme == null || eventDateTime == null || ownerId == null) {
+                        Log.e(TAG, "Skipping marker due to missing fields: " + eventId);
                         continue;
                     }
 
+                    // Convert event date
                     try {
                         Date eventDate = sdf.parse(eventDateTime);
                         if (eventDate != null && eventDate.before(currentDate)) {
@@ -277,70 +295,42 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                             continue;
                         }
                     } catch (Exception e) {
-                        Log.e(TAG, "Error parsing eventDateTime for event: " + eventId, e);
+                        Log.e(TAG, "Error parsing event date for event: " + eventId, e);
                         continue;
                     }
 
-                    String eventDate = eventDateTime.split(" ")[0];
-
-                    // Log event details for debugging
-                    Log.d(TAG, "Checking event: " + title + " | Age Limit: " + eventAgeLimit);
-
-                    // Age Limit Filter
+                    // Age restriction check
                     if (userAge < eventAgeLimit) {
-                        Log.d(TAG, "Skipping event: " + title + " (Age limit: " + eventAgeLimit + ", User age: " + userAge + ")");
+                        Log.d(TAG, "Skipping event: " + title + " (User age: " + userAge + ", Required: " + eventAgeLimit + ")");
                         continue;
                     }
 
-                    // Theme Filter
-                    if (!selectedTheme.equals("All") && !selectedTheme.equalsIgnoreCase(theme)) {
+                    // Apply filters
+                    boolean passesSignUpFilter = filteredSignUpUsers.isEmpty() || filteredSignUpUsers.contains(ownerId);
+                    boolean passesOwnerFilter = filteredOwnerUsers.isEmpty() || filteredOwnerUsers.contains(ownerId);
+                    boolean passesThemeFilter = selectedTheme.equals("All") || selectedTheme.equalsIgnoreCase(theme);
+                    boolean passesDateFilter = (selectedDate == null || selectedDate.equals(eventDateTime.split(" ")[0]));
+
+                    // Famous user filter
+                    if (showOnlyFamous && !isFamous) {
                         continue;
                     }
 
-                    // Date Filter
-                    if (selectedDate != null && !selectedDate.equals(eventDate)) {
-                        continue;
+                    // No filters applied? Show everything
+                    boolean noFiltersApplied = filteredSignUpUsers.isEmpty() && filteredOwnerUsers.isEmpty()
+                            && selectedTheme.equals("All") && selectedDate == null && !showOnlyFamous;
+
+                    if (noFiltersApplied || (passesSignUpFilter && passesOwnerFilter && passesThemeFilter && passesDateFilter)) {
+                        addMarker(document);
                     }
-
-                    LatLng position = new LatLng(latitude, longitude);
-
-                    // 🔹 Fetch user data to check if the owner is famous
-                    firestore.collection("users").document(ownerId).get()
-                            .addOnSuccessListener(ownerDoc -> {
-                                boolean isFamous = ownerDoc.contains("isFamous") && Boolean.TRUE.equals(ownerDoc.getBoolean("isFamous"));
-
-                                // If famous filter is ON, skip non-famous markers
-                                if (showOnlyFamous && !isFamous) {
-                                    return;
-                                }
-
-                                float markerColor = getMarkerColor(theme);
-                                float markerSize = 1.0f;
-
-                                if (isFamous) {
-                                    markerColor = BitmapDescriptorFactory.HUE_CYAN;
-                                    markerSize = 1.5f;
-                                }
-
-                                Marker marker = googleMap.addMarker(new MarkerOptions()
-                                        .position(position)
-                                        .title(title)
-                                        .snippet(description)
-                                        .icon(BitmapDescriptorFactory.defaultMarker(markerColor))
-                                        .anchor(0.5f, markerSize));
-
-                                if (marker != null) {
-                                    marker.setTag(eventId);
-                                }
-                            });
                 }
             }).addOnFailureListener(e -> Log.e(TAG, "Error fetching markers", e));
 
         }).addOnFailureListener(e -> Log.e(TAG, "Error fetching user birthDate", e));
 
+        // Handle marker click events
         googleMap.setOnMarkerClickListener(marker -> {
             Object tag = marker.getTag();
-
             if (tag == null || tag.toString().isEmpty()) {
                 Toast.makeText(getActivity(), "Error: Marker ID is invalid.", Toast.LENGTH_SHORT).show();
                 return false;
@@ -358,7 +348,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
-    private void archiveEvent(QueryDocumentSnapshot document, String eventId, String ownerId) {
+    private void archiveEvent(DocumentSnapshot document, String eventId, String ownerId) {
         firestore.collection("event_guest_list").document(eventId)
                 .get()
                 .addOnSuccessListener(guestListDoc -> {
@@ -496,4 +486,186 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             return 0; // Return 0 if there's an error
         }
     }
+    private void openUserSearchDialog(String filterType) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Search for a User");
+
+        LinearLayout layout = new LinearLayout(requireContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(16, 16, 16, 16);
+
+        EditText searchInput = new EditText(requireContext());
+        searchInput.setHint("Enter username");
+        layout.addView(searchInput);
+
+        ListView listView = new ListView(requireContext());
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_multiple_choice);
+        listView.setAdapter(adapter);
+        layout.addView(listView);
+
+        builder.setView(layout);
+
+        // Fetch the list of followed users based on filter type
+        String collectionName = filterType.equals("signUp") ? "user_sign_up_follow" : "user_create_follow";
+        firestore.collection(collectionName).document(userId).get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists() && document.get("users") != null) {
+                        List<String> followedUsers = (List<String>) document.get("users");
+                        adapter.addAll(followedUsers);
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+
+        builder.setPositiveButton("Apply Filter", (dialog, which) -> {
+            List<String> selectedUsers = new ArrayList<>();
+            for (int i = 0; i < listView.getCount(); i++) {
+                if (listView.isItemChecked(i)) {
+                    selectedUsers.add(adapter.getItem(i));
+                }
+            }
+
+            if (filterType.equals("signUp")) {
+                filterMarkersBySignUpUsers(selectedUsers);
+            } else {
+                filterMarkersByOwnerUsers(selectedUsers);
+            }
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+
+    private void filterMarkersBySignUpUsers(List<String> users) {
+        filteredSignUpUsers = users;
+        loadMarkers();
+    }
+
+    private void filterMarkersByOwnerUsers(List<String> users) {
+        filteredOwnerUsers = users;
+        loadMarkers();
+    }
+
+    private void addMarker(DocumentSnapshot document) {
+        Double latitude = document.getDouble("latitude");
+        Double longitude = document.getDouble("longitude");
+        String title = document.getString("title");
+        String description = document.getString("description");
+        String theme = document.getString("theme");
+
+        if (latitude == null || longitude == null || title == null || description == null || theme == null) {
+            return;
+        }
+
+        LatLng position = new LatLng(latitude, longitude);
+        float markerColor = getMarkerColor(theme);
+
+        Marker marker = googleMap.addMarker(new MarkerOptions()
+                .position(position)
+                .title(title)
+                .snippet(description)
+                .icon(BitmapDescriptorFactory.defaultMarker(markerColor)));
+
+        if (marker != null) {
+            marker.setTag(document.getId());
+        }
+    }
+
+    private void showUserSearchDialog(String filterType) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Select a Friend");
+
+        // Get the collection name based on filter type
+        String collection = filterType.equals("signup") ? "user_signup_follow" : "user_great_follow";
+
+        firestore.collection(collection).document(userId).get().addOnSuccessListener(document -> {
+            if (document.exists() && document.contains("following")) {
+                List<String> followingIds = (List<String>) document.get("following");
+
+                if (followingIds == null || followingIds.isEmpty()) {
+                    Toast.makeText(getActivity(), "No friends found!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                List<String> displayNames = new ArrayList<>();
+                Map<String, String> idToDisplayNameMap = new HashMap<>();
+
+                for (String friendId : followingIds) {
+                    firestore.collection("users").document(friendId).get().addOnSuccessListener(friendDoc -> {
+                        if (friendDoc.exists()) {
+                            String username = friendDoc.getString("username");
+                            String name = friendDoc.getString("name");
+                            String surname = friendDoc.getString("surname");
+
+                            if (username != null && name != null && surname != null) {
+                                String displayName = username + " " + name + " " + surname;
+                                displayNames.add(displayName);
+                                idToDisplayNameMap.put(displayName, friendId);
+                            }
+
+                            // Check if all users are fetched
+                            if (displayNames.size() == followingIds.size()) {
+                                String[] userArray = displayNames.toArray(new String[0]);
+
+                                builder.setItems(userArray, (dialog, which) -> {
+                                    String selectedDisplayName = userArray[which];
+                                    String selectedUserId = idToDisplayNameMap.get(selectedDisplayName);
+                                    applyUserFilter(selectedUserId, filterType);
+                                });
+
+                                builder.show();
+                            }
+                        }
+                    });
+                }
+            } else {
+                Toast.makeText(getActivity(), "No friends found!", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error fetching user follow list", e);
+            Toast.makeText(getActivity(), "Failed to load friends!", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void applyUserFilter(String selectedUserId, String filterType) {
+        googleMap.clear(); // Clear the map before applying the filter
+
+        if (filterType.equals("signup")) {
+            // Fetch events the user has signed up for
+            firestore.collection("user_events").document(selectedUserId).get().addOnSuccessListener(document -> {
+                if (document.exists() && document.contains("events")) {
+                    List<String> eventIds = (List<String>) document.get("events");
+
+                    if (eventIds == null || eventIds.isEmpty()) {
+                        Toast.makeText(getActivity(), "No events found for this user!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Fetch marker details for those event IDs
+                    for (String eventId : eventIds) {
+                        firestore.collection("markers").document(eventId).get().addOnSuccessListener(eventDoc -> {
+                            if (eventDoc.exists()) {
+                                addMarker(eventDoc);
+                            }
+                        });
+                    }
+                } else {
+                    Toast.makeText(getActivity(), "No events found for this user!", Toast.LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(e -> Log.e(TAG, "Error fetching user events", e));
+        } else {
+            // Fetch events created by the user
+            firestore.collection("markers").whereEqualTo("userId", selectedUserId).get().addOnSuccessListener(querySnapshot -> {
+                if (!querySnapshot.isEmpty()) {
+                    for (QueryDocumentSnapshot document : querySnapshot) {
+                        addMarker(document);
+                    }
+                } else {
+                    Toast.makeText(getActivity(), "No events created by this user!", Toast.LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(e -> Log.e(TAG, "Error fetching user-created events", e));
+        }
+    }
+
 }
+

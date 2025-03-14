@@ -8,13 +8,15 @@
     tools:context=".Main.Map.MapsFragment">
 
     <!-- Google Map Fragment -->
+
+    <!-- 🔹 Theme Filter (Placed Alone at the Top) -->
+
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- 🔹 Theme Filter (Placed Alone at the Top) -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -46,15 +48,18 @@
     </androidx.cardview.widget.CardView>
 
     <!-- 🔹 Glassmorphic Floating Filter Menu -->
+
+    <!-- 🔹 Calendar Filter Button -->
+
     <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
+        android:layout_width="340dp"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:layout_marginTop="100dp"
         android:layout_marginHorizontal="16dp"
-        android:padding="12dp"
+        android:layout_marginTop="100dp"
         android:background="@drawable/glassmorphic_background"
         android:elevation="10dp"
+        android:padding="12dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="12dp">
 
@@ -65,20 +70,20 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="8dp"
+            android:elevation="10dp"
             android:src="@drawable/ic_filter_list"
-            app:backgroundTint="@color/colorAccent"
             android:tint="@color/black"
-            android:elevation="10dp"/>
+            app:backgroundTint="@color/colorAccent" />
 
         <!-- Dropdown Filter Menu (Initially Hidden) -->
         <LinearLayout
             android:id="@+id/layout_filter_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:gravity="center"
-            android:visibility="gone"
-            android:paddingTop="8dp">
+            android:orientation="horizontal"
+            android:paddingTop="8dp"
+            android:visibility="gone">
 
             <!-- Friends Signed Up Filter -->
             <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -86,10 +91,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
+                android:elevation="10dp"
                 android:src="@drawable/ic_friends_sign_up"
-                app:backgroundTint="@color/colorAccent"
                 android:tint="@color/black"
-                android:elevation="10dp"/>
+                app:backgroundTint="@color/colorAccent" />
 
             <!-- Friends Created Events Filter -->
             <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -97,10 +102,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
+                android:elevation="10dp"
                 android:src="@drawable/ic_friends_create_owner"
-                app:backgroundTint="@color/colorAccent"
                 android:tint="@color/black"
-                android:elevation="10dp"/>
+                app:backgroundTint="@color/colorAccent" />
 
             <!-- Famous Markers Filter -->
             <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -108,14 +113,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
+                android:elevation="10dp"
                 android:src="@drawable/ic_star_outline"
-                app:backgroundTint="@color/colorAccent"
                 android:tint="@color/black"
-                android:elevation="10dp"/>
+                app:backgroundTint="@color/colorAccent" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- 🔹 Calendar Filter Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_calendar_filter"
         android:layout_width="wrap_content"
