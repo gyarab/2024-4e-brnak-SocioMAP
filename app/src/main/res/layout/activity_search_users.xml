@@ -23,11 +23,11 @@
         android:id="@+id/btn_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Search"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="@color/colorAccent"
         android:padding="12dp"
-
-        android:textColor="@android:color/white"
-        android:layout_marginTop="8dp"/>
+        android:text="Search"
+        android:textColor="@android:color/white" />
 
     <!-- ListView to Show Users -->
     <ListView

@@ -193,16 +193,16 @@ public class Login extends AppCompatActivity {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         //  Google Sign-In button
-        btnGoogleLogin = findViewById(R.id.btn_google_login);
-        btnGoogleLogin.setOnClickListener(v -> signInWithGoogle());
+        //btnGoogleLogin = findViewById(R.id.btn_google_login);
+        //btnGoogleLogin.setOnClickListener(v -> signInWithGoogle());
 
 
 
         //Google login video
         FirebaseApp.initializeApp(this);
-        shapeableImageView = findViewById(R.id.profileImage);
-        nameT = findViewById(R.id.nameTV);
-        mail = findViewById(R.id.mailTV);
+        //shapeableImageView = findViewById(R.id.profileImage);
+        //nameT = findViewById(R.id.nameTV);
+        //mail = findViewById(R.id.mailTV);
 
         GoogleSignInOptions options = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.client_id))
@@ -211,7 +211,8 @@ public class Login extends AppCompatActivity {
         googleSignInClient = GoogleSignIn.getClient(Login.this, options);
         mAuth = FirebaseAuth.getInstance();
 
-        SignInButton signInButton = findViewById(R.id.signIn);
+        //SignInButton signInButton = findViewById(R.id.signIn);
+        /*
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -219,6 +220,8 @@ public class Login extends AppCompatActivity {
                 activityResultLauncher.launch(intent);
             }
         });
+
+         */
 
     }
 

@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/default_background">
+    android:background="@color/default_background"
+    android:layout_marginTop="50dp">
 
     <!-- Scrollable Content -->
     <ScrollView
@@ -12,14 +13,14 @@
         android:layout_height="match_parent"
         android:layout_above="@id/btn_manage_following"
         android:padding="16dp"
-        android:paddingTop="35dp">
+        android:paddingTop="50dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:paddingBottom="120dp"> <!-- Extra bottom padding to avoid overlap -->
+            android:paddingBottom="125dp"> <!-- Extra bottom padding to avoid overlap -->
 
             <!-- 🔹 Event Categories -->
             <androidx.cardview.widget.CardView
@@ -49,7 +50,7 @@
                     android:layout_height="wrap_content"
                     android:divider="@android:color/darker_gray"
                     android:dividerHeight="1dp"
-                    android:paddingTop="16dp"/> <!-- ⬅️ More space before events -->
+                    android:paddingTop="35dp"/> <!-- ⬅️ More space before events -->
             </androidx.cardview.widget.CardView>
 
             <!-- 🔹 Signed-up Events -->
@@ -80,7 +81,7 @@
                     android:layout_height="wrap_content"
                     android:divider="@android:color/darker_gray"
                     android:dividerHeight="1dp"
-                    android:paddingTop="16dp"/>
+                    android:paddingTop="35dp"/>
             </androidx.cardview.widget.CardView>
 
             <!-- 🔹 Created Events -->
@@ -111,7 +112,7 @@
                     android:layout_height="wrap_content"
                     android:divider="@android:color/darker_gray"
                     android:dividerHeight="1dp"
-                    android:paddingTop="16dp"/>
+                    android:paddingTop="35dp"/>
             </androidx.cardview.widget.CardView>
 
             <!-- 🔹 Archived Created Events -->
@@ -142,7 +143,7 @@
                     android:layout_height="wrap_content"
                     android:divider="@android:color/darker_gray"
                     android:dividerHeight="1dp"
-                    android:paddingTop="30dp"/>
+                    android:paddingTop="35dp"/>
             </androidx.cardview.widget.CardView>
         </LinearLayout>
     </ScrollView>
@@ -153,12 +154,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:text="Manage Following"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/white"
+        android:layout_margin="16dp"
         android:backgroundTint="@color/colorAccent"
-        app:cornerRadius="30dp"
         android:paddingVertical="18dp"
-        android:layout_margin="16dp"/>
+        android:text="Manage Following"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="30dp" />
 </RelativeLayout>

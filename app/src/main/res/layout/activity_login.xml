@@ -8,11 +8,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="15dp"
-    tools:context=".Login.Login">
+    tools:context=".Login.Login"
+    android:background="@drawable/gradient_background">
 
     <TextView
-        android:text="@string/login"
-        android:textSize="20sp"
+        android:text="@string/loginTitle"
+        android:textSize="30sp"
         android:textStyle="bold"
         android:gravity="center"
         android:layout_marginBottom="20dp"
@@ -51,46 +52,13 @@
         android:text="@string/login"
         android:gravity="center"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <Button
-        android:id="@+id/btn_google_login"
-        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sign in with Google"
+        android:backgroundTint="@color/colorAccent"
+        android:textColor="@color/white"
+        android:textSize="17sp"/>
 
-        android:padding="12dp"
-        android:layout_marginTop="10dp"
-        android:textColor="@android:color/white"/>
     <!--android:drawableStart="@drawable/ic_google_logo"-->
 
-    
-    <com.google.android.material.imageview.ShapeableImageView
-        android:layout_width="150sp"
-        android:layout_height="150sp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="40sp"
-        android:id="@+id/profileImage"/>
-    
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10sp"
-        android:id="@+id/nameTV"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10sp"
-        android:id="@+id/mailTV"/>
-
-    <com.google.android.gms.common.SignInButton
-        android:layout_width="200sp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20sp"
-        android:id="@+id/signIn"/>
 
     <TextView
         android:id="@+id/registerNow"
@@ -98,6 +66,9 @@
         android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textStyle="bold"/>
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="@android:color/holo_blue_bright"/>
 
 </LinearLayout>

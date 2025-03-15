@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">SocioMap</string>
-    <string name="login">Login</string>
+    <string name="login">Continue</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
-    <string name="click_to_register">Clicktoregister</string>
+    <string name="click_to_register">Click to register</string>
     <string name="register">Register</string>
     <string name="click_to_login">Click to login</string>
     <string name="logout">logout</string>
@@ -58,6 +58,7 @@
     </string>
     <string name="default_web_client_id">619168565709-e2j8kis8p96dqrs56e0eigqof9rv7npe.apps.googleusercontent.com</string>
     <string name="client_id">619168565709-1s82fbjctc6l44qm51eot31ffsreka0m.apps.googleusercontent.com</string>
+    <string name="loginTitle">Login</string>
 
     <string-array name="map_filter_options">
         <item>Private</item>

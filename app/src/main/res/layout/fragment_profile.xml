@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -225,8 +226,9 @@
             android:layout_height="60dp"
             android:layout_weight="1"
             android:text="Logout"
-            android:textColor="@color/black"
-            android:background="@drawable/button_gradient"/>
+            android:textColor="@color/white"
+            app:cornerRadius="150dp"
+            android:backgroundTint="@color/black"/>
 
         <View android:layout_width="16dp" android:layout_height="match_parent"/> <!-- Spacing -->
 
@@ -236,7 +238,8 @@
             android:layout_height="60dp"
             android:layout_weight="1"
             android:text="Edit Profile"
-            android:textColor="@color/black"
-            android:background="@drawable/button_gradient"/>
+            android:textColor="@color/white"
+            app:cornerRadius="150dp"
+            android:backgroundTint="@color/black"/>
     </LinearLayout>
 </LinearLayout>

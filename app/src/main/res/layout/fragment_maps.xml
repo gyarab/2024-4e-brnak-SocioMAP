@@ -18,33 +18,19 @@
         android:layout_height="match_parent" />
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
         android:layout_margin="16dp"
-        android:padding="12dp"
         android:background="@drawable/glassmorphic_background"
         android:elevation="8dp"
+        android:padding="12dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="10dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Select Event Type"
-            android:textSize="16sp"
-            android:textColor="@color/text_gold"
-            android:textStyle="bold"
-            android:paddingBottom="8dp"/>
 
-        <Spinner
-            android:id="@+id/spn_filter"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:background="@drawable/rounded_spinner"
-            android:padding="8dp"
-            android:spinnerMode="dropdown"/>
+
     </androidx.cardview.widget.CardView>
 
     <!-- 🔹 Glassmorphic Floating Filter Menu -->
@@ -139,9 +125,20 @@
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="20dp"
         android:text="Switch to Edit Mode"
-        android:textColor="@android:color/black"
-        app:backgroundTint="@color/colorPrimary"
+        android:textColor="@android:color/white"
+        app:backgroundTint="@color/black"
         app:cornerRadius="30dp"
         android:elevation="8dp"/>
+
+    <Spinner
+        android:id="@+id/spn_filter"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@drawable/rounded_spinner"
+        android:padding="8dp"
+        android:spinnerMode="dropdown"
+        app:layout_anchor="@+id/cardView"
+        app:layout_anchorGravity="bottom|center"
+        android:layout_marginTop="35dp"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
