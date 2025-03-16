@@ -48,8 +48,8 @@
                     android:gravity="center"
                     android:paddingBottom="12dp"
                     android:text="Profile Information"
-                    android:textColor="@color/text_gold"
-                    android:textSize="20sp"
+                    android:textColor="@color/white"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <!-- User Info Rows -->
@@ -61,7 +61,7 @@
 
                     <TextView
                         android:layout_width="0dp"
-                        android:layout_height="20dp"
+                        android:layout_height="22dp"
                         android:layout_weight="1"
                         android:text="Email:"
                         android:textColor="@color/white"
@@ -70,7 +70,7 @@
                     <TextView
                         android:id="@+id/text_email"
                         android:layout_width="wrap_content"
-                        android:layout_height="20dp"
+                        android:layout_height="22dp"
                         android:textColor="@color/text_gold" />
                 </LinearLayout>
 
@@ -82,7 +82,7 @@
 
                     <TextView
                         android:layout_width="0dp"
-                        android:layout_height="20dp"
+                        android:layout_height="22dp"
                         android:layout_weight="1"
                         android:text="Username:"
                         android:textColor="@color/white"
@@ -91,7 +91,7 @@
                     <TextView
                         android:id="@+id/text_username"
                         android:layout_width="wrap_content"
-                        android:layout_height="20dp"
+                        android:layout_height="22dp"
                         android:textColor="@color/text_gold" />
                 </LinearLayout>
 
@@ -103,7 +103,7 @@
 
                     <TextView
                         android:layout_width="0dp"
-                        android:layout_height="20dp"
+                        android:layout_height="22dp"
                         android:layout_weight="1"
                         android:text="Name:"
                         android:textColor="@color/white"
@@ -112,7 +112,7 @@
                     <TextView
                         android:id="@+id/text_name"
                         android:layout_width="wrap_content"
-                        android:layout_height="20dp"
+                        android:layout_height="22dp"
                         android:textColor="@color/text_gold" />
                 </LinearLayout>
 
@@ -124,7 +124,7 @@
 
                     <TextView
                         android:layout_width="0dp"
-                        android:layout_height="20dp"
+                        android:layout_height="22dp"
                         android:layout_weight="1"
                         android:text="Birth Year:"
                         android:textColor="@color/white"
@@ -133,7 +133,7 @@
                     <TextView
                         android:id="@+id/text_birthyear"
                         android:layout_width="wrap_content"
-                        android:layout_height="20dp"
+                        android:layout_height="22dp"
                         android:textColor="@color/text_gold" />
                 </LinearLayout>
 
@@ -145,7 +145,7 @@
 
                     <TextView
                         android:layout_width="0dp"
-                        android:layout_height="20dp"
+                        android:layout_height="22dp"
                         android:layout_weight="1"
                         android:text="Famous:"
                         android:textColor="@color/white"
@@ -154,7 +154,7 @@
                     <TextView
                         android:id="@+id/text_famous"
                         android:layout_width="wrap_content"
-                        android:layout_height="20dp"
+                        android:layout_height="22dp"
                         android:textColor="@color/text_gold" />
                 </LinearLayout>
 
@@ -166,7 +166,7 @@
 
                     <TextView
                         android:layout_width="0dp"
-                        android:layout_height="20dp"
+                        android:layout_height="22dp"
                         android:layout_weight="1"
                         android:text="Admin:"
                         android:textColor="@color/white"
@@ -175,7 +175,7 @@
                     <TextView
                         android:id="@+id/text_admin"
                         android:layout_width="wrap_content"
-                        android:layout_height="20dp"
+                        android:layout_height="22dp"
                         android:textColor="@color/text_gold" />
                 </LinearLayout>
             </LinearLayout>

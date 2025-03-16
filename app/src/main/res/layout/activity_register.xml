@@ -8,20 +8,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="15dp"
-    tools:context=".Login.Register">
+    tools:context=".Login.Register"
+    android:background="@drawable/gradient_background">
 
     <TextView
+        android:id="@+id/registerTitle"
         android:text="@string/register"
-        android:textSize="20sp"
+        android:textSize="30sp"
         android:textStyle="bold"
         android:gravity="center"
         android:layout_marginBottom="20dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:visibility="invisible" />
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/usernameLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="invisible">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/username"
             android:hint="@string/username"
@@ -29,10 +34,11 @@
             android:layout_height="wrap_content"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/nameLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="invisible">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/name"
             android:hint="@string/name"
@@ -41,8 +47,10 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/surnameLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="invisible">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/surname"
             android:hint="@string/surname"
@@ -51,9 +59,10 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/birthdayLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
+        android:layout_height="wrap_content"
+        android:visibility="invisible">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/birthday"
             android:hint="Select Birthday"
@@ -64,8 +73,10 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/emailLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="invisible">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/email"
             android:hint="@string/email"
@@ -74,8 +85,10 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/passwordLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="invisible">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/password"
             android:hint="@string/password"
@@ -85,8 +98,10 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/confirmPasswordLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="invisible">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/confirm_password"
             android:hint="@string/confirm_password"
@@ -95,25 +110,21 @@
             android:inputType="textPassword"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
     <Button
         android:id="@+id/btn_register"
         android:text="@string/register"
-        android:gravity="center"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:layout_marginTop="20dp"/>
 
     <TextView
         android:id="@+id/loginNow"
         android:text="@string/click_to_login"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
+        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textColor="@color/white"/>
+        android:visibility="invisible"
+        android:textSize="15dp"/>
 </LinearLayout>

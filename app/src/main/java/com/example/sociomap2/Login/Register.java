@@ -1,13 +1,18 @@
 package com.example.sociomap2.Login;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.icu.util.Calendar;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -26,6 +31,7 @@ import com.example.sociomap2.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -40,12 +46,13 @@ import java.util.Objects;
 public class Register extends AppCompatActivity {
 
     // Define UI elements
+    private TextInputLayout usernameLayout, nameLayout, surnameLayout, birthdayLayout, emailLayout, passwordLayout, confirmPasswordLayout;
     private TextInputEditText editTextEmail, editTextPassword, editTextConfirmPassword;
     private TextInputEditText editTextUsername, editTextName, editTextSurname, editTextBirthday;
-    private Button btnReg;
+    private Button btnRegister;
     private FirebaseAuth mAuth;
     private ProgressBar progressBar;
-    private TextView textView;
+    private TextView registerTitle, loginNow;
     private FirebaseFirestore db; // Firestore instance
 
     @Override
@@ -88,21 +95,109 @@ public class Register extends AppCompatActivity {
         editTextBirthday = findViewById(R.id.birthday);
         editTextBirthday.setFocusable(false);
         editTextBirthday.setOnClickListener(v -> showDatePickerDialog());
-        btnReg = findViewById(R.id.btn_register);
+        btnRegister = findViewById(R.id.btn_register);
         progressBar = findViewById(R.id.progressBar);
-        textView = findViewById(R.id.loginNow);
+
+
+        registerTitle = findViewById(R.id.registerTitle);
+        usernameLayout = findViewById(R.id.usernameLayout);
+        nameLayout = findViewById(R.id.nameLayout);
+        surnameLayout = findViewById(R.id.surnameLayout);
+        birthdayLayout = findViewById(R.id.birthdayLayout);
+        emailLayout = findViewById(R.id.emailLayout);
+        passwordLayout = findViewById(R.id.passwordLayout);
+        confirmPasswordLayout = findViewById(R.id.confirmPasswordLayout);
+        btnRegister = findViewById(R.id.btn_register);
+        loginNow = findViewById(R.id.loginNow);
+
 
         // Click listener for "Already have an account?" text
-        textView.setOnClickListener(v -> {
+        loginNow.setOnClickListener(v -> {
             Intent intent = new Intent(getApplicationContext(), Login.class);
             startActivity(intent);
             finish();
         });
 
         // Click listener for the registration button
-        btnReg.setOnClickListener(v -> {
+        btnRegister.setOnClickListener(v -> {
             registerUser();
         });
+
+        Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in);
+        Animator shadowAnim = AnimatorInflater.loadAnimator(this, R.animator.button_shadow);
+
+        // Ensure views start as invisible
+        registerTitle.setVisibility(View.INVISIBLE);
+        usernameLayout.setVisibility(View.INVISIBLE);
+        nameLayout.setVisibility(View.INVISIBLE);
+        surnameLayout.setVisibility(View.INVISIBLE);
+        birthdayLayout.setVisibility(View.INVISIBLE);
+        emailLayout.setVisibility(View.INVISIBLE);
+        passwordLayout.setVisibility(View.INVISIBLE);
+        confirmPasswordLayout.setVisibility(View.INVISIBLE);
+        btnRegister.setVisibility(View.INVISIBLE);
+        loginNow.setVisibility(View.INVISIBLE);
+
+        // Apply animations in sequence with delays
+        new Handler().postDelayed(() -> {
+            registerTitle.startAnimation(slideIn);
+            registerTitle.setVisibility(View.VISIBLE);
+        }, 100);
+
+        new Handler().postDelayed(() -> {
+            usernameLayout.startAnimation(slideIn);
+            usernameLayout.setVisibility(View.VISIBLE);
+        }, 800);
+
+        new Handler().postDelayed(() -> {
+            nameLayout.startAnimation(slideIn);
+            nameLayout.setVisibility(View.VISIBLE);
+        }, 1500);
+
+        new Handler().postDelayed(() -> {
+            surnameLayout.startAnimation(slideIn);
+            surnameLayout.setVisibility(View.VISIBLE);
+
+        }, 2200);
+
+        new Handler().postDelayed(() -> {
+            birthdayLayout.startAnimation(slideIn);
+            birthdayLayout.setVisibility(View.VISIBLE);
+
+        }, 2900);
+
+        new Handler().postDelayed(() -> {
+            emailLayout.startAnimation(slideIn);
+            emailLayout.setVisibility(View.VISIBLE);
+
+        }, 3600);
+
+        new Handler().postDelayed(() -> {
+            passwordLayout.startAnimation(slideIn);
+            passwordLayout.setVisibility(View.VISIBLE);
+
+        }, 4400);
+
+        new Handler().postDelayed(() -> {
+            confirmPasswordLayout.startAnimation(slideIn);
+            confirmPasswordLayout.setVisibility(View.VISIBLE);
+
+        }, 5100);
+
+        new Handler().postDelayed(() -> {
+            btnRegister.startAnimation(slideIn);
+            shadowAnim.setTarget(btnRegister);
+            shadowAnim.start();
+            btnRegister.setVisibility(View.VISIBLE);
+        }, 5800);
+
+        new Handler().postDelayed(() -> {
+            loginNow.startAnimation(fadeIn);
+            loginNow.setVisibility(View.VISIBLE);
+
+        }, 6500);
+
     }
 
     private void showDatePickerDialog() {
@@ -122,8 +217,6 @@ public class Register extends AppCompatActivity {
         datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis()); // Prevent future dates
         datePickerDialog.show();
     }
-
-
 
     private boolean isValidEmail(String email) {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
@@ -199,6 +292,7 @@ public class Register extends AppCompatActivity {
     }
 
 
+    // Preparation for Google_Signin
     private void saveUserInfo(String username, String name, String surname, String birthday, String email) {
         // Create a map to hold user info
         Map<String, Object> user = new HashMap<>();
@@ -233,3 +327,16 @@ public class Register extends AppCompatActivity {
                 });
     }
 }
+
+
+
+
+
+
+        // Initialize UI elements
+
+        // Load animations
+
+
+
+

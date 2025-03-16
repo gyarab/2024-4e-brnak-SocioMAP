@@ -72,6 +72,7 @@ public class UserListAdapter extends ArrayAdapter<User> {
             convertView.setTag(holder);
         }
 
+
         // 🔹 Fetch user data
         User user = userList.get(position);
         holder.txtUserInfo.setText(user.getFullName());
@@ -94,11 +95,10 @@ public class UserListAdapter extends ArrayAdapter<User> {
             Log.e(TAG, "updateList: Attempted to update with a null list.");
             return;
         }
-
         userList.clear();
         userList.addAll(newList);
 
-        // 🔹 Prevent crash if the list is empty
+        // list is empty
         if (userList.isEmpty()) {
             Log.e(TAG, "updateList: The updated list is empty.");
         }
@@ -114,9 +114,17 @@ public class UserListAdapter extends ArrayAdapter<User> {
                 .addOnSuccessListener(document -> {
                     if (document.exists() && document.contains("following")) {
                         List<String> followingList = (List<String>) document.get("following");
-                        followButton.setText((followingList != null && followingList.contains(followedUserId)) ? "Unfollow" : "Follow");
+                        if (followButton.getId() == R.id.btn_follow_created) {
+                            followButton.setText((followingList != null && followingList.contains(followedUserId)) ? "Unfollow Creator" : "Follow Creator");
+                        } else {
+                            followButton.setText((followingList != null && followingList.contains(followedUserId)) ? "Unfollow" : "Follow");
+                        }
                     } else {
-                        followButton.setText("Follow");
+                        if (followButton.getId() == R.id.btn_follow_created) {
+                            followButton.setText("Follow Creator");
+                        } else {
+                            followButton.setText("Follow");
+                        }
                     }
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Error checking follow status", e));
@@ -134,11 +142,17 @@ public class UserListAdapter extends ArrayAdapter<User> {
                     boolean isFollowing = document.exists() && document.contains("following") &&
                             ((List<String>) document.get("following")).contains(followedUserId);
 
-                    // 🔄 **Instant UI update before Firestore operation**
-                    followButton.setText(isFollowing ? "Follow" : "Unfollow");
+                    // **Instant UI update before Firestore operation**
+
+                    if (followButton.getId() == R.id.btn_follow_created) {
+                        followButton.setText(isFollowing ? "Follow Creator" : "Unfollow Creator");
+                    } else {
+                        followButton.setText(isFollowing ? "Follow" : "Unfollow");
+                    }
+
 
                     if (document.exists()) {
-                        // ✅ **Document exists → Update the following array**
+                        // **Document exists → Update the following array**
                         firestore.collection(collection).document(currentUserId)
                                 .update("following", isFollowing ? FieldValue.arrayRemove(followedUserId) : FieldValue.arrayUnion(followedUserId))
                                 .addOnSuccessListener(aVoid -> {
@@ -150,10 +164,14 @@ public class UserListAdapter extends ArrayAdapter<User> {
                                 })
                                 .addOnFailureListener(e -> {
                                     Log.e(TAG, "Error toggling follow status", e);
-                                    followButton.setText(isFollowing ? "Unfollow" : "Follow"); // Revert UI if failed
+                                    if (followButton.getId() == R.id.btn_follow_created) {
+                                        followButton.setText(isFollowing ? "Follow Creator" : "Unfollow Creator");
+                                    } else {
+                                        followButton.setText(isFollowing ? "Follow" : "Unfollow");
+                                    }
                                 });
                     } else {
-                        // ❌ **Document does NOT exist → Create it first**
+                        // **Document does NOT exist → Create it first**
                         Map<String, Object> newFollowData = new HashMap<>();
                         newFollowData.put("following", List.of(followedUserId));
 
@@ -161,11 +179,19 @@ public class UserListAdapter extends ArrayAdapter<User> {
                                 .set(newFollowData)
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(context, "Now following!", Toast.LENGTH_SHORT).show();
-                                    followButton.setText("Unfollow");
+                                    if (followButton.getId() == R.id.btn_follow_created) {
+                                        followButton.setText("Unfollow Creator");
+                                    } else {
+                                        followButton.setText("Unfollow");
+                                    }
                                 })
                                 .addOnFailureListener(e -> {
                                     Log.e(TAG, "Error creating follow document", e);
-                                    followButton.setText("Follow"); // Revert UI if failed
+                                    if (followButton.getId() == R.id.btn_follow_created) {
+                                        followButton.setText("Follow Creator");
+                                    } else {
+                                        followButton.setText("Follow");
+                                    }
                                 });
                     }
                 })

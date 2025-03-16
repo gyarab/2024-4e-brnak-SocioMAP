@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <objectAnimator
+        android:propertyName="elevation"
+        android:duration="1000"
+        android:repeatMode="reverse"
+        android:repeatCount="infinite"
+        android:valueFrom="5dp"
+        android:valueTo="15dp"
+        android:interpolator="@android:interpolator/accelerate_decelerate" />
+</set>

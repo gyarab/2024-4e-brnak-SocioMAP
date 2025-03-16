@@ -38,6 +38,10 @@ public class SearchUsersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_users);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
         firestore = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
         userId = firebaseAuth.getCurrentUser() != null ? firebaseAuth.getCurrentUser().getUid() : null;

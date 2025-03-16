@@ -1,6 +1,7 @@
 package com.example.sociomap2.Main.Map;
 
 import android.Manifest;
+import android.animation.ValueAnimator;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -17,11 +18,13 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
@@ -45,6 +48,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -73,6 +77,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private List<String> filteredSignUpUsers = new ArrayList<>();
     private List<String> filteredOwnerUsers = new ArrayList<>();
 
+    private CardView cardFilterMenu;
+    private FloatingActionButton btnFriendsSignUp, btnFriendsCreateOwner, btnToggleFilters, btnCalendarFilter;
+    private LinearLayout layoutFilterMenu;
+
 
 
     @Nullable
@@ -93,10 +101,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         firebaseAuth = FirebaseAuth.getInstance();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
-        FloatingActionButton btnFriendsSignUp = view.findViewById(R.id.btn_friends_sign_up);
-        FloatingActionButton btnFriendsCreateOwner = view.findViewById(R.id.btn_friends_create_owner);
-        FloatingActionButton btnToggleFilters = view.findViewById(R.id.btn_toggle_filters);
-        LinearLayout layoutFilterMenu = view.findViewById(R.id.layout_filter_menu);
+
+        cardFilterMenu = view.findViewById(R.id.card_filter_menu);
+        btnFriendsSignUp = view.findViewById(R.id.btn_friends_sign_up);
+        btnFriendsCreateOwner = view.findViewById(R.id.btn_friends_create_owner);
+        btnToggleFilters = view.findViewById(R.id.btn_toggle_filters);
+        layoutFilterMenu = view.findViewById(R.id.layout_filter_menu);
 
         //btnFriendsSignUp.setOnClickListener(v -> openUserSearchDialog("signUp"));
         //btnFriendsCreateOwner.setOnClickListener(v -> openUserSearchDialog("createOwner"));
@@ -104,9 +114,40 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         // Toggle filter menu visibility
         btnToggleFilters.setOnClickListener(v -> {
             if (layoutFilterMenu.getVisibility() == View.VISIBLE) {
-                layoutFilterMenu.setVisibility(View.GONE);
+                // Collapse to 90dp
+                ValueAnimator animator = ValueAnimator.ofInt(cardFilterMenu.getHeight(), 280);
+                animator.setDuration(300);
+                animator.addUpdateListener(animation -> {
+                    ViewGroup.LayoutParams params = cardFilterMenu.getLayoutParams();
+                    params.height = (int) animation.getAnimatedValue();
+                    cardFilterMenu.setLayoutParams(params);
+                });
+
+                layoutFilterMenu.animate()
+                        .alpha(0f)
+                        .setDuration(150)
+                        .withEndAction(() -> layoutFilterMenu.setVisibility(View.GONE))
+                        .start();
+
+                animator.start();
             } else {
+                // Expand to 350dp
+                ValueAnimator animator = ValueAnimator.ofInt(cardFilterMenu.getHeight(), 850);
+                animator.setDuration(500);
+                animator.addUpdateListener(animation -> {
+                    ViewGroup.LayoutParams params = cardFilterMenu.getLayoutParams();
+                    params.height = (int) animation.getAnimatedValue();
+                    cardFilterMenu.setLayoutParams(params);
+                });
+
                 layoutFilterMenu.setVisibility(View.VISIBLE);
+                layoutFilterMenu.setAlpha(0f);
+                layoutFilterMenu.animate()
+                        .alpha(1f)
+                        .setDuration(150)
+                        .start();
+
+                animator.start();
             }
         });
 
@@ -152,31 +193,18 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         });
 
         // Calendar Filter Button
-        FloatingActionButton btnCalendarFilter = view.findViewById(R.id.btn_calendar_filter);
+        btnCalendarFilter = view.findViewById(R.id.btn_calendar_filter);
         btnCalendarFilter.setOnClickListener(v -> showDatePickerDialog());
 
         updateMapMode();
 
         btnFriendsSignUp.setOnClickListener(v -> {
             Toast.makeText(getActivity(), "Friends Sign-Up Filter Activated", Toast.LENGTH_SHORT).show();
-            // TODO: Implement filtering logic
             showUserSearchDialog("signup");
         });
         btnFriendsCreateOwner.setOnClickListener(v -> {
             Toast.makeText(getActivity(), "Friends Owner Filter Activated", Toast.LENGTH_SHORT).show();
-
-            // TODO: Implement filtering logic
             showUserSearchDialog("owner");
-
-        });
-
-        // Toggle filter menu visibility
-        btnToggleFilters.setOnClickListener(v -> {
-            if (layoutFilterMenu.getVisibility() == View.VISIBLE) {
-                layoutFilterMenu.setVisibility(View.GONE);
-            } else {
-                layoutFilterMenu.setVisibility(View.VISIBLE);
-            }
 
         });
     }
@@ -206,7 +234,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 12)); // Adjust zoom level
             } else {
                 // Default location (Czech Republic) if user location is not available
-                LatLng defaultLocation = new LatLng(49.8175, 15.4730);
+                LatLng defaultLocation = new LatLng(48.69096, 9.14062);
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 7));
             }
         });
@@ -224,7 +252,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         if (isEditMode) {
             // Edit Mode: Hide markers, enable map clicks - adding events
             btnToggleMode.setText("Switch to View Mode");
-            spnFilter.setVisibility(View.GONE); // Hide filter in Edit Mode
+            spnFilter.setVisibility(View.GONE);
+            btnToggleFilters.setVisibility(View.GONE);
+            btnCalendarFilter.setVisibility(View.GONE);
 
             googleMap.setOnMapClickListener(latLng -> {
                 Intent intent = new Intent(getActivity(), AddMarkerActivity.class);
@@ -239,6 +269,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             // ✅ View Mode: Show markers & ensure they load
             btnToggleMode.setText("Switch to Edit Mode");
             spnFilter.setVisibility(View.VISIBLE);
+            btnToggleFilters.setVisibility(View.VISIBLE);
+            btnCalendarFilter.setVisibility(View.VISIBLE);
             loadMarkers(); // ✅ Ensure markers load when switching modes
         }
     }
@@ -395,20 +427,30 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
 
     private void setupFilterSpinner() {
-        String[] themes = {"All", "Sports", "Music", "Festival", "Concert", "Custom"};
+        List<String> themes = Arrays.asList("All", "Sports", "Music", "Festival", "Concert", "Custom");
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_spinner_dropdown_item, themes);
+        // Create Adapter with custom layouts
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), R.layout.spinner_selected_item, themes);
+        adapter.setDropDownViewResource(R.layout.spinner_item); // Set dropdown layout
+
+        // Set adapter to the Spinner
         spnFilter.setAdapter(adapter);
 
+        // Handle selection events
         spnFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 selectedTheme = parent.getItemAtPosition(position).toString();
+                // Ensure selected text remains black
+                ((TextView) parent.getChildAt(0)).setText(selectedTheme);
+                ((TextView) parent.getChildAt(0)).setTextColor(getResources().getColor(android.R.color.black));
+                ((TextView) parent.getChildAt(0)).setVisibility(View.VISIBLE);
                 if (!isEditMode) { // Only update markers if in View Mode
                     googleMap.clear();
                     loadMarkers();
                 }
+
+                // Do something when an item is selected
             }
 
             @Override
@@ -486,6 +528,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             return 0; // Return 0 if there's an error
         }
     }
+
+    //Search system if needed
     private void openUserSearchDialog(String filterType) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Search for a User");

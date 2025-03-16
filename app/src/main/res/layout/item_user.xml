@@ -26,17 +26,17 @@
         android:layout_height="wrap_content"
         android:text="Follow"
         android:padding="6dp"
-
         android:textColor="@android:color/white"
+        android:backgroundTint="@color/colorAccent"
         android:layout_marginEnd="8dp"/>
 
     <!-- Follow for Created Events -->
     <Button
         android:id="@+id/btn_follow_created"
-        android:layout_width="wrap_content"
+        android:layout_width="133dp"
         android:layout_height="wrap_content"
-        android:text="Follow-Owners"
+        android:backgroundTint="@color/colorAccent"
         android:padding="6dp"
-
-        android:textColor="@android:color/white"/>
+        android:text="Folloe Creater"
+        android:textColor="@android:color/white" />
 </LinearLayout>
