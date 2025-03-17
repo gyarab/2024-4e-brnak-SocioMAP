@@ -81,6 +81,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private FloatingActionButton btnFriendsSignUp, btnFriendsCreateOwner, btnToggleFilters, btnCalendarFilter;
     private LinearLayout layoutFilterMenu;
 
+    private List<String> preferredThemes;
+
 
 
     @Nullable
@@ -107,6 +109,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         btnFriendsCreateOwner = view.findViewById(R.id.btn_friends_create_owner);
         btnToggleFilters = view.findViewById(R.id.btn_toggle_filters);
         layoutFilterMenu = view.findViewById(R.id.layout_filter_menu);
+        layoutFilterMenu.setVisibility(View.GONE);
 
         //btnFriendsSignUp.setOnClickListener(v -> openUserSearchDialog("signUp"));
         //btnFriendsCreateOwner.setOnClickListener(v -> openUserSearchDialog("createOwner"));
@@ -114,40 +117,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         // Toggle filter menu visibility
         btnToggleFilters.setOnClickListener(v -> {
             if (layoutFilterMenu.getVisibility() == View.VISIBLE) {
-                // Collapse to 90dp
-                ValueAnimator animator = ValueAnimator.ofInt(cardFilterMenu.getHeight(), 280);
-                animator.setDuration(300);
-                animator.addUpdateListener(animation -> {
-                    ViewGroup.LayoutParams params = cardFilterMenu.getLayoutParams();
-                    params.height = (int) animation.getAnimatedValue();
-                    cardFilterMenu.setLayoutParams(params);
-                });
-
-                layoutFilterMenu.animate()
-                        .alpha(0f)
-                        .setDuration(150)
-                        .withEndAction(() -> layoutFilterMenu.setVisibility(View.GONE))
-                        .start();
-
-                animator.start();
+                collapseFilterMenu();
             } else {
-                // Expand to 350dp
-                ValueAnimator animator = ValueAnimator.ofInt(cardFilterMenu.getHeight(), 850);
-                animator.setDuration(500);
-                animator.addUpdateListener(animation -> {
-                    ViewGroup.LayoutParams params = cardFilterMenu.getLayoutParams();
-                    params.height = (int) animation.getAnimatedValue();
-                    cardFilterMenu.setLayoutParams(params);
-                });
-
-                layoutFilterMenu.setVisibility(View.VISIBLE);
-                layoutFilterMenu.setAlpha(0f);
-                layoutFilterMenu.animate()
-                        .alpha(1f)
-                        .setDuration(150)
-                        .start();
-
-                animator.start();
+                expandFilterMenu();
             }
         });
 
@@ -207,6 +179,51 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             showUserSearchDialog("owner");
 
         });
+
+        // Variables for algorithm
+        firestore.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
+            if (userDoc.exists()) {
+                preferredThemes = (List<String>) userDoc.get("preferredThemes");
+            }
+        });
+        highlightBestMarker();
+    }
+
+    private void expandFilterMenu() {
+        ValueAnimator animator = ValueAnimator.ofInt(cardFilterMenu.getHeight(), 850);
+        animator.setDuration(500);
+        animator.addUpdateListener(animation -> {
+            ViewGroup.LayoutParams params = cardFilterMenu.getLayoutParams();
+            params.height = (int) animation.getAnimatedValue();
+            cardFilterMenu.setLayoutParams(params);
+        });
+
+        layoutFilterMenu.setVisibility(View.VISIBLE);
+        layoutFilterMenu.setAlpha(0f);
+        layoutFilterMenu.animate()
+                .alpha(1f)
+                .setDuration(150)
+                .start();
+
+        animator.start();
+    }
+
+    private void collapseFilterMenu() {
+        ValueAnimator animator = ValueAnimator.ofInt(cardFilterMenu.getHeight(), 280);
+        animator.setDuration(300);
+        animator.addUpdateListener(animation -> {
+            ViewGroup.LayoutParams params = cardFilterMenu.getLayoutParams();
+            params.height = (int) animation.getAnimatedValue();
+            cardFilterMenu.setLayoutParams(params);
+        });
+
+        layoutFilterMenu.animate()
+                .alpha(0f)
+                .setDuration(150)
+                .withEndAction(() -> layoutFilterMenu.setVisibility(View.GONE))
+                .start();
+
+        animator.start();
     }
 
     @Override
@@ -231,7 +248,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
             if (location != null) {
                 LatLng userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 12)); // Adjust zoom level
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 5)); // Adjust zoom level
             } else {
                 // Default location (Czech Republic) if user location is not available
                 LatLng defaultLocation = new LatLng(48.69096, 9.14062);
@@ -243,18 +260,23 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private void updateMapMode() {
         if (googleMap == null) return;
 
-
         googleMap.clear(); // Only clear once
         if (!isEditMode) {
             loadMarkers(); // Reload markers when switching to View Mode
+            highlightBestMarker();
         }
 
         if (isEditMode) {
-            // Edit Mode: Hide markers, enable map clicks - adding events
+            // **Edit Mode: Hide UI elements & collapse filters**
             btnToggleMode.setText("Switch to View Mode");
             spnFilter.setVisibility(View.GONE);
             btnToggleFilters.setVisibility(View.GONE);
             btnCalendarFilter.setVisibility(View.GONE);
+
+            // **Automatically collapse the filter menu**
+            if (layoutFilterMenu.getVisibility() == View.VISIBLE) {
+                collapseFilterMenu();
+            }
 
             googleMap.setOnMapClickListener(latLng -> {
                 Intent intent = new Intent(getActivity(), AddMarkerActivity.class);
@@ -266,7 +288,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
             googleMap.setOnMarkerClickListener(null); // Disable marker clicks
         } else {
-            // ✅ View Mode: Show markers & ensure they load
+            // **✅ View Mode: Restore visibility settings**
             btnToggleMode.setText("Switch to Edit Mode");
             spnFilter.setVisibility(View.VISIBLE);
             btnToggleFilters.setVisibility(View.VISIBLE);
@@ -277,19 +299,21 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     private void loadMarkers() {
         firestore.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
+
+            //Debug check
             if (!userDoc.exists() || !userDoc.contains("birthyear")) {
                 Log.e(TAG, "User's birthDate not found in Firestore.");
                 return;
             }
 
-            // Get user's birthdate from Firestore
+            // Get user birthdate
             String birthDateString = userDoc.getString("birthyear"); // Format: "YYYY-MM-DD"
             if (birthDateString == null || birthDateString.isEmpty()) {
                 Log.e(TAG, "User birthDate is empty.");
                 return;
             }
 
-            // Calculate user's age
+            // Calculate user age
             int userAge = calculateAge(birthDateString);
             Log.d(TAG, "User age: " + userAge);
 
@@ -417,7 +441,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                         .set(Map.of("events", new ArrayList<String>() {{ add(eventId); }}));
                             });
 
-                    // Remove event from `event_guest_list`
+                    // Remove event
                     firestore.collection("event_guest_list").document(eventId).delete();
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Error retrieving guest list for event: " + eventId, e));
@@ -444,7 +468,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 // Ensure selected text remains black
                 ((TextView) parent.getChildAt(0)).setText(selectedTheme);
                 ((TextView) parent.getChildAt(0)).setTextColor(getResources().getColor(android.R.color.black));
-                ((TextView) parent.getChildAt(0)).setVisibility(View.VISIBLE);
+                (parent.getChildAt(0)).setVisibility(View.VISIBLE);
                 if (!isEditMode) { // Only update markers if in View Mode
                     googleMap.clear();
                     loadMarkers();
@@ -709,6 +733,168 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 }
             }).addOnFailureListener(e -> Log.e(TAG, "Error fetching user-created events", e));
         }
+    }
+
+    /**
+    Algorithm for closes most suggested event
+     */
+    private void highlightBestMarker() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "Location permission not granted");
+            return;
+        }
+
+        fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+            if (location == null) {
+                Log.e(TAG, "User location is null");
+                return;
+            }
+            if (googleMap == null) return;
+
+            LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
+
+            // Define a search radius (5 km)
+            double searchRadiusKm = 7.0;
+            double latOffset = searchRadiusKm / 111.0; // 1 degree latitude ≈ 111 km
+
+            // Fetch user's signed-up friends
+            firestore.collection("user_signup_follow").document(userId).get().addOnSuccessListener(userDoc -> {
+                List<String> signedUpFriends = userDoc.exists() && userDoc.contains("users")
+                        ? (List<String>) userDoc.get("users")
+                        : new ArrayList<>();
+
+                // Step 1: Fetch markers using latitude filtering
+                firestore.collection("markers")
+                        .whereGreaterThan("latitude", userLocation.latitude - latOffset)
+                        .whereLessThan("latitude", userLocation.latitude + latOffset)
+                        .get()
+                        .addOnSuccessListener(queryDocumentSnapshots -> {
+                            if (queryDocumentSnapshots.isEmpty()) {
+                                Log.d(TAG, "No markers found nearby.");
+                                return;
+                            }
+
+                            final Marker[] bestMarker = {null};
+                            final double[] bestScore = {Double.MAX_VALUE};
+                            final String[] bestMarkerId = {null};
+
+                            List<DocumentSnapshot> nearbyMarkers = new ArrayList<>();
+
+                            for (DocumentSnapshot document : queryDocumentSnapshots) {
+                                Double latitude = document.getDouble("latitude");
+                                Double longitude = document.getDouble("longitude");
+
+                                if (latitude == null || longitude == null) continue;
+
+                                // Step 2: Manually filter longitude in Java
+                                double lngOffset = searchRadiusKm / (111.0 * Math.cos(Math.toRadians(latitude)));
+                                if (longitude < userLocation.longitude - lngOffset || longitude > userLocation.longitude + lngOffset) {
+                                    continue;
+                                }
+
+                                nearbyMarkers.add(document);
+                            }
+
+                            if (nearbyMarkers.isEmpty()) {
+                                Log.d(TAG, "No markers within longitude bounds.");
+                                return;
+                            }
+
+                            // Step 3: Process each marker asynchronously
+                            for (DocumentSnapshot document : nearbyMarkers) {
+                                LatLng markerPosition = new LatLng(document.getDouble("latitude"), document.getDouble("longitude"));
+                                double distance = getDistance(userLocation, markerPosition);
+                                double[] score = {distance}; // Use array to modify inside Firestore call
+
+                                // Fetch event's guest list
+                                firestore.collection("event_guest_list").document(document.getId()).get()
+                                        .addOnSuccessListener(eventDoc -> {
+                                            if (eventDoc.exists() && eventDoc.contains("users")) {
+                                                List<String> attendees = (List<String>) eventDoc.get("users");
+                                                int friendCount = 0;
+
+                                                for (String friendId : signedUpFriends) {
+                                                    if (attendees.contains(friendId)) {
+                                                        friendCount++;
+                                                    }
+                                                }
+
+                                                // Adjust score based on friend participation
+                                                if (friendCount > 0 && !signedUpFriends.isEmpty()) {
+                                                    double friendPercentage = (double) friendCount / signedUpFriends.size();
+                                                    double friendScoreBoost = 1.0 - (friendPercentage * 0.3); // Max reduction: 30%
+                                                    score[0] *= Math.max(0.5, friendScoreBoost); // Don't go below 50% reduction
+                                                }
+                                            }
+
+                                            // Apply other scoring factors
+                                            if (preferredThemes != null && document.contains("theme") && preferredThemes.contains(document.getString("theme"))) {
+                                                score[0] *= 0.8;
+                                            }
+
+                                            // Step 4: Store the best marker ID instead of creating new ones
+                                            if (score[0] < bestScore[0]) {
+                                                bestScore[0] = score[0];
+                                                bestMarkerId[0] = document.getId();
+                                            }
+                                        });
+                            }
+
+                            // Step 5: Highlight the best marker after all queries complete
+                            new android.os.Handler().postDelayed(() -> {
+                                if (bestMarkerId[0] == null) {
+                                    Log.d(TAG, "No best marker selected.");
+                                    return;
+                                }
+
+                                if (googleMap != null && bestMarkerId[0] != null) {
+                                    firestore.collection("markers").document(bestMarkerId[0]).get()
+                                            .addOnSuccessListener(bestDoc -> {
+                                                if (bestDoc.exists()) {
+                                                    Double lat = bestDoc.getDouble("latitude");
+                                                    Double lng = bestDoc.getDouble("longitude");
+                                                    if (lat != null && lng != null) {
+                                                        LatLng bestMarkerPosition = new LatLng(lat, lng);
+                                                        bestMarker[0] = googleMap.addMarker(new MarkerOptions()
+                                                                .position(bestMarkerPosition)
+                                                                .title(bestDoc.getString("title"))
+                                                                .snippet(bestDoc.getString("description"))
+                                                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                                                        );
+
+                                                        if (bestMarker[0] != null) {
+                                                            bestMarker[0].showInfoWindow();
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                } else {
+                                    Log.e(TAG, "Google Map is null when adding the B. marker");
+                                }
+                            }, 300); // Delay to allow all Firestore calls to finish
+                        });
+            });
+        });
+    }
+
+    private double getDistance(LatLng pos1, LatLng pos2) {
+        double lat1 = pos1.latitude;
+        double lon1 = pos1.longitude;
+        double lat2 = pos2.latitude;
+        double lon2 = pos2.longitude;
+
+        double R = 6371e3; // Poloměr Země v metrech
+        double φ1 = Math.toRadians(lat1);
+        double φ2 = Math.toRadians(lat2);
+        double Δφ = Math.toRadians(lat2 - lat1);
+        double Δλ = Math.toRadians(lon2 - lon1);
+
+        double a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                        Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return R * c; // Vzdálenost v metrech
     }
 
 }
