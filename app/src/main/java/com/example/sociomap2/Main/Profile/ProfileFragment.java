@@ -111,10 +111,11 @@ public class ProfileFragment extends Fragment {
             startActivity(intent);
         });
 
-        // ✅ Add listener to theme switch
+        /*✅ Add listener to theme switch
         themeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             applyTheme(isChecked);
         });
+         */
 
         return view;
     }
@@ -136,6 +137,7 @@ public class ProfileFragment extends Fragment {
                 });
     }
 
+    /*
     private void applyTheme(boolean isDarkMode) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         int newMode = isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
@@ -154,4 +156,6 @@ public class ProfileFragment extends Fragment {
             requireActivity().runOnUiThread(() -> AppCompatDelegate.setDefaultNightMode(newMode));
         }
     }
+
+     */
 }

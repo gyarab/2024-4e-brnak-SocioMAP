@@ -14,24 +14,30 @@
     <TextView
         android:id="@+id/loginTitle"
         android:text="Login"
-        android:textSize="30sp"
+        android:textSize="35sp"
         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="invisible"
         android:textStyle="bold"
+        android:textColor="@color/black"
         android:paddingBottom="20dp"/> <!-- Start as invisible -->
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/emailLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="invisible"> <!-- Start as invisible -->
+        android:visibility="invisible"
+        android:textColorHint="@color/black"> <!-- Start as invisible -->
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/email"
-            android:hint="Email"
+            android:layout_margin="10dp"
+            android:layout_gravity="center"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -39,13 +45,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="invisible"
-        android:paddingBottom="20dp">
+        android:textColorHint="@color/black">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/password"
             android:hint="Password"
+            android:layout_margin="10dp"
+            android:layout_gravity="center"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
+            android:password="true"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <ProgressBar
@@ -58,9 +69,11 @@
         android:id="@+id/btn_login"
         android:layout_width="105dp"
         android:layout_height="61dp"
-        android:text="Login"
-        android:textStyle="bold"
-        android:visibility="invisible" />
+        android:text="Continue"
+        android:textStyle="italic"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/colorCyan"
+        android:visibility="invisible"/>
 
     <TextView
         android:id="@+id/registerNow"
@@ -68,9 +81,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:textSize="15dp"
+        android:textSize="16dp"
+        android:textStyle="bold"
         android:layout_marginTop="15dp"
-        android:visibility="invisible"/>
+        android:visibility="invisible"
+        android:textColor="@color/black"/>
 
 
 

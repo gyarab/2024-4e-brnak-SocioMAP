@@ -503,7 +503,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         datePickerDialog.show();
     }
 
-
     private float getMarkerColor(String theme) {
         if (theme == null) return BitmapDescriptorFactory.HUE_RED;
 
@@ -553,7 +552,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    //Search system if needed
+    // Search system if needed
     private void openUserSearchDialog(String filterType) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Search for a User");
@@ -791,7 +790,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                 if (longitude < userLocation.longitude - lngOffset || longitude > userLocation.longitude + lngOffset) {
                                     continue;
                                 }
-
                                 nearbyMarkers.add(document);
                             }
 
@@ -883,7 +881,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         double lat2 = pos2.latitude;
         double lon2 = pos2.longitude;
 
-        double R = 6371e3; // Poloměr Země v metrech
+        double R = 6371e3; // radius Earth
         double φ1 = Math.toRadians(lat1);
         double φ2 = Math.toRadians(lat2);
         double Δφ = Math.toRadians(lat2 - lat1);
@@ -894,8 +892,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-        return R * c; // Vzdálenost v metrech
+        return R * c; // meter
     }
-
 }
 

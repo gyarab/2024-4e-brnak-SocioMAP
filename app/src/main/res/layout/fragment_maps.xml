@@ -130,7 +130,8 @@
         android:layout_marginBottom="20dp"
         android:text="Switch to Edit Mode"
         android:textColor="@android:color/white"
-        app:backgroundTint="@color/black"
+        android:textStyle="italic"
+        app:backgroundTint="@color/test"
         app:cornerRadius="30dp"
         android:elevation="8dp"/>
 

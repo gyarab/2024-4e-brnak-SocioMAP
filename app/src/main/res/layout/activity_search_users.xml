@@ -13,9 +13,10 @@
         android:layout_height="48dp"
         android:minHeight="48dp"
         android:hint="Search by name, surname, or username"
+        android:textColorHint="@color/black"
         android:padding="12dp"
         android:layout_marginTop="30dp"
-        android:textColor="@android:color/white"
+        android:textColor="@android:color/black"
         android:backgroundTint="@color/default_background_white"
         android:elevation="4dp"/>
 
