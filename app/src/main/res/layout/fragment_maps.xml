@@ -131,7 +131,7 @@
         android:text="Switch to Edit Mode"
         android:textColor="@android:color/white"
         android:textStyle="italic"
-        app:backgroundTint="@color/test"
+        app:backgroundTint="@color/Orange"
         app:cornerRadius="30dp"
         android:elevation="8dp"/>
 

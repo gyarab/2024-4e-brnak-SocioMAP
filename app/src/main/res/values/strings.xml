@@ -7,11 +7,11 @@
     <string name="register">Register</string>
     <string name="click_to_login">Click to login</string>
     <string name="logout">logout</string>
-    <string name="username">username</string>
-    <string name="surname">surname</string>
+    <string name="username">Username</string>
+    <string name="surname">Surname</string>
     <string name="birthday">birthday</string>
-    <string name="confirm_password">confirm password</string>
-    <string name="name">name</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="name">Name</string>
     <string name="title_activity_main_map">MainMap</string>
     <string name="boss">BOSS</string>
     <!-- Strings used for fragments for navigation -->

@@ -158,6 +158,16 @@
                         android:textColor="@color/black" />
                 </LinearLayout>
             </LinearLayout>
+            <Button
+                android:id="@+id/btn_select_themes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select Preferred Themes"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="@color/Orange"
+                android:textColor="@color/white"
+                android:textStyle="italic"/>
 
         </LinearLayout>
     </ScrollView>

@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -24,6 +25,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ProfileFragment extends Fragment {
 
     private FirebaseAuth auth;
@@ -31,7 +35,7 @@ public class ProfileFragment extends Fragment {
     private FirebaseUser firebaseUser;
 
     private TextView emailText, usernameText, nameText, birthYearText;
-    private Button logoutButton, editButton;
+    private Button logoutButton, editButton, btnSelectThemes;
     private Switch themeSwitch;
     private SharedPreferences sharedPreferences;
 
@@ -71,7 +75,9 @@ public class ProfileFragment extends Fragment {
         birthYearText = view.findViewById(R.id.text_birthyear);
         logoutButton = view.findViewById(R.id.logout);
         editButton = view.findViewById(R.id.edit_profile);
-        themeSwitch = view.findViewById(R.id.theme_switch); // ✅ Make sure this ID exists in XML
+        themeSwitch = view.findViewById(R.id.theme_switch);
+        btnSelectThemes = view.findViewById(R.id.btn_select_themes);
+        btnSelectThemes.setOnClickListener(v -> openThemeSelectionDialog());
 
         // ✅ Set the switch to the correct initial state
         boolean isDarkMode = sharedPreferences.getBoolean("dark_mode", false);
@@ -135,6 +141,50 @@ public class ProfileFragment extends Fragment {
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "Failed to load user data.", Toast.LENGTH_SHORT).show();
                 });
+
+    }
+
+    private void openThemeSelectionDialog() {
+        String[] themes = {"Sports", "Music", "Festival", "Concert", "Custom"};
+        boolean[] checkedItems = new boolean[themes.length]; // Track selections
+        List<String> selectedThemes = new ArrayList<>();
+
+        // Fetch existing preferredThemes from Firestore
+        db.collection("users").document(firebaseUser.getUid()).get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists() && document.contains("preferredThemes")) {
+                        List<String> existingThemes = (List<String>) document.get("preferredThemes");
+                        for (int i = 0; i < themes.length; i++) {
+                            if (existingThemes.contains(themes[i])) {
+                                checkedItems[i] = true;
+                                selectedThemes.add(themes[i]);
+                            }
+                        }
+                    }
+
+                    // Create AlertDialog with checkboxes
+                    AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                    builder.setTitle("Select Preferred Themes")
+                            .setMultiChoiceItems(themes, checkedItems, (dialog, index, isChecked) -> {
+                                if (isChecked) {
+                                    selectedThemes.add(themes[index]);
+                                } else {
+                                    selectedThemes.remove(themes[index]);
+                                }
+                            })
+                            .setPositiveButton("Submit", (dialog, which) -> {
+                                savePreferredThemes(selectedThemes);
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
+                });
+    }
+
+    private void savePreferredThemes(List<String> selectedThemes) {
+        db.collection("users").document(firebaseUser.getUid())
+                .update("preferredThemes", selectedThemes)
+                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Preferences Updated!", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to update preferences.", Toast.LENGTH_SHORT).show());
     }
 
     /*

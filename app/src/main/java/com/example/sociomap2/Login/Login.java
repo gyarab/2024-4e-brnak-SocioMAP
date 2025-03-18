@@ -208,18 +208,18 @@ public class Login extends AppCompatActivity {
 
 
 
-        // ✅ Load ObjectAnimator for button shadow (from res/animator/)
+        // Load ObjectAnimator for button shadow
         Animator shadowAnim = AnimatorInflater.loadAnimator(this, R.animator.button_shadow);
         shadowAnim.setTarget(btnLogin);
         shadowAnim.start();
 
-        // ✅ Load fade-in animation (from res/anim/)
+        // Load fade-in animation
         Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
 
-        // ✅ Load slide-in animation (from res/anim/)
+        // Load slide-in animation
         Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in);
 
-        // ✅ Apply animations in sequence
+        // Apply animations
         new Handler().postDelayed(() -> {
             if (loginTitle != null) loginTitle.startAnimation(slideIn);
             loginTitle.setVisibility(View.VISIBLE);
