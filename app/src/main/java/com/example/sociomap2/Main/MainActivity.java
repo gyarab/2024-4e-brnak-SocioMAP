@@ -1,5 +1,6 @@
 package com.example.sociomap2.Main;
 
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -112,10 +113,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void applyFamousTheme() {
-        // Change bottom navigation background
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
-        bottomNav.setBackgroundColor(Color.parseColor("#ADD8E6")); // Light Blue
 
-        // Keep the same fragment instead of resetting to MapsFragment
+        // ✅ Change background color to Light Blue
+        bottomNav.setBackgroundColor(Color.parseColor("#ADD8E6"));
+
+        // ✅ Change icon and text color to Black
+        bottomNav.setItemIconTintList(ColorStateList.valueOf(Color.BLACK));
+        bottomNav.setItemTextColor(ColorStateList.valueOf(Color.BLACK));
+
+        // ✅ Change the selected item color to a visible one (e.g., Dark Blue or Cyan)
+        ColorStateList colorStateList = new ColorStateList(
+                new int[][]{
+                        new int[]{android.R.attr.state_checked}, // Selected state
+                        new int[]{-android.R.attr.state_checked} // Default state
+                },
+                new int[]{
+                        Color.parseColor("#FFFFFF"), // 🔹 Dark Blue when selected
+                        Color.BLACK // ⚫ Black for unselected items
+                }
+        );
+
+        bottomNav.setItemIconTintList(colorStateList);
     }
 }

@@ -2,14 +2,19 @@ package com.example.sociomap2.Login;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +33,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.bumptech.glide.Glide;
 import com.example.sociomap2.Admin.AdminProfile;
 import com.example.sociomap2.Main.MainActivity;
+import com.example.sociomap2.NetworkChangeReceiver;
 import com.example.sociomap2.R;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.material.imageview.ShapeableImageView;
@@ -56,24 +62,27 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
-import android.animation.ObjectAnimator;
 import android.animation.AnimatorInflater;
 
 import com.google.android.material.textfield.TextInputLayout;
 
 
-
 public class Login extends AppCompatActivity {
 
-    LinearLayout mainLayout;
-    TextView loginTitle, registerNow;
-    TextInputLayout passwordLayout, emailLayout;
+    private LinearLayout mainLayout;
+    private TextView loginTitle, registerNow;
+    private TextInputLayout passwordLayout, emailLayout;
 
-    TextInputEditText editTextEmail, editTextPassword;
-    Button btnLogin;
-    FirebaseAuth mAuth;
-    FirebaseFirestore db;
-    ProgressBar progressBar;
+    private TextInputEditText editTextEmail, editTextPassword;
+    private Button btnLogin;
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+    private ProgressBar progressBar;
+
+    private ImageView noInternetIcon;
+    private TextView noInternetText;
+
+    private NetworkChangeReceiver networkReceiver;
 
     //Google login
     private static final int RC_SIGN_IN = 9001;
@@ -127,6 +136,7 @@ public class Login extends AppCompatActivity {
         if (currentUser != null && !isFinishing()) {
             checkBanStatus(currentUser.getUid());
         }
+        checkInternetConnection();
     }
 
     @Override
@@ -156,11 +166,18 @@ public class Login extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         registerNow = findViewById(R.id.registerNow);
 
+        noInternetText = findViewById(R.id.noInternetText);
+
         loginTitle.setVisibility(View.INVISIBLE);
         emailLayout.setVisibility(View.INVISIBLE);
         passwordLayout.setVisibility(View.INVISIBLE);
         btnLogin.setVisibility(View.INVISIBLE);
         registerNow.setVisibility(View.INVISIBLE);
+
+        checkInternetConnection();
+        networkReceiver = new NetworkChangeReceiver(isConnected -> checkInternetConnection());
+        registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
 
         registerNow.setOnClickListener(v -> {
             Intent intent = new Intent(getApplicationContext(), Register.class);
@@ -205,7 +222,6 @@ public class Login extends AppCompatActivity {
                         }
                     });
         });
-
 
 
         // Load ObjectAnimator for button shadow
@@ -254,11 +270,11 @@ public class Login extends AppCompatActivity {
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        //  Google Sign-In button
-        //btnGoogleLogin = findViewById(R.id.btn_google_login);
-        //btnGoogleLogin.setOnClickListener(v -> signInWithGoogle());
-
-
+        /*
+        Google Sign-In button
+        btnGoogleLogin = findViewById(R.id.btn_google_login);
+        btnGoogleLogin.setOnClickListener(v -> signInWithGoogle());
+         */
 
         //Google login video
         FirebaseApp.initializeApp(this);
@@ -279,6 +295,30 @@ public class Login extends AppCompatActivity {
     private void signInWithGoogle() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    private void checkInternetConnection() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
+        if (!isConnected) {
+            // No Internet: Disable buttons & warning
+            btnLogin.setEnabled(false);
+            registerNow.setEnabled(false);
+            noInternetText.setVisibility(View.VISIBLE);
+        } else {
+            // Internet Available: Enable buttons & Hide warning
+            btnLogin.setEnabled(true);
+            registerNow.setEnabled(true);
+            noInternetText.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(networkReceiver);
     }
 
 
@@ -420,7 +460,6 @@ public class Login extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.e("Firestore", "Error creating user in Firestore", e));
     }
 
-
     /**
      * Check if the user is an admin or a regular user.
      */
@@ -451,12 +490,3 @@ public class Login extends AppCompatActivity {
                 });
     }
 }
-
-
-
-
-
-
-
-
-

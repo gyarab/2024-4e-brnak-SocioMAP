@@ -202,19 +202,30 @@ public class Register extends AppCompatActivity {
 
     private void showDatePickerDialog() {
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.YEAR, -10); // Prevent selecting future dates, assumes min 10 years old
+
+        // Set the max selectable date to today (no future dates)
+        long maxDate = System.currentTimeMillis();
+
+        // Calculate the minimum selectable date (3 years old)
+        calendar.add(Calendar.YEAR, -3);
+        long minDate = calendar.getTimeInMillis();
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
                 (view, year, month, dayOfMonth) -> {
                     String formattedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth);
                     editTextBirthday.setText(formattedDate);
                 },
-                calendar.get(Calendar.YEAR) - 18, // Default selection (18 years ago)
+                calendar.get(Calendar.YEAR) - 10, // Default selection (10 years ago)
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
         );
 
-        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis()); // Prevent future dates
+        // Prevent selecting future dates
+        datePickerDialog.getDatePicker().setMaxDate(maxDate);
+
+        // Prevent selecting a date younger than 3 years old
+        datePickerDialog.getDatePicker().setMinDate(minDate);
+
         datePickerDialog.show();
     }
 
@@ -231,28 +242,34 @@ public class Register extends AppCompatActivity {
         String surname = editTextSurname.getText().toString().trim();
         String birthday = editTextBirthday.getText().toString().trim();
 
-        progressBar.setVisibility(View.VISIBLE);
+        // Check for empty fields
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(confirmPassword) ||
+                TextUtils.isEmpty(username) || TextUtils.isEmpty(name) || TextUtils.isEmpty(surname) || TextUtils.isEmpty(birthday)) {
+            Toast.makeText(Register.this, "Please fill all fields.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // Validate Email Format
         if (!isValidEmail(email)) {
             Toast.makeText(Register.this, "Invalid email format!", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.GONE);
             return;
         }
 
-        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(confirmPassword) ||
-                TextUtils.isEmpty(username) || TextUtils.isEmpty(name) || TextUtils.isEmpty(surname) || TextUtils.isEmpty(birthday)) {
-            Toast.makeText(Register.this, "Please fill all fields.", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.GONE);
+        // Password Length Check
+        if (!isValidPassword(password)) {
+            Toast.makeText(Register.this, "Password must be at least 6 characters.", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Confirm Password Match
         if (!password.equals(confirmPassword)) {
             Toast.makeText(Register.this, "Passwords do not match.", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.GONE);
             return;
         }
 
+        progressBar.setVisibility(View.VISIBLE);
+
+        // Create User in Firebase
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     progressBar.setVisibility(View.GONE);
@@ -269,12 +286,13 @@ public class Register extends AppCompatActivity {
                                         }
                                     });
 
-                            // Prevent automatic login
+                            // Prevent automatic login after registration
                             Toast.makeText(Register.this, "Account created! Please verify your email before logging in.", Toast.LENGTH_LONG).show();
                             mAuth.signOut();
                             finish();
                         }
                     } else {
+                        // Handle Errors (E.g., email already in use, network error)
                         Toast.makeText(Register.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
@@ -291,6 +309,33 @@ public class Register extends AppCompatActivity {
                 .apply();
     }
 
+    private boolean isValidPassword(String password) {
+        if (password.length() < 8) {
+            Toast.makeText(Register.this, "Password must be at least 8 characters long.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (!password.matches(".*[A-Z].*")) {
+            Toast.makeText(Register.this, "Password must contain at least one uppercase letter.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (!password.matches(".*[a-z].*")) {
+            Toast.makeText(Register.this, "Password must contain at least one lowercase letter.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (!password.matches(".*\\d.*")) {
+            Toast.makeText(Register.this, "Password must contain at least one number.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (!password.matches(".*[!@#$%^&*()].*")) {
+            Toast.makeText(Register.this, "Password must contain at least one special character (!@#$%^&*()).", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
 
     // Preparation for Google_Signin
     private void saveUserInfo(String username, String name, String surname, String birthday, String email) {
@@ -327,16 +372,3 @@ public class Register extends AppCompatActivity {
                 });
     }
 }
-
-
-
-
-
-
-        // Initialize UI elements
-
-        // Load animations
-
-
-
-

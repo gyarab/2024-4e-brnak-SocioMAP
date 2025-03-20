@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +39,7 @@ public class ProfileFragment extends Fragment {
     private Button logoutButton, editButton, btnSelectThemes;
     private Switch themeSwitch;
     private SharedPreferences sharedPreferences;
+    private ImageView profileImage;
 
     int accentColor;
 
@@ -73,6 +75,7 @@ public class ProfileFragment extends Fragment {
         usernameText = view.findViewById(R.id.text_username);
         nameText = view.findViewById(R.id.text_name);
         birthYearText = view.findViewById(R.id.text_birthyear);
+        profileImage = view.findViewById(R.id.profile_image);
         logoutButton = view.findViewById(R.id.logout);
         editButton = view.findViewById(R.id.edit_profile);
         themeSwitch = view.findViewById(R.id.theme_switch);
@@ -134,6 +137,16 @@ public class ProfileFragment extends Fragment {
                         usernameText.setText(documentSnapshot.getString("username"));
                         nameText.setText(documentSnapshot.getString("name") + " " + documentSnapshot.getString("surname"));
                         birthYearText.setText(documentSnapshot.getString("birthyear"));
+                        // ✅ Check if the user is famous
+                        Boolean isFamous = documentSnapshot.getBoolean("isFamous");
+                        if (isFamous != null && isFamous) {
+                            profileImage.setImageResource(R.drawable.crown_icon); // Replace with your crown drawable
+
+                        } else {
+                            profileImage.setImageResource(R.drawable.default_profile); // Default profile image
+                            profileImage.clearColorFilter();
+                        }
+
                     } else {
                         Toast.makeText(getContext(), "User data not found.", Toast.LENGTH_SHORT).show();
                     }
@@ -209,3 +222,6 @@ public class ProfileFragment extends Fragment {
 
      */
 }
+
+
+

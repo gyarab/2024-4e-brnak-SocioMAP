@@ -500,6 +500,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
 
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+
         datePickerDialog.show();
     }
 

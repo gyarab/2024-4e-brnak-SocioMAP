@@ -72,22 +72,31 @@
         android:text="Continue"
         android:textStyle="italic"
         android:textColor="@color/white"
-        android:textSize="19dp"
+        android:textSize="20dp"
         android:backgroundTint="@color/colorCyan"
         android:visibility="invisible"/>
 
     <TextView
         android:id="@+id/registerNow"
-        android:text="Click to Register"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
         android:gravity="center"
+        android:text="Click to Register"
+        android:textColor="@color/black"
         android:textSize="16dp"
         android:textStyle="bold"
-        android:layout_marginTop="15dp"
-        android:visibility="invisible"
-        android:textColor="@color/black"/>
+        android:visibility="invisible" />
 
-
-
+    <TextView
+        android:id="@+id/noInternetText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⚠ No Internet Connection ⚠"
+        android:textColor="@color/red"
+        android:textSize="15sp"
+        android:visibility="gone"
+        android:layout_alignParentBottom="true"
+        android:gravity="bottom|left"/>
 </LinearLayout>
+
