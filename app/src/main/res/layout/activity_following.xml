@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:layout_marginBottom="12dp"
-            android:backgroundTint="@color/colorAccent"
+            android:backgroundTint="@color/Orange"
             android:padding="12dp"
             android:text="Search and Follow Users"
             android:textColor="@android:color/white" />
@@ -33,13 +33,14 @@
             android:paddingBottom="8dp"
             android:text="Following (Signed-up Events)"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/black"/>
 
         <ListView
             android:id="@+id/list_following_signed"
             android:layout_width="match_parent"
             android:layout_height="204dp"
-            android:divider="@android:color/darker_gray"
+            android:divider="@android:color/black"
             android:dividerHeight="1dp"
             android:scrollbars="vertical" />
 
@@ -57,7 +58,8 @@
             android:text="Following (Created Events)"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:paddingBottom="8dp" />
+            android:paddingBottom="8dp"
+            android:textColor="@color/black"/>
 
         <ListView
             android:id="@+id/list_following_created"

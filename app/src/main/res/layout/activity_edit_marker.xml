@@ -1,74 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@drawable/gradient_background"
+    android:padding="24dp"
+    android:fillViewport="true">
 
-    <!-- Title EditText -->
-    <EditText
-        android:id="@+id/edt_title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter title"
-        android:textSize="18sp"
-        android:padding="10dp"
-        android:layout_marginBottom="16dp" />
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingTop="30dp">
 
-    <!-- Description EditText -->
-    <EditText
-        android:id="@+id/edt_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter description"
-        android:textSize="16sp"
-        android:padding="10dp"
-        android:layout_marginBottom="16dp"
-        android:inputType="textMultiLine"/>
+        <EditText
+            android:id="@+id/edt_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Event Title"
+            android:background="@drawable/rounded_input"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginBottom="16dp" />
 
-    <Spinner
-        android:id="@+id/spn_age_limit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        <EditText
+            android:id="@+id/edt_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Event Description"
+            android:background="@drawable/rounded_input"
+            android:padding="14dp"
+            android:minLines="3"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginBottom="16dp" />
 
+        <EditText
+            android:id="@+id/edt_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Select Event Date"
+            android:focusable="false"
+            android:clickable="true"
+            android:background="@drawable/rounded_input"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginBottom="16dp" />
 
-    <!-- Theme Spinner -->
-    <Spinner
-        android:id="@+id/spn_theme"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:spinnerMode="dropdown"/>
+        <EditText
+            android:id="@+id/edt_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Select Event Time"
+            android:focusable="false"
+            android:clickable="true"
+            android:background="@drawable/rounded_input"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginBottom="16dp" />
 
-    <!-- Custom Theme EditText (Optional) -->
-    <EditText
-        android:id="@+id/edt_custom_theme"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter custom theme (if any)"
-        android:textSize="16sp"
-        android:padding="10dp"
-        android:layout_marginBottom="16dp"
-        android:visibility="gone"/> <!-- Hidden by default, shown if "Custom" is selected from spinner -->
+        <EditText
+            android:id="@+id/edt_max_capacity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Max Capacity"
+            android:inputType="number"
+            android:background="@drawable/rounded_input"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginBottom="16dp" />
 
+        <Spinner
+            android:id="@+id/spn_age_limit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_spinner"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp" />
 
+        <Spinner
+            android:id="@+id/spn_theme"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/rounded_spinner"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp" />
 
-    <!-- Save Button -->
-    <Button
-        android:id="@+id/btn_save"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Save Changes"
-        android:layout_marginBottom="16dp"
-        android:textColor="@android:color/white"
-        android:background="@android:color/holo_blue_light"/>
+        <EditText
+            android:id="@+id/edt_custom_theme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Custom Theme (if selected)"
+            android:visibility="gone"
+            android:background="@drawable/rounded_input"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginBottom="16dp" />
 
-    <!-- Cancel Button -->
-    <Button
-        android:id="@+id/btn_cancel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Cancel"
-        android:background="@android:color/holo_red_light"
-        android:textColor="@android:color/white"/>
-</LinearLayout>
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Changes"
+            android:backgroundTint="@color/Orange"
+            android:textColor="@android:color/white"
+            android:padding="14dp"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:backgroundTint="@android:color/holo_red_light"
+            android:textColor="@android:color/white"
+            android:padding="14dp" />
+    </LinearLayout>
+</ScrollView>

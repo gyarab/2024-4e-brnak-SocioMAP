@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -20,10 +21,12 @@ import androidx.fragment.app.Fragment;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.sociomap2.EmailSender;
 import com.example.sociomap2.Login.Login;
 import com.example.sociomap2.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -36,7 +39,7 @@ public class ProfileFragment extends Fragment {
     private FirebaseUser firebaseUser;
 
     private TextView emailText, usernameText, nameText, birthYearText;
-    private Button logoutButton, editButton, btnSelectThemes;
+    private Button logoutButton, editButton, btnSelectThemes, btnContactAdmins;
     private Switch themeSwitch;
     private SharedPreferences sharedPreferences;
     private ImageView profileImage;
@@ -78,18 +81,26 @@ public class ProfileFragment extends Fragment {
         profileImage = view.findViewById(R.id.profile_image);
         logoutButton = view.findViewById(R.id.logout);
         editButton = view.findViewById(R.id.edit_profile);
-        themeSwitch = view.findViewById(R.id.theme_switch);
+        //themeSwitch = view.findViewById(R.id.theme_switch);
         btnSelectThemes = view.findViewById(R.id.btn_select_themes);
         btnSelectThemes.setOnClickListener(v -> openThemeSelectionDialog());
+        btnContactAdmins = view.findViewById(R.id.btn_contact_admins);
+        btnContactAdmins.setOnClickListener(v -> promptAndSendCustomMessageToAdmins());
 
-        // ✅ Set the switch to the correct initial state
+        // OUT - Set the switch to the correct initial state
+        /*
         boolean isDarkMode = sharedPreferences.getBoolean("dark_mode", false);
         themeSwitch.setChecked(isDarkMode);
 
-        // ✅ Set accent color based on theme
+         */
+
+        // OUT - accent color based on theme
+        /*
         accentColor = isDarkMode ?
                 ContextCompat.getColor(requireContext(), R.color.colorAccentDark) :
                 ContextCompat.getColor(requireContext(), R.color.colorAccentLight);
+
+         */
 
         editButton.setBackgroundColor(accentColor);
         logoutButton.setBackgroundColor(accentColor);
@@ -120,7 +131,7 @@ public class ProfileFragment extends Fragment {
             startActivity(intent);
         });
 
-        /*✅ Add listener to theme switch
+        /*  listener to theme switch
         themeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             applyTheme(isChecked);
         });
@@ -199,6 +210,64 @@ public class ProfileFragment extends Fragment {
                 .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Preferences Updated!", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to update preferences.", Toast.LENGTH_SHORT).show());
     }
+
+
+    private void promptAndSendCustomMessageToAdmins() {
+        // Vytvoř input pole
+        final EditText input = new EditText(requireContext());
+        input.setHint("Write your message here");
+        input.setMinLines(3);
+        input.setMaxLines(6);
+        input.setPadding(50, 30, 50, 30);
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Message to Admins")
+                .setMessage("Write a message you'd like to send to the admin team (Famous status):")
+                .setView(input)
+                .setPositiveButton("Send", (dialog, which) -> {
+                    String userMessage = input.getText().toString().trim();
+
+                    if (userMessage.isEmpty()) {
+                        Toast.makeText(getContext(), "Message cannot be empty.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    String me = "tobik.brnak@gmail.com";
+                    String subject = "New User Message to Admins";
+                    String messageBody = "Hello Admins,\n\nA user sent you a message from their profile:\n\n"
+                            + "User: " + firebaseUser.getEmail() + "\n\n"
+                            + "Message:\n" + userMessage + "\n\n"
+                            + "- SocioMap System";
+
+                    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+                    firestore.collection("users")
+                            .get()
+                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                List<String> emailRecipients = new ArrayList<>();
+                                emailRecipients.add(me); // Send to you always
+
+                                for (DocumentSnapshot document : queryDocumentSnapshots) {
+                                    Boolean isAdmin = document.getBoolean("isAdmin");
+                                    String email = document.getString("email");
+
+                                    if (Boolean.TRUE.equals(isAdmin) && email != null) {
+                                        emailRecipients.add(email);
+                                    }
+                                }
+
+                                String[] recipientsArray = emailRecipients.toArray(new String[0]);
+                                new EmailSender(recipientsArray, subject, messageBody).execute();
+                                Toast.makeText(getContext(), "Message sent to admins!", Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(getContext(), "Failed to fetch admin emails.", Toast.LENGTH_SHORT).show();
+                            });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+
 
     /*
     private void applyTheme(boolean isDarkMode) {

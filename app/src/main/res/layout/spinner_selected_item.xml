@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/spinnerText"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:textColor="@android:color/black"
+    android:layout_height="48dp"
+    android:gravity="center_vertical|start"
     android:textSize="16sp"
-    android:padding="12dp"
-    android:gravity="center_vertical"
-    android:background="@drawable/rounded_spinner"/>
+    android:textColor="@android:color/black"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:ellipsize="end"
+    android:singleLine="true" />

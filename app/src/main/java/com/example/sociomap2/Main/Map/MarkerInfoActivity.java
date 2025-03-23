@@ -6,6 +6,7 @@ import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -18,12 +19,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.sociomap2.EmailSender;
 import com.example.sociomap2.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FieldValue;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class MarkerInfoActivity extends AppCompatActivity {
@@ -34,7 +39,7 @@ public class MarkerInfoActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private String eventId;
     private TextView eventName, eventDate, eventDescription, eventTheme, eventAgeLimit;
-    private Button signUpButton, deleteButton, editButton;
+    private Button signUpButton, deleteButton, editButton, reportButton;
     private ListView listAttendees;
     private boolean isUserSignedUp = false;
     private ArrayAdapter<String> attendeesAdapter;
@@ -43,6 +48,8 @@ public class MarkerInfoActivity extends AppCompatActivity {
     private TextView eventCapacity;
     private int maxCapacity = 0;
     private int currentAttendees = 0;
+    private boolean hasReported = false;
+
 
 
     @SuppressLint("MissingInflatedId")
@@ -50,6 +57,10 @@ public class MarkerInfoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_marker_info);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
 
         firestore = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
@@ -63,14 +74,22 @@ public class MarkerInfoActivity extends AppCompatActivity {
         deleteButton = findViewById(R.id.btn_delete_event);
         editButton = findViewById(R.id.btn_edit_event);
         listAttendees = findViewById(R.id.list_attendees);
-        Button reportButton = findViewById(R.id.btn_report_event);
+        reportButton = findViewById(R.id.btn_report_event);
         reportButton.setOnClickListener(v -> showReportConfirmationDialog());
 
-        attendeesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, attendeesList);
+
+        attendeesAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, attendeesList) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView text = view.findViewById(android.R.id.text1);
+                text.setTextColor(getResources().getColor(android.R.color.black));
+                return view;
+            }
+        };
         listAttendees.setAdapter(attendeesAdapter);
 
         eventAgeLimit = findViewById(R.id.event_age_limit);
-
 
         eventId = getIntent().getStringExtra("MARKER_ID");
 
@@ -128,6 +147,7 @@ public class MarkerInfoActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.e(TAG, "Error checking event ownership", e));
     }
 
+
     private void deleteEvent() {
         firestore.collection("event_guest_list").document(eventId)
                 .get()
@@ -152,7 +172,13 @@ public class MarkerInfoActivity extends AppCompatActivity {
     }
 
     public void editEvent() {
-        //To new activity for editing the marker
+        if (eventId != null && !eventId.isEmpty()) {
+            Intent intent = new Intent(this, EditMarkerActivity.class);
+            intent.putExtra("EVENT_ID", eventId);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Error: Event ID is missing.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void removeEventFromUserEvents(String userId) {
@@ -188,6 +214,30 @@ public class MarkerInfoActivity extends AppCompatActivity {
 
                         // Display capacity info
                         eventCapacity.setText("Capacity: " + currentAttendees + "/" + maxCapacity);
+
+                        // Button disable
+                        String eventDateTime = document.getString("eventDateTime");
+
+                        if (eventDateTime != null && eventDateTime.contains(" ")) {
+                            String[] parts = eventDateTime.split(" ");
+                            String datePart = parts[0];
+                            String timePart = parts[1];
+
+                            try {
+                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+                                Date eventDateParsed = sdf.parse(eventDateTime);
+                                if (eventDateParsed != null && eventDateParsed.before(new Date())) {
+                                    // Událost je v minulosti – skrýt tlačítka kromě report
+                                    signUpButton.setVisibility(View.GONE);
+                                    deleteButton.setVisibility(View.GONE);
+                                    editButton.setVisibility(View.GONE);
+                                }
+                            } catch (Exception e) {
+                                Log.e("MarkerInfo", "Date parsing error", e);
+                            }
+
+                            eventDate.setText(eventDateTime);
+                        }
 
                         checkUserParticipation(); // Check if user is signed up
                     }
@@ -367,6 +417,11 @@ public class MarkerInfoActivity extends AppCompatActivity {
     }
 
     private void sendReportEmail() {
+        if (hasReported) {
+            Toast.makeText(this, "You have already reported this event.", Toast.LENGTH_SHORT).show();
+            return; // Prevents multiple reports
+        }
+
         String me = "tobik.brnak@gmail.com";
         String eventTitle = eventName.getText().toString();
         String eventDateTime = eventDate.getText().toString();
@@ -379,10 +434,38 @@ public class MarkerInfoActivity extends AppCompatActivity {
                 + "🆔 Event ID: " + eventId + "\n"
                 + "📢 Reason: " + reportReason;
 
-        new EmailSender(me, subject, messageBody).execute();
-        Toast.makeText(this, "Report sent successfully!", Toast.LENGTH_LONG).show();
-    }
+        // Fetch all admin emails from Firestore
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.collection("users")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<String> emailRecipients = new ArrayList<>();
+                    emailRecipients.add(me); // Always send to you
 
+                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                        Boolean isAdmin = document.getBoolean("isAdmin");
+                        String email = document.getString("email");
+
+                        if (Boolean.TRUE.equals(isAdmin) && email != null) {
+                            emailRecipients.add(email);
+                        }
+                    }
+
+                    // Convert email list to array
+                    String[] recipientsArray = emailRecipients.toArray(new String[0]);
+
+                    // Send email to all recipients
+                    new EmailSender(recipientsArray, subject, messageBody).execute();
+                    Toast.makeText(this, "Report sent successfully!", Toast.LENGTH_LONG).show();
+
+                    // Mark as reported to prevent multiple clicks
+                    hasReported = true;
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to fetch admin emails.", Toast.LENGTH_SHORT).show();
+                    Log.e("sendReportEmail", "Error fetching admin emails", e);
+                });
+    }
 
 
 }

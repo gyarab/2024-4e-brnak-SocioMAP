@@ -73,9 +73,10 @@ public class UserListAdapter extends ArrayAdapter<User> {
         }
 
 
-        // 🔹 Fetch user data
+        // Fetch user data
         User user = userList.get(position);
         holder.txtUserInfo.setText(user.getFullName());
+
 
         // Check if user is already followed and update button text
         checkIfUserIsFollowed(user.getUserId(), "user_signup_follow", holder.btnFollowSigned);

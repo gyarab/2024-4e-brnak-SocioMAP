@@ -164,42 +164,26 @@
                 android:layout_height="wrap_content"
                 android:text="Select Preferred Themes"
                 android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
                 android:backgroundTint="@color/Orange"
                 android:textColor="@color/white"
                 android:textStyle="italic"/>
 
+            <Button
+                android:id="@+id/btn_contact_admins"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Famous request"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="@color/Orange"
+                android:textColor="@color/white"
+                android:textStyle="italic"
+                />
+
         </LinearLayout>
     </ScrollView>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="16dp"
-        android:background="@drawable/glass_card"
-        android:elevation="8dp">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Dark Mode"
-            android:textSize="16sp"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:paddingEnd="8dp"/>
-
-        <Switch
-            android:id="@+id/theme_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Dark Mode"
-            android:minWidth="100dp"
-            android:minHeight="48dp"
-            android:padding="8dp"/>
-    </LinearLayout>
 
     <!-- Sticky Buttons with Gold Gradient -->
     <LinearLayout
@@ -217,7 +201,7 @@
             android:text="Logout"
             android:textColor="@color/white"
             app:cornerRadius="150dp"
-            android:backgroundTint="@color/black"/>
+            android:backgroundTint="@color/colorAccentDark"/>
 
         <View android:layout_width="16dp" android:layout_height="match_parent"/>
 
@@ -229,6 +213,6 @@
             android:text="Edit Profile"
             android:textColor="@color/white"
             app:cornerRadius="150dp"
-            android:backgroundTint="@color/black"/>
+            android:backgroundTint="@color/colorAccentDark"/>
     </LinearLayout>
 </LinearLayout>

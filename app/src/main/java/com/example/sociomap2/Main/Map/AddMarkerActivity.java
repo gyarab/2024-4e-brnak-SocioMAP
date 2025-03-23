@@ -3,11 +3,13 @@ package com.example.sociomap2.Main.Map;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.view.View;
 
@@ -41,9 +43,12 @@ public class AddMarkerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_marker);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
         firestore = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
-
 
         // Retrieve coordinates from intent
         latitude = getIntent().getDoubleExtra("LATITUDE", 0);
@@ -58,12 +63,32 @@ public class AddMarkerActivity extends AppCompatActivity {
         spnTheme = findViewById(R.id.spn_theme);
         edtCustomTheme = findViewById(R.id.edt_custom_theme);
         Button btnSave = findViewById(R.id.btn_save);
+        spnAgeLimit = findViewById(R.id.spn_age_limit);
 
         // Set Click Listeners for Date & Time Pickers
         edtDate.setOnClickListener(v -> showDatePicker());
         edtTime.setOnClickListener(v -> showTimePicker());
 
-        // Theme Selection Logic
+        // ---- THEME SPINNER ----
+        ArrayAdapter<CharSequence> themeAdapter = new ArrayAdapter<CharSequence>(
+                this,
+                R.layout.spinner_selected_item,
+                getResources().getStringArray(R.array.event_themes)
+        ) {
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView text = view.findViewById(android.R.id.text1);
+                if (text != null) {
+                    text.setTextColor(getResources().getColor(android.R.color.black));
+                }
+                return view;
+            }
+        };
+
+        themeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_marker);
+        spnTheme.setAdapter(themeAdapter);
+
         spnTheme.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -77,16 +102,14 @@ public class AddMarkerActivity extends AppCompatActivity {
             }
         });
 
-        btnSave.setOnClickListener(v -> saveMarker());
-
-
-        // Initialize UI Elements
-        spnAgeLimit = findViewById(R.id.spn_age_limit);
-
-        // Populate Spinner with age options (3+ to 18+)
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.age_limits, android.R.layout.simple_spinner_dropdown_item);
-        spnAgeLimit.setAdapter(adapter);
+        // ---- AGE LIMIT SPINNER ----
+        ArrayAdapter<CharSequence> ageAdapter = new ArrayAdapter<>(
+                this,
+                R.layout.spinner_selected_item,  // např. stejný jako u maps fragment
+                getResources().getStringArray(R.array.age_limits)
+        );
+        ageAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_marker); // TADY nová verze
+        spnAgeLimit.setAdapter(ageAdapter);
 
         spnAgeLimit.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -98,12 +121,11 @@ public class AddMarkerActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        btnSave = findViewById(R.id.btn_save);
         btnSave.setOnClickListener(v -> saveMarker());
     }
 
 
-            private void showDatePicker() {
+    private void showDatePicker() {
         Calendar calendar = Calendar.getInstance(); // Get current date
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,

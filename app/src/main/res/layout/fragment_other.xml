@@ -156,7 +156,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
-        android:backgroundTint="@color/colorAccent"
+        android:backgroundTint="@color/Orange"
         android:paddingVertical="18dp"
         android:text="Manage Following"
         android:textColor="@color/white"

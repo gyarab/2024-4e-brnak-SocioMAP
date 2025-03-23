@@ -1,45 +1,79 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center_horizontal">
+    android:background="@drawable/gradient_background"
+    android:padding="24dp">
 
-    <EditText
-        android:id="@+id/edit_username"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Username" />
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingTop="30dp">
 
-    <EditText
-        android:id="@+id/edit_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Name" />
+        <EditText
+            android:id="@+id/edit_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Username"
+            android:background="@drawable/rounded_input"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginBottom="16dp" />
 
-    <EditText
-        android:id="@+id/edit_surname"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Surname" />
+        <EditText
+            android:id="@+id/edit_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name"
+            android:background="@drawable/rounded_input"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginBottom="16dp" />
 
-    <EditText
-        android:id="@+id/edit_birthyear"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Birth Year"
-        android:focusable="false"
-        android:clickable="true"/>
+        <EditText
+            android:id="@+id/edit_surname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Surname"
+            android:background="@drawable/rounded_input"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginBottom="16dp" />
 
-    <Button
-        android:id="@+id/save_changes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Save Changes" />
+        <EditText
+            android:id="@+id/edit_birthyear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Birth Year"
+            android:focusable="false"
+            android:clickable="true"
+            android:background="@drawable/rounded_input"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginBottom="24dp" />
 
-    <Button
-        android:id="@+id/cancel_changes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Cancel" />
-</LinearLayout>
+        <Button
+            android:id="@+id/save_changes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Changes"
+            android:backgroundTint="@color/Orange"
+            android:textColor="@android:color/white"
+            android:padding="14dp"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/cancel_changes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:backgroundTint="@android:color/darker_gray"
+            android:textColor="@android:color/white"
+            android:padding="14dp" />
+    </LinearLayout>
+</ScrollView>

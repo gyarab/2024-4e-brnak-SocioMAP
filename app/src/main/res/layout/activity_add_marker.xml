@@ -1,107 +1,114 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:fillViewport="true"
-    android:layout_marginTop="30dp">
+    android:background="@drawable/gradient_background"
+    android:padding="24dp"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingTop="30dp">
 
-        <!-- Title Input -->
         <EditText
             android:id="@+id/edt_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter Event Title"
-            android:inputType="text"
-            android:padding="10dp"
-            android:backgroundTint="@android:color/darker_gray" />
+            android:background="@drawable/rounded_input"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginBottom="16dp" />
 
-        <!-- Description Input -->
         <EditText
             android:id="@+id/edt_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter Event Description"
-            android:layout_marginTop="8dp"
-            android:inputType="textMultiLine"
+            android:background="@drawable/rounded_input"
+            android:padding="14dp"
             android:minLines="3"
-            android:padding="10dp"
-            android:backgroundTint="@android:color/darker_gray" />
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginBottom="16dp" />
 
-        <!-- Date Picker Input -->
         <EditText
             android:id="@+id/edt_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Select Event Date"
-            android:layout_marginTop="8dp"
             android:focusable="false"
             android:clickable="true"
-            android:padding="10dp"
-            android:backgroundTint="@android:color/darker_gray" />
+            android:background="@drawable/rounded_input"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginBottom="16dp" />
 
-        <!-- Time Picker Input -->
         <EditText
             android:id="@+id/edt_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Select Event Time"
-            android:layout_marginTop="8dp"
             android:focusable="false"
             android:clickable="true"
-            android:padding="10dp"
-            android:backgroundTint="@android:color/darker_gray" />
+            android:background="@drawable/rounded_input"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginBottom="16dp" />
 
-        <!-- Max Capacity Input -->
         <EditText
             android:id="@+id/edt_max_capacity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter Max Capacity"
             android:inputType="number"
-            android:minLines="1"
-            android:maxLines="1"
-            android:layout_marginTop="8dp"/>
+            android:background="@drawable/rounded_input"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginBottom="16dp" />
 
         <Spinner
             android:id="@+id/spn_age_limit"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_spinner"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp" />
 
-        <!-- Theme Dropdown (Spinner) -->
         <Spinner
             android:id="@+id/spn_theme"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:spinnerMode="dropdown"
-            android:entries="@array/event_themes"/>
+            android:layout_height="40dp"
+            android:background="@drawable/rounded_spinner"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp" />
 
-        <!-- Custom Theme Input (Initially Hidden) -->
+
         <EditText
             android:id="@+id/edt_custom_theme"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter Custom Theme (if selected)"
-            android:layout_marginTop="8dp"
-            android:inputType="text"
-            android:padding="10dp"
-            android:backgroundTint="@android:color/darker_gray"
-            android:visibility="gone" /> <!-- Hidden by default -->
+            android:visibility="gone"
+            android:background="@drawable/rounded_input"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginBottom="16dp" />
 
-        <!-- Save Marker Button -->
         <Button
             android:id="@+id/btn_save"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Save Marker"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="@android:color/holo_blue_dark"
+            android:backgroundTint="@color/Orange"
             android:textColor="@android:color/white"
-            android:padding="12dp" />
+            android:padding="14dp" />
     </LinearLayout>
 </ScrollView>

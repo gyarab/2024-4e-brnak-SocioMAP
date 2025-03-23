@@ -57,8 +57,8 @@ public class FollowingActivity extends AppCompatActivity {
         btnSearchUsers = findViewById(R.id.btn_search_users);
 
         // Initialize Adapters
-        signedAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, followingSigned);
-        createdAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, followingCreated);
+        signedAdapter = new ArrayAdapter<>(this, R.layout.item_following, followingSigned);
+        createdAdapter = new ArrayAdapter<>(this, R.layout.item_following, followingCreated);
 
         // Set adapters to ListViews
         listFollowingSigned.setAdapter(signedAdapter);

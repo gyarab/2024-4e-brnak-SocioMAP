@@ -84,7 +84,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private List<String> preferredThemes;
 
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -94,7 +93,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
 
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -102,7 +100,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         firestore = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
-
 
         cardFilterMenu = view.findViewById(R.id.card_filter_menu);
         btnFriendsSignUp = view.findViewById(R.id.btn_friends_sign_up);
@@ -248,7 +245,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
             if (location != null) {
                 LatLng userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 5)); // Adjust zoom level
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 16)); // Adjust zoom level
             } else {
                 // Default location (Czech Republic) if user location is not available
                 LatLng defaultLocation = new LatLng(48.69096, 9.14062);
@@ -261,19 +258,40 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         if (googleMap == null) return;
 
         googleMap.clear(); // Only clear once
-        if (!isEditMode) {
-            loadMarkers(); // Reload markers when switching to View Mode
-            highlightBestMarker();
-        }
 
-        if (isEditMode) {
-            // **Edit Mode: Hide UI elements & collapse filters**
+        if (!isEditMode) {
+            btnToggleMode.setText("Switch to Edit Mode");
+            spnFilter.setVisibility(View.VISIBLE);
+            btnToggleFilters.setVisibility(View.VISIBLE);
+            btnCalendarFilter.setVisibility(View.VISIBLE);
+
+            // Clear click listeners to prevent unintended AddMarkerActivity
+            googleMap.setOnMapClickListener(null); // <-- ADD THIS LINE
+            googleMap.setOnMarkerClickListener(marker -> {
+                Object tag = marker.getTag();
+                if (tag == null || tag.toString().isEmpty()) {
+                    Toast.makeText(getActivity(), "Error: Marker ID is invalid.", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+
+                Intent intent = new Intent(getActivity(), MarkerInfoActivity.class);
+                intent.putExtra("MARKER_ID", tag.toString());
+                intent.putExtra("TITLE", marker.getTitle());
+                intent.putExtra("DESCRIPTION", marker.getSnippet());
+                intent.putExtra("LATITUDE", marker.getPosition().latitude);
+                intent.putExtra("LONGITUDE", marker.getPosition().longitude);
+                startActivity(intent);
+                return true;
+            });
+
+            loadMarkers();
+            highlightBestMarker();
+        } else {
             btnToggleMode.setText("Switch to View Mode");
             spnFilter.setVisibility(View.GONE);
             btnToggleFilters.setVisibility(View.GONE);
             btnCalendarFilter.setVisibility(View.GONE);
 
-            // **Automatically collapse the filter menu**
             if (layoutFilterMenu.getVisibility() == View.VISIBLE) {
                 collapseFilterMenu();
             }
@@ -286,14 +304,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 startActivity(intent);
             });
 
-            googleMap.setOnMarkerClickListener(null); // Disable marker clicks
-        } else {
-            // **✅ View Mode: Restore visibility settings**
-            btnToggleMode.setText("Switch to Edit Mode");
-            spnFilter.setVisibility(View.VISIBLE);
-            btnToggleFilters.setVisibility(View.VISIBLE);
-            btnCalendarFilter.setVisibility(View.VISIBLE);
-            loadMarkers(); // ✅ Ensure markers load when switching modes
+            googleMap.setOnMarkerClickListener(null); // Disable clicks on markers in edit mode
         }
     }
 
@@ -447,34 +458,35 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 .addOnFailureListener(e -> Log.e(TAG, "Error retrieving guest list for event: " + eventId, e));
     }
 
-
-
-
     private void setupFilterSpinner() {
         List<String> themes = Arrays.asList("All", "Sports", "Music", "Festival", "Concert", "Custom");
 
-        // Create Adapter with custom layouts
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), R.layout.spinner_selected_item, themes);
-        adapter.setDropDownViewResource(R.layout.spinner_item); // Set dropdown layout
-
-        // Set adapter to the Spinner
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                requireContext(),
+                R.layout.spinner_selected_item,
+                themes
+        ) {
+            @NonNull
+            @Override
+            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View view = LayoutInflater.from(getContext()).inflate(R.layout.spinner_dropdown_item, parent, false);
+                TextView text = view.findViewById(R.id.dropdownText);
+                text.setText(getItem(position));
+                return view;
+            }
+        };
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item); // správný layout pro dropdown
         spnFilter.setAdapter(adapter);
 
-        // Handle selection events
         spnFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 selectedTheme = parent.getItemAtPosition(position).toString();
-                // Ensure selected text remains black
-                ((TextView) parent.getChildAt(0)).setText(selectedTheme);
-                ((TextView) parent.getChildAt(0)).setTextColor(getResources().getColor(android.R.color.black));
-                (parent.getChildAt(0)).setVisibility(View.VISIBLE);
-                if (!isEditMode) { // Only update markers if in View Mode
+
+                if (!isEditMode) {
                     googleMap.clear();
                     loadMarkers();
                 }
-
-                // Do something when an item is selected
             }
 
             @Override

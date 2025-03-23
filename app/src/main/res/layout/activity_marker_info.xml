@@ -1,14 +1,16 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:fillViewport="true"
-    android:layout_marginTop="30dp">
+    android:background="@drawable/gradient_background"
+    android:padding="24dp"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingTop="30dp">
 
         <!-- Event Name -->
         <TextView
@@ -16,9 +18,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Event Name"
-            android:textSize="22sp"
+            android:textSize="30sp"
             android:textStyle="bold"
-            android:paddingBottom="8dp" />
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="12dp" />
 
         <!-- Event Date -->
         <TextView
@@ -27,66 +30,71 @@
             android:layout_height="wrap_content"
             android:text="Date: YYYY-MM-DD"
             android:textSize="16sp"
-            android:textColor="@android:color/darker_gray"
-            android:paddingBottom="4dp" />
+            android:textColor="@android:color/black"
+            android:textStyle="italic"
+            android:layout_marginBottom="8dp" />
 
+        <!-- Age Limit -->
         <TextView
             android:id="@+id/event_age_limit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Minimum Age: "
+            android:text="Minimum Age: 0+"
             android:textSize="16sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="8dp" />
 
-
-        <!-- Event Theme -->
+        <!-- Theme -->
         <TextView
             android:id="@+id/event_theme"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Theme of event"
+            android:text="Theme: ... "
             android:textSize="16sp"
             android:textStyle="italic"
-            android:textColor="@android:color/white"
-            android:paddingBottom="8dp"
+            android:textColor="@android:color/black"
             android:layout_marginBottom="12dp" />
 
-        <!-- Event Description -->
+        <!-- Description -->
         <TextView
             android:id="@+id/event_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Description of the event..."
-            android:textSize="14sp"
-            android:layout_marginBottom="12dp" />
+            android:text="Description goes here..."
+            android:textSize="15sp"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="16dp" />
 
-        <!-- Max Capacity Display -->
+        <!-- Capacity -->
         <TextView
             android:id="@+id/event_capacity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Capacity: 0/0"
             android:textSize="16sp"
-            android:textColor="@android:color/white"
-            android:layout_marginBottom="12dp"
-            android:paddingBottom="8dp" />
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
 
-        <!-- List of Signed-Up Users -->
+        <!-- Participants title -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Signed-Up Participants:"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp" />
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="8dp" />
 
+        <!-- Attendee List -->
         <ListView
             android:id="@+id/list_attendees"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="187dp"
             android:divider="@android:color/darker_gray"
             android:dividerHeight="1dp"
-            android:paddingTop="4dp" />
+            android:background="@color/glass_surface"
+            android:layout_marginBottom="16dp" />
 
         <!-- Sign Up Button -->
         <Button
@@ -94,50 +102,44 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Sign Up for Event"
-            android:background="@android:color/holo_green_light"
+            android:backgroundTint="@android:color/holo_orange_dark"
             android:textColor="@android:color/white"
-            android:layout_marginTop="16dp"
-            android:padding="12dp"
-            android:elevation="4dp"/>
+            android:padding="14dp"
+            android:layout_marginBottom="12dp" />
 
-        <!-- Delete Button (For Event Owners) -->
-        <Button
-            android:id="@+id/btn_delete_event"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Delete Event"
-            android:background="@android:color/holo_red_light"
-            android:textColor="@android:color/white"
-            android:layout_marginTop="8dp"
-            android:padding="12dp"
-            android:elevation="4dp"
-            android:visibility="gone" /> <!-- Hidden by default -->
-
-        <!-- Edit Button (For Event Owners) -->
+        <!-- Edit -->
         <Button
             android:id="@+id/btn_edit_event"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Edit Event"
-            android:background="@android:color/holo_orange_light"
+            android:backgroundTint="@color/Orange"
             android:textColor="@android:color/white"
-            android:layout_marginTop="8dp"
-            android:padding="12dp"
-            android:elevation="4dp"
-            android:visibility="gone" />
+            android:padding="14dp"
+            android:visibility="gone"
+            android:layout_marginBottom="12dp" />
 
+        <!-- Delete -->
+        <Button
+            android:id="@+id/btn_delete_event"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Delete Event"
+            android:backgroundTint="@android:color/holo_red_dark"
+            android:textColor="@android:color/white"
+            android:padding="14dp"
+            android:visibility="gone"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Report -->
         <Button
             android:id="@+id/btn_report_event"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Report Event"
-            android:background="@android:color/holo_red_dark"
+            android:backgroundTint="@android:color/holo_red_light"
             android:textColor="@android:color/white"
-            android:layout_marginTop="8dp"
-            android:padding="12dp"
-            android:elevation="4dp"/>
-
+            android:padding="14dp" />
 
     </LinearLayout>
-
 </ScrollView>

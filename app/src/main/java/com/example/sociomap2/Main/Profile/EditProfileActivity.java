@@ -36,6 +36,10 @@ public class EditProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         firebaseUser = auth.getCurrentUser();

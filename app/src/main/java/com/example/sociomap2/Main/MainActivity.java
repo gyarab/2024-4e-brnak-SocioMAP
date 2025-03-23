@@ -115,14 +115,14 @@ public class MainActivity extends AppCompatActivity {
     private void applyFamousTheme() {
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
 
-        // ✅ Change background color to Light Blue
+        // background color to Light Blue
         bottomNav.setBackgroundColor(Color.parseColor("#ADD8E6"));
 
-        // ✅ Change icon and text color to Black
+        // icon and text color to Black
         bottomNav.setItemIconTintList(ColorStateList.valueOf(Color.BLACK));
         bottomNav.setItemTextColor(ColorStateList.valueOf(Color.BLACK));
 
-        // ✅ Change the selected item color to a visible one (e.g., Dark Blue or Cyan)
+        // item color to a visible one
         ColorStateList colorStateList = new ColorStateList(
                 new int[][]{
                         new int[]{android.R.attr.state_checked}, // Selected state

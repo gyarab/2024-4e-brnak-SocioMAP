@@ -137,13 +137,17 @@
 
     <Spinner
         android:id="@+id/spn_filter"
-        android:layout_width="346dp"
-        android:layout_height="45dp"
-        android:layout_marginTop="35dp"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="37dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:background="@drawable/rounded_spinner"
-        android:padding="8dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
         android:spinnerMode="dropdown"
         app:layout_anchor="@+id/cardView"
-        app:layout_anchorGravity="bottom|center" />
+        app:layout_anchorGravity="bottom|center"
+        android:popupBackground="@android:color/transparent"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

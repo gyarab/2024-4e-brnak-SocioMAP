@@ -125,7 +125,10 @@ public class AdminUserDetails extends AppCompatActivity {
                 "Your markers will now be highlighted, and you will receive special privileges.\n\n" +
                 "Keep creating amazing events and enjoy your new status!\n\nBest regards,\nSocioMap Team";
 
-        new EmailSender(recipientEmail, subject, messageBody).execute();
+        // Předání e-mailu jako pole s jedním prvkem
+        String[] recipients = new String[] { recipientEmail };
+
+        new EmailSender(recipients, subject, messageBody).execute();
     }
 }
 

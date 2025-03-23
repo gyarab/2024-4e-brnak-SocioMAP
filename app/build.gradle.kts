@@ -76,10 +76,10 @@ dependencies {
     implementation (libs.mail.android.activation)
 
     //Material
-    implementation (libs.material.v190)
-
-
+    implementation (libs.material.v1110)
     implementation (libs.play.services.auth)
+    
+
 
 }
 

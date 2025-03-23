@@ -1,0 +1,19 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    card_view:cardCornerRadius="20dp"
+    card_view:cardElevation="0dp"
+    card_view:cardBackgroundColor="@android:color/white"
+    android:background="@android:color/black">
+
+    <TextView
+        android:id="@+id/dropdownText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:padding="16dp"
+        android:gravity="center_vertical" />
+</androidx.cardview.widget.CardView>

@@ -59,10 +59,10 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDFOZqa0svTBECJxHUZs31cXWZNBXc4t3A" /> <!-- Activities -->
+            android:value="${MAPS_API_KEY}"/>
         <activity
             android:name=".Admin.AdminProfile"
-            android:exported="false" />
+            android:exported="false"/>
         <activity
             android:name=".Login.Register"
             android:exported="false"
