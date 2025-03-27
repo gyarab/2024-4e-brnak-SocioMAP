@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.sociomap2.Main.Map.MapsFragment;
-import com.example.sociomap2.Main.Other.OtherFragment;
+import com.example.sociomap2.Main.Other.OverviewFragment;
 import com.example.sociomap2.Main.Profile.ProfileFragment;
 import com.example.sociomap2.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
                 selectedFragment = new ProfileFragment();
                 fragmentTag = "ProfileFragment";
             } else if (item.getItemId() == R.id.nav_other) {
-                selectedFragment = new OtherFragment();
+                selectedFragment = new OverviewFragment();
                 fragmentTag = "OtherFragment";
             }
 
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                     bottomNav.setSelectedItemId(R.id.nav_profile);
                     break;
                 case "OtherFragment":
-                    fragmentToLoad = new OtherFragment();
+                    fragmentToLoad = new OverviewFragment();
                     bottomNav.setSelectedItemId(R.id.nav_other);
                     break;
                 default:

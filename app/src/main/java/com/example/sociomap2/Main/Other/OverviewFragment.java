@@ -25,7 +25,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OtherFragment extends Fragment {
+public class OverviewFragment extends Fragment {
 
     private static final String TAG = "OtherFragment";
     private FirebaseFirestore firestore;

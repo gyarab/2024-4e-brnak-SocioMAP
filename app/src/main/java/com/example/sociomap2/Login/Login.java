@@ -283,7 +283,7 @@ public class Login extends AppCompatActivity {
         //mail = findViewById(R.id.mailTV);
 
         GoogleSignInOptions options = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.client_id))
+                .requestIdToken("${CLIENT_ID}")
                 .requestEmail()
                 .build();
         googleSignInClient = GoogleSignIn.getClient(Login.this, options);

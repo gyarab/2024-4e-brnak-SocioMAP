@@ -13,5 +13,5 @@
     <item
         android:id="@+id/nav_other"
         android:icon="@drawable/ic_other"
-        android:title="Other" />
+        android:title="OverView" />
 </menu>
