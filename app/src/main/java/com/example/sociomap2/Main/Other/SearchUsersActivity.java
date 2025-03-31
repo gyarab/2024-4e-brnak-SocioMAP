@@ -103,10 +103,3 @@ public class SearchUsersActivity extends AppCompatActivity {
         adapter.updateList(filteredList);
     }
 }
-
-
-
-
-
-
-

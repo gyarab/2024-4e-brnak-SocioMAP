@@ -766,9 +766,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
             LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
-            // Define a search radius (5 km)
+            // Define a search radius
             double searchRadiusKm = 7.0;
-            double latOffset = searchRadiusKm / 111.0; // 1 degree latitude ≈ 111 km
+            double latOffset = searchRadiusKm / 111.0; //
 
             // Fetch user's signed-up friends
             firestore.collection("user_signup_follow").document(userId).get().addOnSuccessListener(userDoc -> {
@@ -776,7 +776,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         ? (List<String>) userDoc.get("users")
                         : new ArrayList<>();
 
-                // Step 1: Fetch markers using latitude filtering
+                // 1: Fetch markers using latitude filtering
                 firestore.collection("markers")
                         .whereGreaterThan("latitude", userLocation.latitude - latOffset)
                         .whereLessThan("latitude", userLocation.latitude + latOffset)
@@ -799,7 +799,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
                                 if (latitude == null || longitude == null) continue;
 
-                                // Step 2: Manually filter longitude in Java
+                                // 2: Manually filter longitude in Java
                                 double lngOffset = searchRadiusKm / (111.0 * Math.cos(Math.toRadians(latitude)));
                                 if (longitude < userLocation.longitude - lngOffset || longitude > userLocation.longitude + lngOffset) {
                                     continue;
@@ -812,7 +812,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                 return;
                             }
 
-                            // Step 3: Process each marker asynchronously
+                            // 3: Process each marker asynchronously
                             for (DocumentSnapshot document : nearbyMarkers) {
                                 LatLng markerPosition = new LatLng(document.getDouble("latitude"), document.getDouble("longitude"));
                                 double distance = getDistance(userLocation, markerPosition);
@@ -844,7 +844,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                                 score[0] *= 0.8;
                                             }
 
-                                            // Step 4: Store the best marker ID instead of creating new ones
+                                            // 4: Store the best marker ID instead of creating new ones
                                             if (score[0] < bestScore[0]) {
                                                 bestScore[0] = score[0];
                                                 bestMarkerId[0] = document.getId();
@@ -852,7 +852,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                         });
                             }
 
-                            // Step 5: Highlight the best marker after all queries complete
+                            // 5: Highlight the best marker after all queries complete
                             new android.os.Handler().postDelayed(() -> {
                                 if (bestMarkerId[0] == null) {
                                     Log.d(TAG, "No best marker selected.");
@@ -883,7 +883,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                 } else {
                                     Log.e(TAG, "Google Map is null when adding the B. marker");
                                 }
-                            }, 300); // Delay to allow all Firestore calls to finish
+                            }, 300);
                         });
             });
         });

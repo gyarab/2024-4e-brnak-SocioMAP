@@ -2,23 +2,28 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="@android:color/white">
+    android:background="@drawable/gradient_background"
+    android:padding="24dp"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:paddingTop="30dp">
 
+        <!-- Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="User Details"
-            android:textSize="22sp"
+            android:textSize="30sp"
             android:textStyle="bold"
-            android:paddingBottom="12dp" />
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="16dp" />
 
+        <!-- Name -->
         <TextView
             android:id="@+id/txt_name"
             android:layout_width="match_parent"
@@ -26,47 +31,58 @@
             android:text="Name: "
             android:textSize="18sp"
             android:textStyle="bold"
-            android:paddingTop="8dp" />
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="8dp" />
 
+        <!-- Surname -->
         <TextView
             android:id="@+id/txt_surname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Surname: "
             android:textSize="18sp"
-            android:paddingTop="8dp" />
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="8dp" />
 
+        <!-- Username -->
         <TextView
             android:id="@+id/txt_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Username: "
             android:textSize="18sp"
-            android:paddingTop="8dp" />
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="8dp" />
 
+        <!-- Email -->
         <TextView
             android:id="@+id/txt_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Email: "
             android:textSize="18sp"
-            android:paddingTop="8dp" />
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="8dp" />
 
+        <!-- Famous -->
         <TextView
             android:id="@+id/txt_famous_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Famous: No"
             android:textSize="18sp"
-            android:paddingTop="8dp" />
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="8dp" />
 
+        <!-- Banned -->
         <TextView
             android:id="@+id/txt_ban_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Status: Not Banned"
             android:textSize="18sp"
-            android:paddingTop="8dp" />
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="16dp" />
 
         <!-- Ban Button -->
         <Button
@@ -74,9 +90,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Ban User"
-            android:background="@android:color/holo_red_light"
+            android:backgroundTint="@android:color/holo_red_light"
             android:textColor="@android:color/white"
-            android:layout_marginTop="16dp" />
+            android:padding="14dp"
+            android:layout_marginBottom="12dp" />
 
         <!-- Make Famous Button -->
         <Button
@@ -84,8 +101,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Make Famous"
-            android:background="@android:color/holo_orange_light"
+            android:backgroundTint="@android:color/holo_orange_light"
             android:textColor="@android:color/white"
-            android:layout_marginTop="8dp" />
+            android:padding="14dp" />
+
     </LinearLayout>
 </ScrollView>

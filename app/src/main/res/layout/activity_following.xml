@@ -12,7 +12,7 @@
 
         <!--  Search Users Button -->
 
-        <!-- 🔹 Following (Signed-up Events) -->
+        <!-- Following (Signed-up Events) -->
 
         <Button
             android:id="@+id/btn_search_users"
@@ -23,6 +23,7 @@
             android:backgroundTint="@color/Orange"
             android:padding="12dp"
             android:text="Search and Follow Users"
+            android:textStyle="italic"
             android:textColor="@android:color/white" />
 
         <TextView
@@ -50,7 +51,7 @@
             android:background="@android:color/darker_gray"
             android:layout_marginVertical="8dp" />
 
-        <!-- 🔹 Following (Created Events) -->
+        <!-- Following (Created Events) -->
         <TextView
             android:id="@+id/txt_following_created"
             android:layout_width="match_parent"

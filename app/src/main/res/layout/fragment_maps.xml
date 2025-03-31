@@ -9,7 +9,7 @@
 
     <!-- Google Map Fragment -->
 
-    <!-- 🔹 Theme Filter (Placed Alone at the Top) -->
+    <!-- Theme Filter (Placed Alone at the Top) -->
 
     <fragment
         android:id="@+id/map"

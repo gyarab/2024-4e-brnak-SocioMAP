@@ -42,10 +42,10 @@ public class AdminUserList extends AppCompatActivity {
         userListView = findViewById(R.id.list_users);
         searchBar = findViewById(R.id.search_bar);
 
-        userAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, userDisplayList);
+        userAdapter = new ArrayAdapter<>(this, R.layout.item_user_admin, userDisplayList);
         userListView.setAdapter(userAdapter);
 
-        loadUsers(); // ✅ Ensure this loads users at the start
+        loadUsers();
 
         // Search bar listener
         searchBar.addTextChangedListener(new TextWatcher() {
@@ -102,7 +102,7 @@ public class AdminUserList extends AppCompatActivity {
 
     private void filterUsers(String query) {
         if (query.isEmpty()) {
-            // ✅ Reset to full list when search is cleared
+
             userDisplayList.clear();
             userDisplayList.addAll(fullUserDisplayList);
             userIdList.clear();

@@ -143,13 +143,6 @@
                     android:orientation="horizontal"
                     android:paddingVertical="8dp">
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="22dp"
-                        android:layout_weight="1"
-                        android:text="Famous:"
-                        android:textColor="@color/black"
-                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/text_famous"

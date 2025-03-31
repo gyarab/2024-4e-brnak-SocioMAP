@@ -23,7 +23,7 @@
             android:gravity="center_horizontal"
             android:paddingBottom="125dp"> <!-- Extra bottom padding to avoid overlap -->
 
-            <!-- 🔹 Event Categories -->
+            <!-- Event Categories -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -54,7 +54,7 @@
                     android:paddingTop="35dp" /> <!-- ⬅️ More space before events -->
             </androidx.cardview.widget.CardView>
 
-            <!-- 🔹 Signed-up Events -->
+            <!-- Signed-up Events -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -85,7 +85,7 @@
                     android:paddingTop="35dp" />
             </androidx.cardview.widget.CardView>
 
-            <!-- 🔹 Created Events -->
+            <!-- Created Events -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -116,7 +116,7 @@
                     android:paddingTop="35dp" />
             </androidx.cardview.widget.CardView>
 
-            <!-- 🔹 Archived Created Events -->
+            <!-- Archived Created Events -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -149,7 +149,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- 🔹 Sticked to Bottom -->
+    <!-- Sticked to Bottom -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_manage_following"
         android:layout_width="match_parent"
@@ -161,6 +161,6 @@
         android:text="Manage Following"
         android:textColor="@color/white"
         android:textSize="16sp"
-        android:textStyle="bold"
+        android:textStyle="italic"
         app:cornerRadius="30dp" />
 </RelativeLayout>

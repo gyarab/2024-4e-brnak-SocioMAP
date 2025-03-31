@@ -6,14 +6,14 @@
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center"
-    android:background="@android:color/white">
+    android:background="@drawable/gradient_background">
 
     <!-- Admin Title -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Admin Profile"
-        android:textSize="24sp"
+        android:textSize="30sp"
         android:textStyle="bold"
         android:textColor="@android:color/black"
         android:layout_marginBottom="32dp" />
@@ -27,7 +27,8 @@
         android:backgroundTint="@android:color/holo_blue_light"
         android:textColor="@android:color/white"
         android:padding="12dp"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="16dp"
+        android:layout_margin="16dp"/>
 
     <!-- Logout Button -->
     <Button
@@ -37,5 +38,7 @@
         android:text="Logout"
         android:backgroundTint="@android:color/holo_red_light"
         android:textColor="@android:color/white"
-        android:padding="12dp"/>
+        android:padding="12dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="16dp"/>
 </LinearLayout>
