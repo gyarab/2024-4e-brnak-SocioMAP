@@ -1,0 +1,34 @@
+\chapter{Instalace}
+
+Tato kapitola popisuje, jakým způsobem lze aplikaci SocioMapa připravit a spustit v prostředí vývojáře. Jsou zde uvedeny všechny potřebné nástroje, nastavení a konfigurace.
+
+\section{Android a Git}
+
+Pro vývoj a správu aplikace SocioMapa je potřeba mít nainstalované následující nástroje, jimiž jsou Android Studio – vývojové prostředí pro Android aplikace, Java Development Kit (JDK) – doporučuje se verze 17 nebo novější, Git – pro klonování repozitáře a správu verzí.
+
+
+\section{Firebase (backend)}
+
+Aplikace využívá Firebase jako backend pro autentizaci uživatelů, ukládání dat (Firestore) a další služby.
+
+\subsection*{Postup nastavení Firebase:}
+\begin{enumerate}
+	\item Vytvořte projekt na https://console.firebase.google.com.
+	\item Přidejte Android aplikaci do projektu pomocí balíčkového jména aplikace.
+	\item Stáhněte konfigurační soubor google-services.json a vložte ho do složky app/ v Android projektu.
+	\item Ujistěte se, že v souboru build.gradle (Project) i build.gradle (Module: app) jsou správně přidány závislosti Firebase a plugin google-services.
+	\item V konzoli Firebase nastavte authentication (Email/Password + Google), Firestore databázi (v režimu testování nebo s upravenými pravidly)
+	\item Upravte pravidla přístupu do Firestore podle požadavků na zabezpečení.
+\end{enumerate}
+
+
+
+\section{Postup instalace}
+\begin{enumerate}
+    \item Klonujte repozitář aplikace.
+    \item V Android Studiu otevřete složku s klonovaným projektem.
+    \item Nechte Android Studio automaticky provést synchronizaci závislostí (Gradle Sync).
+    \item Nastavte Firebase viz. \textit{Postup nastaveni Firebase:}
+    \item Vytvořte API pro GoogleMaps a změňte API key v aplikaci 
+\end{enumerate}
+

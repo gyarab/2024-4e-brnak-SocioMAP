@@ -1,0 +1,65 @@
+\chapter{Analýza požadavků}
+V této kapitole rozeberu, co požaduje a využívá má aplikace, aby byla splněna očekávání od samotného uživatele. K Android zařízení není třeba žádného hardwaru navíc. Postačí vám jen daný chytrý telefon (specifikuji později v této kapitole).
+
+\section{Požadavky na uživatele a software}
+Má aplikace požaduje, jako každá jiná sociální síť, přihlášení přes email a heslo. Jste-li nový uživatel v mé aplikaci, je nutno se registrovat. Registrace požaduje email a heslo, které jsou využívány k autentizaci uživatele. Nadále je třeba vyplnit jméno (Name), příjmení (Surname), přezdívku (Username) a posledně datum narození (Birthday). Pokud vám něco chybí, či máte něco vyplněného špatně, jste na vše upozorněni. SocioMap má též nároky na silnější heslo. Po úspěšném zadání všech registračních polí vám Firebase mail zašle verifikační email. Jakmile ověříte svůj email tím, že ve své příchozí poště naleznete email od mé aplikace a kliknete na odkaz verifikovat, tak se následně můžete přihlásit do aplikace. 
+
+Jste přesměrováni dále do aplikace, kde jste žádáni o povolení k přístupu k aktuální poloze telefonu. Není nutné polohu povolit, ale jestli tak neučiníte, omezíte tím chod funkce a přicházíte o rozšířené funkce (převážně o algoritmus nejvhodnější akce). 
+
+Poslední požadavek je na systém, týkající se přístupu k internetu. Uživatel nesmí blokovat přístup k internetu aplikaci, jinak mu aplikace nebude fungovat. Zároveň je třeba, aby byl připojen k internetu, aby se navazoval kontakt mezi aplikací a databází Firebase (backend). 
+
+\section{Požadavky ze zadání}
+
+Z předchozí kapitoly je patrné, že aplikace SocioMapa je založena na interakci mezi uživateli. Z tohoto důvodu byla implementována funkcionalita přihlášení a registrace uživatelů, včetně validace vstupních dat a ověření e-mailu.
+
+I přesto, že zadání výslovně nevyžadovalo možnost sociální interakce, bylo zřejmé, že je to stěžejní součást celkové funkcionality. Každý uživatel si může ostatní rozdělit do dvou kategorií:
+
+\begin{itemize}
+\item uživatelé, které sleduje podle toho, na jaké události se přihlašují (tzv. přátelé),
+\item tvůrci událostí, jejichž akce chce mít pod dohledem (oblíbení tvůrci).
+\end{itemize}
+
+Aplikace se aktuálně soustředí na události, a proto zatím neobsahuje chatovací funkci ani napojení na externí komunikační nástroje.
+
+Hlavním zobrazením aplikace je mapa, která byla vytvořena pomocí Google Maps API. Mapa obsahuje odznaky (markery) různých barev podle tématu události. Nad mapou jsou dostupné filtry:
+
+\begin{itemize}
+\item výběr tématu události,
+\item filtrování podle přátel,
+\item filtrování podle oblíbených tvůrců,
+\item filtrování pouze „známých“ událostí (označené jako \uv{famous}, obsahuje nadřazené zbarvení markeru).
+\end{itemize}
+
+Uživatel má možnost přepínat mezi režimem úpravy (přidávání událostí) a režimem náhledu (zobrazení událostí).
+
+Každá událost obsahuje detaily jako popis, čas konání, místo, věkové omezení, tematiku a tvůrce. Markery, které již časově expirovaly, jsou automaticky archivovány a přesunuty do jiných kolekcí ve Firestore.
+
+Dále má uživatel k dispozici profilovou sekci, kde může upravit své osobní údaje, změnit preferovaná témata a odhlásit se. V poslední sekci pak najde přehled všech akcí, které vytvořil, i těch, na které se přihlásil.
+
+\vspace{0.5em}
+Administrátor má přístup ke speciálním funkcím: může zakazovat účty ostatním uživatelům a též uživatelům přidat status \uv{famous}
+
+\subsection*{Splněné požadavky:}
+\begin{itemize}
+\item Přihlášení a registrace včetně validací.
+\item Možnost sledovat přátele a oblíbené tvůrce.
+\item Zobrazení událostí na mapě s různými filtry.
+\item Využití lokace uživatele na algoritmus nejvhodnější události.
+\item Vytváření, filtrování, archivace a správa událostí.
+\item Uživatelé mohou nastavit svá oblíbená témata.
+\item Odlišení známých uživatelů pomocí vizuálních prvků.
+\item Interaktivní design
+\item Admin rozhraní pro správu aplikace.
+\end{itemize}
+
+
+\subsection*{Požadavky na software:}
+\begin{itemize}
+\item Android Studio (verze 2023.1+ doporučena)
+\item Firebase Firestore, Authentication
+\item Google Maps API klíč
+\item Minimální verze Androidu: 7.0 (API 24)
+\end{itemize}
+
+\section{Možnosti vylepšení a dosud nesplněné požadavky}
+Aplikaci se nepodařilo integrovat s přihlášením přes Google Sign-in, přičemž tento kód zůstává zakomentován. Zatím neobsahuje chatovací funkci pro komunikaci mezi uživateli ani není integrována s externími kalendáři či systémem notifikací. Optimalizace pro všechny verze Android zařízení není kompletní, a zejména starší nebo méně výkonné modely mohou mít problémy s výkonem. Pokud by měla být aplikace v budoucnu výdělečná, bylo by vhodné zavést jednorázový poplatek za registraci nebo přihlášení uživatele.

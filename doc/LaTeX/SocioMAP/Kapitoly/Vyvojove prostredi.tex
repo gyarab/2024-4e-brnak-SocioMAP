@@ -1,0 +1,42 @@
+\chapter{Vývojové prostředí}
+
+Pro vývoj aplikace SocioMap bylo využito intuitivní a programátorsky přívětivé vývojové prostředí, které umožňuje efektivní práci s mobilní platformou Android a zároveň nabízí přímé propojení s cloudovými službami (Firebase propojení). Následující sekce stručně popisují klíčové technologie a nástroje, které byly při vývoji použity.
+
+\section{Android Studio}
+
+Android Studio je oficiální integrované vývojové prostředí (IDE) pro vývoj aplikací na platformě Android. Je založeno na IntelliJ IDEA a poskytuje široké spektrum nástrojů a funkcí pro vývoj, ladění (náhled XML souborů) a testování mobilních aplikací.
+
+Vývoj aplikace SocioMap probíhal ve verzi Android Studio Giraffe (2023.1.1), která nabízí plnou podporu pro programovací jazyk Java a Kotlin, vizuální návrhář uživatelského rozhraní (XML layout editor), emulátory Android zařízení a integrované napojení na Google služby. Výhodou prostředí je i integrovaná správa závislostí přes Gradle a možnost snadného nasazení a ladění aplikace na reálném zařízení.
+
+\subsection{Emulátor Android zařízení}
+
+Při vývoji a testování aplikace SocioMap byl využit vestavěný Android emulátor dostupný v Android Studiu. Emulátor umožňuje simulovat různé verze systému Android, velikosti obrazovky, rozlišení a další vlastnosti zařízení, což je ideální pro testování kompatibility a správného chování aplikace při absenci fyzického zařízení.
+
+V projektu byly testovány zejména emulované telefony s verzemi Android 10 (API 29) a Android 12 (API 31). Konkrétně telefony Pixel 8 Pro, Pixel 7. Emulátor také umožňoval testování lokalizačních funkcí pomocí simulace GPS polohy, což bylo klíčové pro ověřování funkčnosti mapy a filtrování událostí podle blízkosti uživatele.
+
+Díky emulátoru bylo možné otestovat design a vyzkoušet náročnější logiku method aplikace.
+
+\section{Firebase}
+
+Firebase je platforma vyvinutá společností Google, která nabízí rozsáhlé backendové služby pro mobilní a webové aplikace. V projektu SocioMapa byly využity následující moduly Firebase:
+
+\begin{itemize}
+\item \textbf{Firebase Authentication} – slouží k registraci a přihlašování uživatelů pomocí e-mailu a hesla. Zajišťuje bezpečné ověření identity a správu uživatelů.
+\item \textbf{Firebase Firestore} – cloudová NoSQL databáze, která uchovává data o uživatelích, událostech a jejich vzájemných vztazích. Nabízí jednoduché čtení, zápis a dotazování nad kolekcemi a dokumenty v reálném čase.
+\item \textbf{Firebase Storage} – připraveno pro případné budoucí využití, například pro ukládání profilových fotografií či obrázků k událostem.
+\end{itemize}
+
+Výhodou Firebase je snadná integrace do Android aplikace a dostupnost ve free-tier verzi, která postačuje pro začatečnické malé projekty.
+
+\section{Další knihovny}
+\label{Další knihovny}
+
+Při vývoji aplikace byly použity i další podpůrné knihovny a API:
+
+\begin{itemize}
+\item \textbf{Google Maps API} – slouží pro zobrazení mapy a práci s geografickými prvky (markery, pozice, události).
+\item \textbf{Material Components} – knihovna pro použití moderních prvků UI v souladu s pravidly Material Designu (TextInputLayout, Buttons, Dialogy apod.).
+\item \textbf{AndroidX} – moderní knihovny pro zpětnou kompatibilitu a správu fragmentů, přechodů mezi aktivitami a systémových oprávnění.
+\end{itemize}
+
+Použití těchto nástrojů a knihoven umožnilo vytvořit stabilní, přehlednou a uživatelsky přívětivou aplikaci s napojením na moderní cloudové technologie. 

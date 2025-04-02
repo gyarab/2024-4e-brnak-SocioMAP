@@ -1,0 +1,200 @@
+\chapter{Program}
+
+\section{Pomocné třídy}
+
+
+\subsection*{User.java}
+
+Třída 'User' slouží jako datový model pro uživatele aplikace. Obsahuje základní atributy, jako je identifikátor uživatele (userId), přezdívka (username), jméno (name) a příjmení (surname). Tento model je využíván při práci s databází Firestore – jak při získávání údajů o uživateli, tak při jejich ukládání. Umožňuje přehlednější manipulaci s daty v rámci kódu a zajišťuje jednotnou strukturu uživatelských informací napříč aplikací.
+
+
+\subsection*{UserListAdapter.java}
+
+Tato třída je 'RecyclerView.Adapter', která slouží k zobrazení seznamu uživatelů v rozhraní administrátora a v aktivitě 'SearchUsersActivity'. Každý uživatel je vykreslen jako samostatná položka se základními informacemi (jméno, příjmení, přezdívka) dle předlohy ze třídy 'User'.
+
+Adapter propojuje data z databáze s vizuální reprezentací v seznamu. Při kliknutí na položku je vyvolán listener, který otevře detail konkrétního uživatele v aktivitě 'AdminUserDetails'.
+
+
+
+
+
+
+\subsection*{NetworkChangeReceiver.java}
+
+Tato komponenta je zaregistrována jako \texttt{BroadcastReceiver}, který sleduje stav připojení k internetu. 
+
+Pokud dojde ke ztrátě připojení, je uživatel upozorněn vizuálním prvkem (ikona, hláška) a některé interakce (např. přihlášení, registrace) jsou dočasně zakázány. Tudíž se uživatel nemůže přihlásit.
+
+Třída preventivně zakazuje vstoupit do aplikace bez připojení k internetu, jelikož bez přístupu k databázi, nemá aplikace smysl.
+
+
+
+
+\subsection*{EmailSender.java}
+
+Tato pomocná třída umožňuje odesílání e-mailů pomocí SMTP protokolu. Je využívána zejména pro správu systému ze strany administrátora – např. při nahlášení události nebo informování uživatelů. Výjimkou je změna statusu z běžného uživatele na slavného, kdy uživatel obdrží email s informací, že se stává slavným.
+
+Třída obsahuje základní SMTP konfiguraci a metody pro vytvoření zprávy a její odeslání. Připojuje se k e-mailové službě, jako je Gmail, a zabezpečuje přenos přihlašovacích údajů i obsahu zprávy.
+
+Používá JavaMail API a pracuje na pozadí, aby neblokovala hlavní UI vlákno.
+
+\cite{JavaDocs} \cite{MapTapStackoverflow}
+
+
+
+
+\section{Firebase}
+
+Pro realizaci backendové části jsem zvolil platformu Firebase, konkrétně služby Firestore, Firebase Authentication. Vzhledem k povaze aplikace – tedy zaměření na víceuživatelské prostředí a potřebu rychlé synchronizace dat – nebyla použita lokální SQL databáze. Lokální databáze by neumožnila správu účtů napříč zařízeními, a při přihlášení z jiného zařízení by uživatel neměl přístup ke svým událostem či osobním údajům. Firestore zároveň umožňuje práci v reálném čase, díky čemuž se změny (např. vytvoření nebo úprava události) okamžitě promítnou všem uživatelům.
+
+\subsection{Struktura databáze (Firestore Collections)}
+
+Databáze je tvořena několika kolekcemi, z nichž každá má specifický účel:
+
+\begin{itemize}
+  \item \textbf{users} – obsahuje základní údaje o uživatelích (jméno, příjmení, přezdívka, rok narození, email, typ účtu – admin/slavný, priorizované tématiky) [String = (username, name, surname, email, birthday) Boolean = (isFamous, isAdmin, ban) List = (preferredThemes)]. Dokument vytváří ID uživatele po úspěšné registraci.
+  \item \textbf{markers} – aktivní události, které se zobrazují na mapě. Každý dokument v kolekci `markers` obsahuje informace (název, popis, souřadnice, datum a čas, věkové omezení, tematické zaměření a ID autora, kapacitu, maximální kapacita). [Number = (ageLimit, currentAttendees, latitude, longitude, maxCapacity)
+  String = (description, eventDateTime, theme, title, userId)] Dokument nese nově vytvořený ID markeru.
+  \item \textbf{markers\_arch} – archiv událostí, které již proběhly. Pokud akce již proběhla, bude přesunuta sem.
+  \item \textbf{user\_events} – seznam událostí, na které se uživatel přihlásil. [List = (events)] Dokument nese ID uživatele.
+  \item \textbf{user\_owner\_arch} – archiv událostí vytvořených konkrétním uživatelem. [List = (events)] Dokument nese ID uživatele.
+  \item \textbf{user\_sign\_up\_follow} – seznam uživatelů, jejichž účast na akcích sleduji. [List = (following)] Dokument nese ID uživatele.
+  \item \textbf{user\_create\_follow} – seznam uživatelů, jejichž tvorbu akcí sleduji. [List = (following)] Dokument nese ID uživatele.
+  \item \textbf{event\_guest\_list} – seznam přihlášených uživatelů pro konkrétní událost. [List = (users)] Dokument nese ID markeru.
+\end{itemize}
+
+
+
+Aplikace, jak již bylo zmíněno, využívá komunikaci na bázi endpointů pro dotazování do databáze. Pro filtrování dat je použit příkaz \textit{.whereGreaterThan("latitude", userLocation.latitude - latOffset)}, který vrátí dokumenty s hodnotou větší než zadaná hodnota, nebo .whereIn("category", Arrays.asList("sports", "music", "tech")), který vrátí dokumenty odpovídající jedné z hodnot v seznamu. Odkaz na kód je dostupný v kapitole \hyperref[sec:structure]{Struktura a propojení komponent}.
+
+\cite{FirebaseDocs} \cite{FirebaseQuickStart} 
+
+.
+
+
+
+
+
+\subsection{Pravidla zabezpečení (Security Rules)}
+
+Pro zajištění bezpečnosti a správné správy dat byla v databázi Firestore nastavena pravidla, která omezují přístup pouze na oprávněné a přihlášené uživatele. Pravidla zajišťují, že číst a zapisovat události v kolekci 'markers' může pouze jejich vlastník. Stejné omezení platí i pro přístup k uživatelským dokumentům v kolekci 'users', kde má každý uživatel přístup výhradně ke svým vlastním datům. Obdobně je chráněna kolekce 'user\_events', kde může uživatel pracovat pouze se svými událostmi. Dále jsou nastavena obecná pravidla, která umožňují pouze přihlášeným uživatelům číst a zapisovat, ale neumožňují hromadný výpis celé kolekce, čímž je zabráněno případnému zneužití nebo stahování všech dokumentů najednou.
+
+Tato pravidla zajišťují, že pouze přihlášení uživatelé mají přístup k datům. Uživatel může upravovat nebo číst pouze svůj vlastní dokument. Nikdo nemůže stáhnout celou kolekci dokumentů najednou, což je zajištěno pravidlem \textit{List: if false}. Každý může číst veřejné informace o událostech, ale upravovat je smí pouze jejich autor.
+
+\cite{FirebaseDocs}
+
+
+
+\subsection{Autentizace uživatelů}
+
+Firebase Authentication je využita pro přihlašování, registraci a ověření emailu. Prozatím je využívána pouze metoda 'Email a heslo'– uživatel se zaregistruje se svým emailem a heslem. Následně je vyžadována verifikace emailu. Poté je vytvořen nový dokument ve Firebase.
+
+Dále byly nastaveny restrikce na heslo. Heslo požaduje velká a malá písmena, znak, číslici a délku minimálně 8 znaků. Počet přihlášení za hodinu je omezen na 10 pokusů.
+\cite{FirebaseDocs}
+
+
+
+
+
+
+\section{Vlastní design}
+
+V celé aplikaci byl použit vlastní design s důrazem na vizuální konzistenci a unikátní uživatelské rozhraní. Místo výchozích systémových prvků byly navrženy vlastní komponenty. Designový prvek filtrační panel na mapě byl graficky upraven tak, aby neomezil zorné pole. Zároveň byl doplněn o animaci pro plynulé rozbalení a sbalení, což zlepšuje uživatelský dojem.
+
+Seznam uživatelů (tzv. UserList) byl taktéž navržen jako vlastní layout. Každý uživatel je zobrazen v kartičce se zaobleným pozadím, odlišeným tlačítkem pro sledování a celkově přehledným uspořádáním textu. Pro dosažení tohoto vzhledu byly využity vlastní XML soubory s barevným přechodem, úpravou fontů a ohraničením.
+\cite{MaterialComponents}
+
+
+
+
+
+
+
+\section{Markery – události}
+
+Události jsou reprezentovány jako markery na mapě a jsou uloženy v kolekci \texttt{markers} ve Firebase Firestore. Každý marker obsahuje základní informace jako název, popis, lokaci, datum a čas události, téma, věkové omezení a příznak popularity (\texttt{isFamous}).
+
+\subsection{Vývoj struktury událostí}
+
+Na začátku jsem zvažoval více způsobů, jak data o událostech ukládat – například jestli mít každého uživatele jako hlavní dokument a jeho události jako podkolekci. Nakonec jsem se rozhodl pro samostatnou kolekci 'markers', protože je přehlednější dotazovat všechny události napříč uživateli. Zároveň je snadnější filtrovat podle témata, datumu nebo věku. Tento přístup umožňuje efektivnější vyhledávání a doporučování událostí bez nutnosti procházení dalších kolekcí a také nabízí možnost využít více úložišť.
+
+Informace o přihlášených uživatelích jsem přesunul do samostatné kolekce 'event\_guest\_list' a informace o vlastních vytvořených událostech do 'user\_owner\_arch'. Tento rozklad umožňuje lepší přehlednost, oddělení funkcí a větší kapacitu pro data.
+
+
+\subsection{Algoritmus doporučené události}
+
+Pro doporučení ideální události v okolí jsem implementoval algoritmus, který zohledňuje polohu uživatele, vzdálenost událostí, oblíbená témata a také počet přihlášených přátel. Cílem je doporučit nejbližší událost, která má co největší šanci uživatele zaujmout. Na mapě je tato událost zvýrazněna odlišnou barvou a zobrazí se popisek s názvem akce doprovázený popisem o akci.
+
+Algoritmus nejprve získá aktuální polohu uživatele pomocí GPS souřadnic. Poté načte z kolekce 'user\_signup\_follow' seznam uživatelů, které aktuální uživatel sleduje. Následně stáhne všechny události (markery) v okruhu 7 km podle zeměpisné šířky a délky.
+
+Každé události se vypočítá skóre na základě několika faktorů: vzdálenosti od uživatele, podílu přihlášených přátel (čím více, tím lépe) a shody s oblíbenými tématy uživatele (pokud se téma shoduje, skóre se sníží). Nakonec se událost s nejnižším skóre označí jako "doporučená" a vizuálně se zvýrazní na mapě.
+
+
+
+
+
+\subsection{Vývoj algoritmu a potíže s měřením vzdálenosti}
+
+Na začátku jsem testoval více způsobů, jak porovnávat vzdálenost mezi událostmi a uživatelem například pomocí přímého odečtu rozdílů souřadnic. Tento způsob ale nebral v úvahu zakřivení Země a rozdíl v měřítku mezi šířkou a délkou, a proto vedl k nepřesnostem.
+
+Zvažoval jsem také použití externí knihovny (např. haversine plugin), ale nakonec jsem se rozhodl implementovat vlastní výpočet pomocí Haversinova vzorce, který bere v úvahu zakřivení Země a je dostatečně přesný pro výpočet vzdáleností v řádu kilometrů.
+\cite{ChatGPTHelp}
+
+
+
+\subsection*{Haversinův vzorec}
+Matematický vzorec, který umožňuje vypočítat přibližnou vzdálenost mezi dvěma body na kulovém povrchu (jako je Země). Funguje tak, že nejprve převede souřadnice ze stupňů na radiány, spočítá rozdíly mezi šířkami a délkami, a pak přes trigonometrické funkce určí vzdálenost. Používá se přitom přibližný poloměr Země (6 371 km). Výsledná vzdálenost je pak vrácena v metrech a slouží jako jeden z hlavních faktorů při výběru doporučené události.
+
+Použitá metoda \textit{getDistance()} vrací vzdálenost v metrech mezi dvěma souřadnicemi a je použita jako hlavní faktor při hodnocení jednotlivých markerů.
+
+Původně jsem se snažil vzdálenost mezi dvěma body (uživatelem a událostí) počítat jednoduše jako rozdíl mezi zeměpisnou šířkou a délkou. Tento přístup se ale ukázal jako velmi nepřesný, protože nepočítal se zakřivením Země a tím, že vzdálenost jednoho stupně se liší v různých zeměpisných šířkách. Proto jsem se rozhodl použít tzv. haversinovu formuli – matematický vzorec, který umožňuje vypočítat přibližnou vzdálenost mezi dvěma body na kulovém povrchu (jako je Země). Funguje tak, že nejprve převede souřadnice ze stupňů na radiány, spočítá rozdíly mezi šířkami a délkami, a pak přes trigonometrické funkce určí vzdálenost. Používá se přitom přibližný poloměr Země (6 371 km). Výsledná vzdálenost je pak vrácena v metrech a slouží jako jeden z hlavních faktorů při výběru doporučené události.
+
+\begin{figure}[H]
+    \centering
+    \begin{lstlisting}[language=Java, style=myJavastyle, caption={metoda getDistance() -výpočet vzdálenosti}, label={lst:getDistance}]
+    private double getDistance(LatLng pos1, LatLng pos2) {
+        double lat1 = pos1.latitude;
+        double lon1 = pos1.longitude;
+        double lat2 = pos2.latitude;
+        double lon2 = pos2.longitude;
+
+        double R = 6371e3; // radius Earth
+        double phi_1  = Math.toRadians(lat1);
+        double phi_2 = Math.toRadians(lat2);
+        double delta_phi = Math.toRadians(lat2 - lat1);
+        double delta_lambda = Math.toRadians(lon2 - lon1);
+
+        double a = Math.sin(delta_phi / 2) * 
+                Math.sin(delta_phi / 2) +
+                Math.cos(phi_1) * 
+                Math.cos(phi_2) *
+                Math.sin(delta_lambda / 2) * Math.sin(delta_lambda / 2);
+        double c = 2 * M
+        ath.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return R * c; // meter
+    }
+    \end{lstlisting}
+\end{figure}
+\cite{HaversineFormula}
+
+
+
+
+
+
+
+\section{Přátelé}
+
+Vyhledávání je napojeno na Firestore kolekci 'users'. K vyhledávání se využívají jednoduché dotazy pomocí 'whereGreaterThanOrEqualTo' a 'whereLessThan' filtrů, které odpovídají textovému vstupu zadanému uživatelem.
+
+Vzhledem k tomu, že jsem se v prvních fázích vývoje věnoval především práci s markery, rozhodl jsem se použít obdobný přístup také pro správu přátel. To znamená, že jsem vytvořil strukturu založenou na kolekcích ve Firebase, které jsou jednoduše dotazovatelné a snadno rozšiřitelné.
+
+Uživatelé si mohou ostatní přidat mezi „sledované“ kliknutím ve výsledku vyhledávání. Tato akce následně vytvoří nebo aktualizuje dokument v příslušné kolekci podle typu sledování. Během konzultace s panem profesorem jsem přišel na to, že by bylo užitečné rozlišovat mezi těmi, které uživatel sleduje na základě účasti na událostech (např. kam chodí), a těmi, které sleduje jako organizátory (tvůrce událostí). Na tomto základě byly vytvořeny dvě samostatné kolekce:
+
+\begin{itemize}
+    \item 'user\_signup\_follow' – obsahuje ID uživatelů, které sledujeme podle jejich účasti na událostech.
+    \item 'user\_owner\_follow' – obsahuje ID uživatelů, které sledujeme jako tvůrce událostí.
+\end{itemize}
+
+Při implementaci filtrování v mapě tedy dochází k jednoduchému dotazu na tuto kolekci, načte se seznam ID a následně se porovnává s 'userId' nebo seznamem přihlášených uživatelů v jednotlivých událostech. Ve výsledku je tímto způsobem zajištěna funkcionalita personalizovaného zobrazení mapy podle sociálních vazeb uživatele.

@@ -1,0 +1,196 @@
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[czech]{babel}
+\usepackage{titlesec}
+\usepackage{lipsum}
+\graphicspath{{Images/}}
+\usepackage{biblatex}
+\usepackage{ragged2e}
+\linespread{1.5}
+\setlength{\hsize}{0.9\hsize}
+\usepackage{wrapfig}
+\usepackage{tgtermes}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage[T1]{fontenc}
+\usepackage{inconsolata}
+\usepackage{appendix}
+\usepackage[colorlinks=true, allcolors=black]{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{tabto}
+\usepackage{setspace}
+\usepackage[a4paper, left = 3.5cm, top = 2.5cm, bottom = 2.5cm, right = 2.5cm]{geometry}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{csquotes}
+\usepackage{forest}
+\usepackage{float}
+
+
+\lstdefinestyle{myJavaStyle}{
+    language=Java,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=10pt,
+    backgroundcolor=\color{gray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray!70}\itshape,
+    stringstyle=\color{orange},
+    basicstyle=\ttfamily\scriptsize
+    literate={"}{{\texttt{"}}}1
+}
+
+\lstdefinestyle{myXMLStyle}{
+    language=XML,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=10pt,
+    backgroundcolor=\color{gray!10},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+    morekeywords={xmlns, version, encoding}, % Specifická klíčová slova pro XML
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray!70}\itshape,
+    stringstyle=\color{red}, % Barva hodnot atributů
+    tagstyle=\color{purple}\bfseries, % Barva tagů
+    basicstyle=\ttfamily\scriptsize
+}
+
+
+\addbibresource{Zdroj.bib}
+
+% color def
+\usepackage{color}
+\definecolor{editorGreen}{rgb}{0.18,0.80,0.18}
+\definecolor{editorOcher}{rgb}{0.99,0.48,0.13}
+\definecolor{gray}{rgb}{0.95,0.95,0.98}
+\definecolor{darkred}{rgb}{0.6,0.0,0.0}
+\definecolor{darkgreen}{rgb}{0,0.50,0}
+\definecolor{lightblue}{rgb}{0.0,0.42,0.91}
+\definecolor{orange}{rgb}{0.99,0.48,0.13}
+\definecolor{grass}{rgb}{0.18,0.80,0.18}
+\definecolor{pink}{rgb}{0.97,0.15,0.45}
+% General Setting of listings
+\lstset{
+  aboveskip=1em,
+  breaklines=true,
+  abovecaptionskip=-6pt,
+  captionpos=b,
+  escapeinside={\%*}{*)},
+  frame=single,
+  numbers=left,
+  numbersep=15pt,
+  numberstyle=\tiny,
+}
+% 0. Basic Color Theme
+\lstdefinestyle{colored}{ %
+  basicstyle=\ttfamily,
+  backgroundcolor=\color{white},
+  commentstyle=\color{green}\itshape,
+  keywordstyle=\color{blue}\bfseries\itshape,
+  stringstyle=\color{red},
+}
+% 1. General Python Keywords List
+\lstdefinelanguage{PythonPlus}[]{Python}{
+  morekeywords=[1]{,as,assert,nonlocal,with,yield,self,True,False,None,} % Python builtin
+  morekeywords=[2]{,__init__,__add__,__mul__,__div__,__sub__,__call__,__getitem__,__setitem__,__eq__,__ne__,__nonzero__,__rmul__,__radd__,__repr__,__str__,__get__,__truediv__,__pow__,__name__,__future__,__all__,}, % magic methods
+  morekeywords=[3]{,object,type,isinstance,copy,deepcopy,zip,enumerate,reversed,list,set,len,dict,tuple,range,xrange,append,execfile,real,imag,reduce,str,repr,}, % common functions
+  morekeywords=[4]{,Exception,NameError,IndexError,SyntaxError,TypeError,ValueError,OverflowError,ZeroDivisionError,}, % errors
+  morekeywords=[5]{,ode,fsolve,sqrt,exp,sin,cos,arctan,arctan2,arccos,pi, array,norm,solve,dot,arange,isscalar,max,sum,flatten,shape,reshape,find,any,all,abs,plot,linspace,legend,quad,polyval,polyfit,hstack,concatenate,vstack,column_stack,empty,zeros,ones,rand,vander,grid,pcolor,eig,eigs,eigvals,svd,qr,tan,det,logspace,roll,min,mean,cumsum,cumprod,diff,vectorize,lstsq,cla,eye,xlabel,ylabel,squeeze,}, % numpy / math
+}
+% 2. New Language based on Python
+\lstdefinelanguage{PyBrIM}[]{PythonPlus}{
+  emph={d,E,a,Fc28,Fy,Fu,D,des,supplier,Material,Rectangle,PyElmt},
+}
+% 3. Extended theme
+\lstdefinestyle{python}{
+  basicstyle=\ttfamily,
+  backgroundcolor=\color{gray},
+  commentstyle=\color{darkgreen}\slshape,
+  keywordstyle=\color{blue}\bfseries\itshape,
+  keywordstyle=[2]\color{blue}\bfseries,
+  keywordstyle=[3]\color{grass},
+  keywordstyle=[4]\color{red},
+  keywordstyle=[5]\color{orange},
+  stringstyle=\color{darkred},
+  emphstyle=\color{pink}\underbar,
+}
+\hyphenpenalty=10000\exhyphenpenalty=10000
+
+\begin{document}
+\titleformat{\chapter}
+  {\normalfont\LARGE\bfseries}{\thechapter}{1em}{}
+\titlespacing*{\chapter}{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+
+\renewcommand{\figurename}{Obr.}
+\spacing{1.5}
+\input{titlepage}
+\input{titlepage2}
+
+
+\thispagestyle{empty}
+\newpage
+\newpage
+
+\include{Kapitoly/CestneProhlaseni}
+\section*{}
+\subsection*{Anotace}
+Tento projekt je mobilní aplikace vytvořená v jazyce Java s využitím frameworku Android Studio. Aplikace umožňuje uživatelům zobrazovat a filtrovat události na mapě podle různých kritérií, jako jsou přátelé, kteří se přihlásili k události, její vlastník nebo oblíbenost. Data jsou ukládána a spravována pomocí Firebase Firestore, což zajišťuje efektivní synchronizaci a správu uživatelských informací a událostí. Hlavním cílem aplikace je usnadnit uživatelům objevování zajímavých událostí ve svém okolí.
+\subsection*{Abstract}
+This project is a mobile application developed in Java using the Android Studio framework. The application allows users to display and filter events on a map based on various criteria, such as friends who have signed up for an event, its owner, or popularity. Data is stored and managed using Firebase Firestore, ensuring efficient synchronization and management of user information and events. The main goal of the application is to facilitate the discovery and organization of events in the user’s surroundings.
+\subsection*{Anmerkung}
+Dieses Projekt ist eine mobile Anwendung, die in Java mit dem Android Studio-Framework entwickelt wurde. Die Anwendung ermöglicht es den Benutzern, Veranstaltungen auf einer Karte anzuzeigen und nach verschiedenen Kriterien zu filtern, z. B. nach Freunden, die sich für eine Veranstaltung angemeldet haben, dem Veranstalter oder der Beliebtheit. Die Daten werden mit Firebase Firestore gespeichert und verwaltet, was eine effiziente Synchronisation und Verwaltung von Benutzerinformationen und Veranstaltungen gewährleistet. Das Hauptziel der Anwendung ist es, die Entdeckung und Organisation von Veranstaltungen in der Umgebung des Benutzers zu erleichtern.
+\newpage
+
+
+\include{Kapitoly/Zadani}
+
+\renewcommand{\contentsname}{Obsah}
+\tableofcontents
+
+\include{Kapitoly/Uvod}
+\include{Kapitoly/Vyvojove prostredi}
+\include{Kapitoly/Analyza_pozadavku}
+\include{Kapitoly/Aplikace}
+\include{Kapitoly/Program}
+\include{Kapitoly/Instalace}
+\include{Kapitoly/Zaver}
+
+\cleardoublepage
+\addcontentsline{toc}{section}{\listfigurename}
+\listoffigures
+
+\begingroup
+\let\clearpage\relax
+\addcontentsline{toc}{section}{Seznam ukázek kódu}
+\renewcommand{\lstlistlistingname}{Seznam ukázek kódu}
+\lstlistoflistings
+\endgroup
+
+\renewcommand{\bibname}{Seznam zdrojů}
+\printbibliography
+
+\end{document}
