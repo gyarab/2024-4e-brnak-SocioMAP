@@ -91,6 +91,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
 
+            fragmentToLoad = new MapsFragment();
+            bottomNav.setSelectedItemId(R.id.nav_map);
+
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fragmentToLoad)
                     .commit();

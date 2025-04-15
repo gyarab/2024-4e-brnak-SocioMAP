@@ -444,9 +444,9 @@ public class Login extends AppCompatActivity {
         userData.put("username", username);
         userData.put("name", name);
         userData.put("surname", surname);
-        userData.put("birthday", birthday);
+        userData.put("birthyear", birthday);
         userData.put("email", email);
-        userData.put("famous", false);
+        userData.put("isFamous", false);
         userData.put("isAdmin", false);
 
         db.collection("users").document(userId)

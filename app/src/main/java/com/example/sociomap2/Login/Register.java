@@ -201,30 +201,25 @@ public class Register extends AppCompatActivity {
     }
 
     private void showDatePickerDialog() {
-        Calendar calendar = Calendar.getInstance();
+        Calendar today = Calendar.getInstance();
+        long maxDate = today.getTimeInMillis(); // No future dates
 
-        // Set the max selectable date to today (no future dates)
-        long maxDate = System.currentTimeMillis();
-
-        // Calculate the minimum selectable date (3 years old)
-        calendar.add(Calendar.YEAR, -3);
-        long minDate = calendar.getTimeInMillis();
+        // Optional: default date to 10 years ago
+        Calendar defaultDate = Calendar.getInstance();
+        defaultDate.add(Calendar.YEAR, -10);
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
                 (view, year, month, dayOfMonth) -> {
                     String formattedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth);
                     editTextBirthday.setText(formattedDate);
                 },
-                calendar.get(Calendar.YEAR) - 10, // Default selection (10 years ago)
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
+                defaultDate.get(Calendar.YEAR),
+                defaultDate.get(Calendar.MONTH),
+                defaultDate.get(Calendar.DAY_OF_MONTH)
         );
 
-        // Prevent selecting future dates
-        datePickerDialog.getDatePicker().setMaxDate(maxDate);
-
-        // Prevent selecting a date younger than 3 years old
-        datePickerDialog.getDatePicker().setMinDate(minDate);
+        datePickerDialog.getDatePicker().setMaxDate(maxDate); // Block future
+        // No minDate = allows picking even very old dates
 
         datePickerDialog.show();
     }

@@ -69,6 +69,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private Button btnToggleMode;
     private String selectedTheme = "All";
     private boolean isEditMode = false; // Default: View Mode
+    private boolean isFamous;
     private FusedLocationProviderClient fusedLocationClient;
     private String selectedDate = null; // Stores selected date
     private boolean showOnlyFamous = false; // Track the famous filter state
@@ -168,11 +169,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         updateMapMode();
 
         btnFriendsSignUp.setOnClickListener(v -> {
-            Toast.makeText(getActivity(), "Friends Sign-Up Filter Activated", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getActivity(), "Friends Sign-Up Filter Activated", Toast.LENGTH_SHORT).show();
             showUserSearchDialog("signup");
         });
         btnFriendsCreateOwner.setOnClickListener(v -> {
-            Toast.makeText(getActivity(), "Friends Owner Filter Activated", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getActivity(), "Friends Owner Filter Activated", Toast.LENGTH_SHORT).show();
             showUserSearchDialog("owner");
 
         });
@@ -311,24 +312,20 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private void loadMarkers() {
         firestore.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
 
-            //Debug check
             if (!userDoc.exists() || !userDoc.contains("birthyear")) {
                 Log.e(TAG, "User's birthDate not found in Firestore.");
                 return;
             }
 
-            // Get user birthdate
-            String birthDateString = userDoc.getString("birthyear"); // Format: "YYYY-MM-DD"
+            String birthDateString = userDoc.getString("birthyear");
             if (birthDateString == null || birthDateString.isEmpty()) {
                 Log.e(TAG, "User birthDate is empty.");
                 return;
             }
 
-            // Calculate user age
             int userAge = calculateAge(birthDateString);
             Log.d(TAG, "User age: " + userAge);
 
-            // Fetch all markers
             firestore.collection("markers").get().addOnSuccessListener(queryDocumentSnapshots -> {
                 googleMap.clear();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
@@ -344,19 +341,18 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                     String theme = document.getString("theme");
                     String eventDateTime = document.getString("eventDateTime");
                     String ownerId = document.getString("userId");
-                    boolean isFamous = document.contains("isFamous") && Boolean.TRUE.equals(document.getBoolean("isFamous"));
-                    int eventAgeLimit = document.contains("ageLimit") ? document.getLong("ageLimit").intValue() : 0; // Default to 0
+                    int eventAgeLimit = document.contains("ageLimit") ? document.getLong("ageLimit").intValue() : 0;
 
-                    // Skip if any critical information is missing
                     if (latitude == null || longitude == null || title == null || description == null ||
                             theme == null || eventDateTime == null || ownerId == null) {
                         Log.e(TAG, "Skipping marker due to missing fields: " + eventId);
                         continue;
                     }
 
-                    // Convert event date
+                    // Parse event date
+                    Date eventDate;
                     try {
-                        Date eventDate = sdf.parse(eventDateTime);
+                        eventDate = sdf.parse(eventDateTime);
                         if (eventDate != null && eventDate.before(currentDate)) {
                             archiveEvent(document, eventId, ownerId);
                             continue;
@@ -366,36 +362,43 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         continue;
                     }
 
-                    // Age restriction check
+                    // Age restriction
                     if (userAge < eventAgeLimit) {
                         Log.d(TAG, "Skipping event: " + title + " (User age: " + userAge + ", Required: " + eventAgeLimit + ")");
                         continue;
                     }
 
-                    // Apply filters
-                    boolean passesSignUpFilter = filteredSignUpUsers.isEmpty() || filteredSignUpUsers.contains(ownerId);
-                    boolean passesOwnerFilter = filteredOwnerUsers.isEmpty() || filteredOwnerUsers.contains(ownerId);
-                    boolean passesThemeFilter = selectedTheme.equals("All") || selectedTheme.equalsIgnoreCase(theme);
-                    boolean passesDateFilter = (selectedDate == null || selectedDate.equals(eventDateTime.split(" ")[0]));
+                    // Async fetch owner info to check isFamous
+                    firestore.collection("users").document(ownerId).get().addOnSuccessListener(ownerDoc -> {
+                                isFamous = ownerDoc.exists() &&
+                                ownerDoc.contains("isFamous") &&
+                                Boolean.TRUE.equals(ownerDoc.getBoolean("isFamous"));
 
-                    // Famous user filter
-                    if (showOnlyFamous && !isFamous) {
-                        continue;
-                    }
+                        // Apply filters
+                        boolean passesSignUpFilter = filteredSignUpUsers.isEmpty() || filteredSignUpUsers.contains(ownerId);
+                        boolean passesOwnerFilter = filteredOwnerUsers.isEmpty() || filteredOwnerUsers.contains(ownerId);
+                        boolean passesThemeFilter = selectedTheme.equals("All") || selectedTheme.equalsIgnoreCase(theme);
+                        boolean passesDateFilter = (selectedDate == null || selectedDate.equals(eventDateTime.split(" ")[0]));
 
-                    // No filters applied? Show everything
-                    boolean noFiltersApplied = filteredSignUpUsers.isEmpty() && filteredOwnerUsers.isEmpty()
-                            && selectedTheme.equals("All") && selectedDate == null && !showOnlyFamous;
+                        if (showOnlyFamous && !isFamous) {
+                            return;
+                        }
 
-                    if (noFiltersApplied || (passesSignUpFilter && passesOwnerFilter && passesThemeFilter && passesDateFilter)) {
-                        addMarker(document);
-                    }
+                        boolean noFiltersApplied = filteredSignUpUsers.isEmpty() && filteredOwnerUsers.isEmpty()
+                                && selectedTheme.equals("All") && selectedDate == null && !showOnlyFamous;
+
+                        if (noFiltersApplied || (passesSignUpFilter && passesOwnerFilter && passesThemeFilter && passesDateFilter)) {
+                            addMarker(document); // Tvoje metoda na přidání markeru
+                        }
+
+                    }).addOnFailureListener(e -> Log.e(TAG, "Error fetching owner info for marker: " + eventId, e));
                 }
+
             }).addOnFailureListener(e -> Log.e(TAG, "Error fetching markers", e));
 
         }).addOnFailureListener(e -> Log.e(TAG, "Error fetching user birthDate", e));
 
-        // Handle marker click events
+        // Marker click listener zůstává
         googleMap.setOnMarkerClickListener(marker -> {
             Object tag = marker.getTag();
             if (tag == null || tag.toString().isEmpty()) {
@@ -421,7 +424,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 .addOnSuccessListener(guestListDoc -> {
                     List<String> attendees = (List<String>) guestListDoc.get("users");
 
-                    // ✅ Move event to `markers_arch`
+                    // Move event to `markers_arch`
                     firestore.collection("markers_arch").document(eventId)
                             .set(document.getData())
                             .addOnSuccessListener(aVoid -> Log.d(TAG, "Event archived successfully: " + eventId));
@@ -527,7 +530,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 return BitmapDescriptorFactory.HUE_VIOLET;
             case "festival":
                 return BitmapDescriptorFactory.HUE_YELLOW;
-            case "workshop":
+            case "concert":
                 return BitmapDescriptorFactory.HUE_GREEN;
             case "custom":
                 return BitmapDescriptorFactory.HUE_ORANGE;
@@ -640,12 +643,19 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         LatLng position = new LatLng(latitude, longitude);
         float markerColor = getMarkerColor(theme);
+        float markerSize = 1.0f;
+
+        if (isFamous) {
+            markerColor = BitmapDescriptorFactory.HUE_CYAN;
+            //markerSize = 1.8f;
+        }
 
         Marker marker = googleMap.addMarker(new MarkerOptions()
                 .position(position)
                 .title(title)
                 .snippet(description)
-                .icon(BitmapDescriptorFactory.defaultMarker(markerColor)));
+                .icon(BitmapDescriptorFactory.defaultMarker(markerColor))
+                .anchor(0.5f, markerSize));
 
         if (marker != null) {
             marker.setTag(document.getId());
@@ -657,7 +667,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         builder.setTitle("Select a Friend");
 
         // Get the collection name based on filter type
-        String collection = filterType.equals("signup") ? "user_signup_follow" : "user_great_follow";
+        String collection = filterType.equals("signup") ? "user_signup_follow" : "user_create_follow";
 
         firestore.collection(collection).document(userId).get().addOnSuccessListener(document -> {
             if (document.exists() && document.contains("following")) {
@@ -729,6 +739,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                 addMarker(eventDoc);
                             }
                         });
+
                     }
                 } else {
                     Toast.makeText(getActivity(), "No events found for this user!", Toast.LENGTH_SHORT).show();
@@ -772,9 +783,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
             // Fetch user's signed-up friends
             firestore.collection("user_signup_follow").document(userId).get().addOnSuccessListener(userDoc -> {
-                List<String> signedUpFriends = userDoc.exists() && userDoc.contains("users")
-                        ? (List<String>) userDoc.get("users")
+                List<String> signedUpFriends = userDoc.exists() && userDoc.contains("following")
+                        ? (List<String>) userDoc.get("following")
                         : new ArrayList<>();
+                Log.d(TAG, String.valueOf(signedUpFriends));
 
                 // 1: Fetch markers using latitude filtering
                 firestore.collection("markers")
@@ -823,6 +835,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                         .addOnSuccessListener(eventDoc -> {
                                             if (eventDoc.exists() && eventDoc.contains("users")) {
                                                 List<String> attendees = (List<String>) eventDoc.get("users");
+                                                Log.d(TAG, "-------------------------------------");
+                                                Log.d(TAG, String.valueOf(attendees));
                                                 int friendCount = 0;
 
                                                 for (String friendId : signedUpFriends) {
@@ -883,7 +897,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                 } else {
                                     Log.e(TAG, "Google Map is null when adding the B. marker");
                                 }
-                            }, 300);
+                            }, 200);
                         });
             });
         });
